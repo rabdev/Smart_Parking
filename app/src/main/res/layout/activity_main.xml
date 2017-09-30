@@ -4,12 +4,190 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="hu.bitnet.smartparking.MainActivity">
+    tools:context="hu.bitnet.smartparking.MainActivity"
+    android:background="@color/colorAccent">
 
     <com.google.android.gms.maps.MapView
         android:id="@+id/mapView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:apiKey="AIzaSyCSGZkqewIkymr2Vs-mai26vPgnekohsRM"/>
+        android:layout_marginBottom="72dp"
+        android:apiKey="AIzaSyCSGZkqewIkymr2Vs-mai26vPgnekohsRM" />
+
+    <LinearLayout
+        android:id="@+id/menu_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:background="@color/colorAccent"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="8dp">
+
+            <ImageView
+                android:id="@+id/btn_collapse"
+                android:layout_width="match_parent"
+                android:layout_height="36dp"
+                android:layout_weight="2"
+                android:tint="@color/colorBlack"
+                app:srcCompat="@drawable/mr_group_expand" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="4dp"
+                android:layout_weight="1"
+                android:text="Okos Parkolás"
+                android:textAlignment="center"
+                android:textColor="@color/colorPrimary"
+                android:textSize="24sp"
+                android:textStyle="bold" />
+
+            <ImageView
+                android:id="@+id/btn_settings"
+                android:layout_width="match_parent"
+                android:layout_height="36dp"
+                android:layout_weight="2"
+                android:padding="2dp"
+                android:tint="@color/colorBlack"
+                app:srcCompat="@drawable/ic_settings" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/colorPrimaryDark" />
+
+        <android.support.v7.widget.AppCompatButton
+            android:id="@+id/btn_parking_places"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            android:layout_marginLeft="46dp"
+            android:layout_marginRight="46dp"
+            android:layout_marginTop="24dp"
+            android:background="@drawable/button_background"
+            android:text="Szabad parkoló zónák"
+            android:textColor="@color/colorPrimary" />
+
+        <android.support.v7.widget.AppCompatButton
+            android:id="@+id/btn_history"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="28dp"
+            android:layout_marginLeft="46dp"
+            android:layout_marginRight="46dp"
+            android:background="@drawable/button_background"
+            android:text="Korábbi parkolások"
+            android:textColor="@color/colorPrimary" />
+
+        <EditText
+            android:id="@+id/search"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            android:layout_marginLeft="46dp"
+            android:layout_marginRight="46dp"
+            android:background="@drawable/search_background"
+            android:drawableStart="@drawable/places_ic_search"
+            android:drawableTint="@color/colorPrimary"
+            android:hint="Keresés"
+            android:padding="10dp"
+            android:textAlignment="center"
+            android:textColor="@color/colorPrimary"
+            android:textColorHint="@color/colorPrimary" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/distance_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_gravity="bottom"
+        android:layout_marginBottom="64dp"
+        android:background="@drawable/seekbar_background"
+        android:paddingRight="16dp"
+        android:paddingLeft="24dp"
+        android:paddingTop="20dp"
+        android:paddingBottom="20dp">
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="4"
+            android:textColor="@color/colorPrimaryDark"
+            android:text="500 m"/>
+        <SeekBar
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:thumbTint="@color/colorPrimaryDark"
+            android:progressTint="@color/colorPurple"
+            android:tickMarkTint="@color/colorPrimaryDark"/>
+
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:id="@+id/infosav"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:background="@color/colorAccent"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/hb_menu"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:tint="@color/colorPrimaryDark"
+            android:padding="14dp"
+            android:layout_weight="2"
+            android:src="@drawable/ic_hamburger" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginBottom="8dp"
+            android:layout_marginTop="4dp"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:padding="8dp">
+
+            <TextView
+                android:id="@+id/parkingcount"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="25 parkoló"
+                android:textAlignment="center"
+                android:textColor="@color/colorPrimary"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/indistance"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="500 m-es körzetben"
+                android:textAlignment="center"
+                android:textColor="@color/colorPrimary"
+                android:textSize="14sp" />
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/distance"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:tint="@color/colorPrimaryDark"
+            android:layout_weight="2"
+            android:padding="22dp"
+            android:src="@drawable/ic_distance" />
+    </LinearLayout>
 
 </FrameLayout>

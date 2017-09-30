@@ -8,4 +8,5 @@
     <color name="primary_dark_material_light">#303030</color>
     <color name="colorGrey">#BDBDBD</color>
     <color name="colorPurple">#9C27B0</color>
+    <color name ="colorBlack">#000000</color>
 </resources>

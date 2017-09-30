@@ -1,16 +1,29 @@
 package hu.bitnet.smartparking;
 
+import android.*;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
+import android.graphics.PorterDuff;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
+import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.AppCompatButton;
+import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -38,13 +51,114 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     LocationRequest mLocationRequest;
     Location location;
     android.location.LocationListener locationlistener;
+    LinearLayout infosav, menu, distance_container;
+    ImageView settings, collapse, hb_menu, distance;
+    AppCompatButton history, parkingplaces;
+    EditText search;
+    Animation slide_up, slide_up1, slide_up2, slide_down, slide_down2;
+    boolean x;
+    final private int REQUEST_CODE_ASK_PERMISSIONS = 123;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         pref = getPreferences(0);
-
         setContentView(R.layout.activity_main);
+
+        if(ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION)!= PackageManager.PERMISSION_GRANTED
+                && ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)!= PackageManager.PERMISSION_GRANTED){
+            ActivityCompat.requestPermissions(this,
+                    new String[]{android.Manifest.permission.ACCESS_COARSE_LOCATION},
+                    REQUEST_CODE_ASK_PERMISSIONS);
+
+
+        }
+
+
+        infosav = (LinearLayout) findViewById(R.id.infosav);
+        menu = (LinearLayout) findViewById(R.id.menu_layout);
+        distance_container = (LinearLayout) findViewById(R.id.distance_container);
+        settings = (ImageView) findViewById(R.id.btn_settings);
+        collapse = (ImageView) findViewById(R.id.btn_collapse);
+        hb_menu = (ImageView) findViewById(R.id.hb_menu);
+        distance = (ImageView) findViewById(R.id.distance);
+        history = (AppCompatButton) findViewById(R.id.btn_history);
+        parkingplaces = (AppCompatButton) findViewById(R.id.btn_parking_places);
+        search= (EditText) findViewById(R.id.search);
+
+        menu.setVisibility(View.GONE);
+        distance_container.setVisibility(View.GONE);
+        x = false;
+
+        slide_down = AnimationUtils.loadAnimation(getApplicationContext(),
+                R.anim.slide_down);
+
+        slide_down2 = AnimationUtils.loadAnimation(getApplicationContext(),
+                R.anim.slide_down);
+
+        slide_up = AnimationUtils.loadAnimation(getApplicationContext(),
+                R.anim.slide_up);
+
+        slide_up1 = AnimationUtils.loadAnimation(getApplicationContext(),
+                R.anim.slide_up);
+
+        slide_up2 = AnimationUtils.loadAnimation(getApplicationContext(),
+                R.anim.slide_up);
+
+
+        hb_menu.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                menu.setVisibility(View.VISIBLE);
+                menu.startAnimation(slide_up);
+                slide_up.setAnimationListener(new Animation.AnimationListener() {
+                    @Override
+                    public void onAnimationStart(Animation animation) {
+                        infosav.startAnimation(slide_down);
+                        infosav.setVisibility(View.GONE);
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animation animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animation animation) {
+
+                    }
+                });
+                collapse.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        infosav.setVisibility(View.VISIBLE);
+                        infosav.startAnimation(slide_up1);
+                        menu.startAnimation(slide_down);
+                        menu.setVisibility(View.GONE);
+                    }
+                });
+            }
+        });
+
+        distance.setOnClickListener(new View.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.M)
+            @Override
+            public void onClick(View v) {
+                if (x==false) {
+                    distance_container.setVisibility(View.VISIBLE);
+                    distance.setColorFilter(getResources().getColor(R.color.colorPurple, getTheme()));
+                    distance_container.startAnimation(slide_up2);
+                    x=true;
+                } else {
+                    distance_container.setVisibility(View.GONE);
+                    distance.setColorFilter(R.color.colorPrimaryDark);
+                    distance_container.startAnimation(slide_down2);
+                    x=false;
+                }
+
+            }
+        });
 
         mapView = (MapView) findViewById(R.id.mapView);
         mapView.onCreate(savedInstanceState);
