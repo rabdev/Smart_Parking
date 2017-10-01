@@ -1,9 +1,11 @@
 package hu.bitnet.smartparking;
 
 import android.*;
+import android.annotation.TargetApi;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
@@ -72,10 +74,10 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     LocationRequest mLocationRequest;
     Location location;
     android.location.LocationListener locationlistener;
-    LinearLayout infosav, menu, distance_container;
-    ImageView settings, collapse, hb_menu, distance;
+    LinearLayout infosav, menu, distance_container,  distance, distance_bg;
+    ImageView settings, collapse, hb_menu;
     AppCompatButton history, parkingplaces;
-    TextView firstrun;
+    TextView firstrun, tv_distance;
     EditText search, et_license_plate, et_distance, et_name, et_smsbase;
     SeekBar settings_distance;
     Animation slide_up, slide_up1, slide_up2, slide_down, slide_down2;
@@ -108,13 +110,15 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         infosav = (LinearLayout) findViewById(R.id.infosav);
         menu = (LinearLayout) findViewById(R.id.menu_layout);
         distance_container = (LinearLayout) findViewById(R.id.distance_container);
+        distance = (LinearLayout) findViewById(R.id.distance);
+        distance_bg= (LinearLayout) findViewById(R.id.distance_bg);
         settings = (ImageView) findViewById(R.id.btn_settings);
         collapse = (ImageView) findViewById(R.id.btn_collapse);
         hb_menu = (ImageView) findViewById(R.id.hb_menu);
-        distance = (ImageView) findViewById(R.id.distance);
         history = (AppCompatButton) findViewById(R.id.btn_history);
         parkingplaces = (AppCompatButton) findViewById(R.id.btn_parking_places);
         search= (EditText) findViewById(R.id.search);
+        tv_distance = (TextView) findViewById(R.id.tv_distance);
 
         menu.setVisibility(View.GONE);
         distance_container.setVisibility(View.GONE);
@@ -146,15 +150,19 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                 }});
             if (et_license_plate.getText().toString().isEmpty() && et_distance.getText().toString().isEmpty() && et_smsbase.getText().toString().isEmpty()){
                 settings_dialog.getButton(DialogInterface.BUTTON_POSITIVE).setEnabled(false);
+                settings_dialog.setCanceledOnTouchOutside(false);
                 firstrun.setVisibility(View.VISIBLE);
             }}
 
         hb_menu.setOnClickListener(new View.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.M)
             @Override
             public void onClick(View v) {
                 if (x){
                     distance_container.setVisibility(View.GONE);
-                    distance.setColorFilter(R.color.colorPrimaryDark);
+                    distance_bg.setBackgroundTintList(getResources().getColorStateList(R.color.colorPrimaryDark,getTheme()));
+                    tv_distance.setTextColor(getResources().getColorStateList(R.color.colorPrimaryDark,getTheme()));
+                    //distance_bg.setColo(getResources().getColor(R.color.colorPrimaryDark,getTheme()));
                     x=false;
                 }
                 menu.setVisibility(View.VISIBLE);
@@ -175,7 +183,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                     @Override
                     public void onClick(View v) {
                         InputMethodManager inputManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                        inputManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+                        inputManager.hideSoftInputFromWindow(getWindow().getDecorView().getRootView().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
                         infosav.setVisibility(View.VISIBLE);
                         infosav.startAnimation(slide_up1);
                         menu.startAnimation(slide_down);
@@ -202,12 +210,14 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
             public void onClick(View v) {
                 if (!x) {
                     distance_container.setVisibility(View.VISIBLE);
-                    distance.setColorFilter(getResources().getColor(R.color.colorPurple, getTheme()));
+                    distance_bg.setBackgroundTintList(getResources().getColorStateList(R.color.colorPurple,getTheme()));
+                    tv_distance.setTextColor(getResources().getColorStateList(R.color.colorPurple,getTheme()));
                     distance_container.startAnimation(slide_up2);
                     x=true;
                 } else {
                     distance_container.setVisibility(View.GONE);
-                    distance.setColorFilter(R.color.colorPrimaryDark);
+                    distance_bg.setBackgroundTintList(getResources().getColorStateList(R.color.colorPrimaryDark,getTheme()));
+                    tv_distance.setTextColor(getResources().getColorStateList(R.color.colorPrimaryDark,getTheme()));
                     distance_container.startAnimation(slide_down2);
                     x=false;
                 }
@@ -381,6 +391,14 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         et_smsbase = (EditText) dialogview.findViewById(R.id.sms_base);
         firstrun = (TextView) dialogview.findViewById(R.id.tv_firstrun);
         firstrun.setVisibility(View.GONE);
+
+        settings_distance.setMax(2500);
+        if (!pref.getString(Constants.SettingsDistance,null).isEmpty()){
+            int prog = Integer.parseInt(pref.getString(Constants.SettingsDistance,null));
+            settings_distance.setProgress(prog);
+            et_distance.setText(pref.getString(Constants.SettingsDistance,null));
+        }
+
         et_smsbase.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
@@ -469,6 +487,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         settings_dialog.show();
     }
 
+    @TargetApi(Build.VERSION_CODES.M)
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     public void onBackPressed() {
         if (!x){
@@ -481,7 +501,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
             x=false;
         } else if (distance.getVisibility()==View.VISIBLE){
             distance_container.setVisibility(View.GONE);
-            distance.setColorFilter(R.color.colorPrimaryDark);
+            distance_bg.setBackgroundTintList(getResources().getColorStateList(R.color.colorPrimaryDark,getTheme()));
+            tv_distance.setTextColor(getResources().getColorStateList(R.color.colorPrimaryDark,getTheme()));
             distance_container.startAnimation(slide_down2);
             x=false;
         }

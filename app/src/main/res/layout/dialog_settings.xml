@@ -103,12 +103,19 @@
             android:id="@+id/et_distance"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginRight="4dp"
             android:layout_weight="3"
             android:background="@color/colorPrimary"
             android:textAlignment="viewEnd"
             android:textSize="18sp"
-            android:hint="500 m"/>
+            android:hint="500"/>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="3.4"
+            android:layout_marginRight="4dp"
+            android:text="m"
+            android:textAlignment="viewEnd"
+            android:textSize="18sp"/>
     </LinearLayout>
 
     <TextView
