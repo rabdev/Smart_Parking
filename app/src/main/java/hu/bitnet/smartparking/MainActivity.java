@@ -18,10 +18,14 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.AppCompatButton;
+import android.util.TypedValue;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.view.animation.Transformation;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
@@ -58,6 +62,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     Animation slide_up, slide_up1, slide_up2, slide_down, slide_down2;
     boolean x;
     final private int REQUEST_CODE_ASK_PERMISSIONS = 123;
+    ViewGroup.MarginLayoutParams p;
 
 
     @Override
@@ -74,7 +79,6 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 
 
         }
-
 
         infosav = (LinearLayout) findViewById(R.id.infosav);
         menu = (LinearLayout) findViewById(R.id.menu_layout);
@@ -117,6 +121,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                     public void onAnimationStart(Animation animation) {
                         infosav.startAnimation(slide_down);
                         infosav.setVisibility(View.GONE);
+
                     }
 
                     @Override
@@ -135,6 +140,9 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                         infosav.setVisibility(View.VISIBLE);
                         infosav.startAnimation(slide_up1);
                         menu.startAnimation(slide_down);
+                        p = (ViewGroup.MarginLayoutParams) mapView.getLayoutParams();
+                        p.setMargins(0,0,0,getPixelValue(getApplicationContext(), 72));
+                        mapView.setLayoutParams(p);
                         menu.setVisibility(View.GONE);
                     }
                 });
@@ -295,4 +303,14 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         mapView.onResume();
         super.onResume();
     }
+
+    public static int getPixelValue(Context context, int dimenId) {
+        Resources resources = context.getResources();
+        return (int) TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP,
+                dimenId,
+                resources.getDisplayMetrics()
+        );
+    }
+
 }

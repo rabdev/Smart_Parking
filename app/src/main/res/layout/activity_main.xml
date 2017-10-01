@@ -2,16 +2,18 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_activity"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="hu.bitnet.smartparking.MainActivity"
-    android:background="@color/colorAccent">
+    android:background="@color/colorAccent"
+    tools:context="hu.bitnet.smartparking.MainActivity">
 
     <com.google.android.gms.maps.MapView
         android:id="@+id/mapView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginBottom="72dp"
+        android:animateLayoutChanges="true"
         android:apiKey="AIzaSyCSGZkqewIkymr2Vs-mai26vPgnekohsRM" />
 
     <LinearLayout
@@ -108,27 +110,29 @@
         android:id="@+id/distance_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
         android:layout_gravity="bottom"
         android:layout_marginBottom="64dp"
         android:background="@drawable/seekbar_background"
-        android:paddingRight="16dp"
+        android:orientation="horizontal"
+        android:paddingBottom="20dp"
         android:paddingLeft="24dp"
-        android:paddingTop="20dp"
-        android:paddingBottom="20dp">
+        android:paddingRight="16dp"
+        android:paddingTop="20dp">
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="4"
-            android:textColor="@color/colorPrimaryDark"
-            android:text="500 m"/>
+            android:text="500 m"
+            android:textColor="@color/colorPrimaryDark" />
+
         <SeekBar
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:thumbTint="@color/colorPrimaryDark"
             android:progressTint="@color/colorPurple"
-            android:tickMarkTint="@color/colorPrimaryDark"/>
+            android:thumbTint="@color/colorPrimaryDark"
+            android:tickMarkTint="@color/colorPrimaryDark" />
 
     </LinearLayout>
 
@@ -145,10 +149,10 @@
             android:id="@+id/hb_menu"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:tint="@color/colorPrimaryDark"
-            android:padding="14dp"
             android:layout_weight="2"
-            android:src="@drawable/ic_hamburger" />
+            android:padding="14dp"
+            android:src="@drawable/ic_hamburger"
+            android:tint="@color/colorPrimaryDark" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -184,10 +188,10 @@
             android:id="@+id/distance"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:tint="@color/colorPrimaryDark"
             android:layout_weight="2"
             android:padding="22dp"
-            android:src="@drawable/ic_distance" />
+            android:src="@drawable/ic_distance"
+            android:tint="@color/colorPrimaryDark" />
     </LinearLayout>
 
 </FrameLayout>
