@@ -120,6 +120,7 @@
         android:paddingTop="20dp">
 
         <TextView
+            android:id="@+id/tv_sb_distance"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="4"
@@ -127,6 +128,7 @@
             android:textColor="@color/colorPrimaryDark" />
 
         <SeekBar
+            android:id="@+id/sb_distance"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1"
@@ -203,8 +205,7 @@
                     android:gravity="center"
                     android:layout_marginBottom="8dp"
                     android:textSize="6sp"
-                    android:textColor="@color/colorPrimaryDark"
-                    android:text="2500"/>
+                    android:textColor="@color/colorPrimaryDark"/>
             </LinearLayout>
         </LinearLayout>
 

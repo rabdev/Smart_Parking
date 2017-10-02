@@ -74,16 +74,16 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     LocationRequest mLocationRequest;
     Location location;
     android.location.LocationListener locationlistener;
-    LinearLayout infosav, menu, distance_container,  distance, distance_bg;
+    LinearLayout infosav, menu, distance_container, distance, distance_bg;
     ImageView settings, collapse, hb_menu;
     AppCompatButton history, parkingplaces;
-    TextView firstrun, tv_distance;
-    EditText search, et_license_plate, et_distance, et_name, et_smsbase;
-    SeekBar settings_distance;
+    TextView firstrun, tv_distance, et_distance, indistance, tv_sb_distance;
+    EditText search, et_license_plate, et_name, et_smsbase;
+    SeekBar settings_distance, sb_distance;
     Animation slide_up, slide_up1, slide_up2, slide_down, slide_down2;
     boolean x, bool_license, bool_distance, bool_smsbase;
     final private int REQUEST_CODE_ASK_PERMISSIONS = 123;
-    int index;
+    int index, prog;
 
 
     @Override
@@ -100,8 +100,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         editor.putString(Constants.NAME,"");
         editor.apply();*/
 
-        if(ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION)!= PackageManager.PERMISSION_GRANTED
-                && ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)!= PackageManager.PERMISSION_GRANTED){
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                && ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this,
                     new String[]{android.Manifest.permission.ACCESS_COARSE_LOCATION},
                     REQUEST_CODE_ASK_PERMISSIONS);
@@ -111,14 +111,17 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         menu = (LinearLayout) findViewById(R.id.menu_layout);
         distance_container = (LinearLayout) findViewById(R.id.distance_container);
         distance = (LinearLayout) findViewById(R.id.distance);
-        distance_bg= (LinearLayout) findViewById(R.id.distance_bg);
+        distance_bg = (LinearLayout) findViewById(R.id.distance_bg);
         settings = (ImageView) findViewById(R.id.btn_settings);
         collapse = (ImageView) findViewById(R.id.btn_collapse);
         hb_menu = (ImageView) findViewById(R.id.hb_menu);
         history = (AppCompatButton) findViewById(R.id.btn_history);
         parkingplaces = (AppCompatButton) findViewById(R.id.btn_parking_places);
-        search= (EditText) findViewById(R.id.search);
+        search = (EditText) findViewById(R.id.search);
         tv_distance = (TextView) findViewById(R.id.tv_distance);
+        indistance = (TextView) findViewById(R.id.indistance);
+        tv_sb_distance = (TextView) findViewById(R.id.tv_sb_distance);
+        sb_distance= (SeekBar) findViewById(R.id.sb_distance);
 
         menu.setVisibility(View.GONE);
         distance_container.setVisibility(View.GONE);
@@ -134,7 +137,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         slide_up2 = AnimationUtils.loadAnimation(getApplicationContext(),
                 R.anim.slide_up);
 
-        if(pref.getString(Constants.LicensePlate,"").isEmpty() && pref.getString(Constants.SettingsDistance,"").isEmpty() && pref.getString(Constants.SMSBase,"").isEmpty()){
+        if (pref.getString(Constants.LicensePlate, "").isEmpty() && pref.getString(Constants.SettingsDistance, "").isEmpty() && pref.getString(Constants.SMSBase, "").isEmpty()) {
             showDialog();
             bool_distance = false;
             bool_license = false;
@@ -147,23 +150,28 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                         settings_dialog.dismiss();
                     }
                     return true;
-                }});
-            if (et_license_plate.getText().toString().isEmpty() && et_distance.getText().toString().isEmpty() && et_smsbase.getText().toString().isEmpty()){
+                }
+            });
+            if (et_license_plate.getText().toString().isEmpty() && et_distance.getText().toString().isEmpty() && et_smsbase.getText().toString().isEmpty()) {
                 settings_dialog.getButton(DialogInterface.BUTTON_POSITIVE).setEnabled(false);
                 settings_dialog.setCanceledOnTouchOutside(false);
                 firstrun.setVisibility(View.VISIBLE);
-            }}
+            }
+        }
+
+        indistance.setText(pref.getString(Constants.SettingsDistance, null) + " m-es körzetben");
+        tv_distance.setText(pref.getString(Constants.SettingsDistance, null));
 
         hb_menu.setOnClickListener(new View.OnClickListener() {
             @RequiresApi(api = Build.VERSION_CODES.M)
             @Override
             public void onClick(View v) {
-                if (x){
+                if (x) {
                     distance_container.setVisibility(View.GONE);
-                    distance_bg.setBackgroundTintList(getResources().getColorStateList(R.color.colorPrimaryDark,getTheme()));
-                    tv_distance.setTextColor(getResources().getColorStateList(R.color.colorPrimaryDark,getTheme()));
+                    distance_bg.setBackgroundTintList(getResources().getColorStateList(R.color.colorPrimaryDark, getTheme()));
+                    tv_distance.setTextColor(getResources().getColorStateList(R.color.colorPrimaryDark, getTheme()));
                     //distance_bg.setColo(getResources().getColor(R.color.colorPrimaryDark,getTheme()));
-                    x=false;
+                    x = false;
                 }
                 menu.setVisibility(View.VISIBLE);
                 menu.startAnimation(slide_up);
@@ -174,10 +182,14 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                         infosav.startAnimation(slide_down);
                         infosav.setVisibility(View.GONE);
                     }
+
                     @Override
-                    public void onAnimationEnd(Animation animation) {}
+                    public void onAnimationEnd(Animation animation) {
+                    }
+
                     @Override
-                    public void onAnimationRepeat(Animation animation) {}
+                    public void onAnimationRepeat(Animation animation) {
+                    }
                 });
                 collapse.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -188,21 +200,24 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                         infosav.startAnimation(slide_up1);
                         menu.startAnimation(slide_down);
                         menu.setVisibility(View.GONE);
-                        x=false;
+                        x = false;
                     }
                 });
                 settings.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         showDialog();
-                        x=true;
-                        et_license_plate.setText(pref.getString(Constants.LicensePlate,null));
-                        et_smsbase.setText(pref.getString(Constants.SMSBase,null));
-                        et_distance.setText(pref.getString(Constants.SettingsDistance,null));
-                        if (!pref.getString(Constants.NAME,"").isEmpty()){
-                            et_name.setText(pref.getString(Constants.NAME,null));
-                        }}});
-            }});
+                        x = true;
+                        et_license_plate.setText(pref.getString(Constants.LicensePlate, null));
+                        et_smsbase.setText(pref.getString(Constants.SMSBase, null));
+                        et_distance.setText(pref.getString(Constants.SettingsDistance, null));
+                        if (!pref.getString(Constants.NAME, "").isEmpty()) {
+                            et_name.setText(pref.getString(Constants.NAME, null));
+                        }
+                    }
+                });
+            }
+        });
 
         distance.setOnClickListener(new View.OnClickListener() {
             @RequiresApi(api = Build.VERSION_CODES.M)
@@ -210,19 +225,41 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
             public void onClick(View v) {
                 if (!x) {
                     distance_container.setVisibility(View.VISIBLE);
-                    distance_bg.setBackgroundTintList(getResources().getColorStateList(R.color.colorPurple,getTheme()));
-                    tv_distance.setTextColor(getResources().getColorStateList(R.color.colorPurple,getTheme()));
+                    distance_bg.setBackgroundTintList(getResources().getColorStateList(R.color.colorPurple, getTheme()));
+                    tv_distance.setTextColor(getResources().getColorStateList(R.color.colorPurple, getTheme()));
                     distance_container.startAnimation(slide_up2);
-                    x=true;
+                    tv_sb_distance.setText(pref.getString(Constants.SettingsDistance, null) + " m");
+                    sb_distance.setMax(2500);
+                    prog = Integer.parseInt(pref.getString(Constants.SettingsDistance, null));
+                    sb_distance.setProgress(prog);
+                    sb_distance.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                        @Override
+                        public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                            prog = sb_distance.getProgress();
+                            tv_sb_distance.setText(String.valueOf(prog) + " m");
+                        }
+
+                        @Override
+                        public void onStartTrackingTouch(SeekBar seekBar) {
+
+                        }
+
+                        @Override
+                        public void onStopTrackingTouch(SeekBar seekBar) {
+
+                        }
+                    });
+                    x = true;
                 } else {
                     distance_container.setVisibility(View.GONE);
-                    distance_bg.setBackgroundTintList(getResources().getColorStateList(R.color.colorPrimaryDark,getTheme()));
-                    tv_distance.setTextColor(getResources().getColorStateList(R.color.colorPrimaryDark,getTheme()));
+                    distance_bg.setBackgroundTintList(getResources().getColorStateList(R.color.colorPrimaryDark, getTheme()));
+                    tv_distance.setTextColor(getResources().getColorStateList(R.color.colorPrimaryDark, getTheme()));
                     distance_container.startAnimation(slide_down2);
-                    x=false;
+                    x = false;
                 }
 
-            }});
+            }
+        });
 
         history.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -232,7 +269,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                 history.setBackgroundResource(R.drawable.button_background_active);
                 FragmentManager fragmentManager = getSupportFragmentManager();
                 index = fragmentManager.getBackStackEntryCount();
-                if (index!=0){
+                if (index != 0) {
                     fragmentManager.popBackStack();
                 }
                 fragmentManager.beginTransaction()
@@ -243,7 +280,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                 infosav.startAnimation(slide_up1);
                 menu.startAnimation(slide_down);
                 menu.setVisibility(View.GONE);
-                x=false;
+                x = false;
             }
         });
         parkingplaces.setOnClickListener(new View.OnClickListener() {
@@ -254,7 +291,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                 parkingplaces.setBackgroundResource(R.drawable.button_background_active);
                 FragmentManager fragmentManager = getSupportFragmentManager();
                 index = fragmentManager.getBackStackEntryCount();
-                if (index!=0){
+                if (index != 0) {
                     fragmentManager.popBackStack();
                 }
                 fragmentManager.beginTransaction()
@@ -265,7 +302,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                 infosav.startAnimation(slide_up1);
                 menu.startAnimation(slide_down);
                 menu.setVisibility(View.GONE);
-                x=false;
+                x = false;
             }
         });
 
@@ -294,9 +331,12 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     }
 
     @Override
-    public void onConnectionSuspended(int i) {}
+    public void onConnectionSuspended(int i) {
+    }
+
     @Override
-    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {}
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+    }
 
     @Override
     public void onLocationChanged(Location loc) {
@@ -329,7 +369,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
             }
 
             @Override
-            public void onStatusChanged(String s, int i, Bundle bundle) {}
+            public void onStatusChanged(String s, int i, Bundle bundle) {
+            }
 
             @Override
             public void onProviderEnabled(String bestProvider) {
@@ -356,7 +397,9 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                     locManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, (android.location.LocationListener) locationlistener);
                 } else {
                     locManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, (android.location.LocationListener) locationlistener);
-                }}};
+                }
+            }
+        };
 
         location = locationManager.getLastKnownLocation(bestProvider);
         if (location == null) {
@@ -368,7 +411,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
             LatLng myloc = new LatLng(c, d);
             gmap.animateCamera(CameraUpdateFactory.newLatLng(myloc));
             gmap.moveCamera(CameraUpdateFactory.newLatLngZoom(myloc, 16));
-        }}
+        }
+    }
 
     @Override
     public void onResume() {
@@ -376,7 +420,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         super.onResume();
     }
 
-    private void showDialog(){
+    private void showDialog() {
         infosav.setVisibility(View.VISIBLE);
         infosav.startAnimation(slide_up1);
         menu.startAnimation(slide_down);
@@ -386,72 +430,90 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         View dialogview = inflater.inflate(R.layout.dialog_settings, null);
         settings_distance = (SeekBar) dialogview.findViewById(R.id.settings_distance);
         et_license_plate = (EditText) dialogview.findViewById(R.id.license_plate);
-        et_distance = (EditText) dialogview.findViewById(R.id.et_distance);
         et_name = (EditText) dialogview.findViewById(R.id.name);
         et_smsbase = (EditText) dialogview.findViewById(R.id.sms_base);
+        et_distance = (TextView) dialogview.findViewById(R.id.et_distance);
         firstrun = (TextView) dialogview.findViewById(R.id.tv_firstrun);
         firstrun.setVisibility(View.GONE);
 
         settings_distance.setMax(2500);
-        if (!pref.getString(Constants.SettingsDistance,null).isEmpty()){
-            int prog = Integer.parseInt(pref.getString(Constants.SettingsDistance,null));
+        if (!pref.getString(Constants.SettingsDistance, null).isEmpty()) {
+            prog = Integer.parseInt(pref.getString(Constants.SettingsDistance, null));
             settings_distance.setProgress(prog);
-            et_distance.setText(pref.getString(Constants.SettingsDistance,null));
+            et_distance.setText(pref.getString(Constants.SettingsDistance, null));
         }
+
+        settings_distance.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                prog = settings_distance.getProgress();
+                if (prog!=0) {
+                    bool_distance = true;
+                    if (bool_smsbase == true && bool_license == true && bool_distance == true) {
+                        settings_dialog.getButton(DialogInterface.BUTTON_POSITIVE).setEnabled(true);
+                    }
+                } else {
+                    bool_distance = false;
+                    settings_dialog.getButton(DialogInterface.BUTTON_POSITIVE).setEnabled(false);
+                }
+                et_distance.setText(String.valueOf(prog));
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
 
         et_smsbase.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (et_smsbase.getText().toString().trim().length()>0){
+                if (et_smsbase.getText().toString().trim().length() > 0) {
                     bool_smsbase = true;
-                    if(bool_smsbase==true && bool_license==true && bool_distance==true){
+                    if (bool_smsbase == true && bool_license == true && bool_distance == true) {
                         settings_dialog.getButton(DialogInterface.BUTTON_POSITIVE).setEnabled(true);
                     }
                 } else {
                     bool_smsbase = false;
                     settings_dialog.getButton(DialogInterface.BUTTON_POSITIVE).setEnabled(false);
-                }}
+                }
+            }
 
             @Override
-            public void afterTextChanged(Editable s) {}
+            public void afterTextChanged(Editable s) {
+            }
         });
 
-        et_distance.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (et_distance.getText().toString().trim().length()>0){
-                    bool_distance = true;
-                    if(bool_smsbase==true && bool_license==true && bool_distance==true){
-                        settings_dialog.getButton(DialogInterface.BUTTON_POSITIVE).setEnabled(true);
-                    }
-                } else {
-                    bool_smsbase = false;
-                    settings_dialog.getButton(DialogInterface.BUTTON_POSITIVE).setEnabled(false);
-                }}
-            @Override
-            public void afterTextChanged(Editable s) {}
-        });
         et_license_plate.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (et_license_plate.getText().toString().trim().length()>0){
+                if (et_license_plate.getText().toString().trim().length() > 0) {
                     bool_license = true;
-                    if(bool_smsbase==true && bool_license==true && bool_distance==true){
+                    if (bool_smsbase == true && bool_license == true && bool_distance == true) {
                         settings_dialog.getButton(DialogInterface.BUTTON_POSITIVE).setEnabled(true);
                     }
                 } else {
-                    bool_license=false;
+                    bool_license = false;
                     settings_dialog.getButton(DialogInterface.BUTTON_POSITIVE).setEnabled(false);
-                }}
+                }
+            }
+
             @Override
-            public void afterTextChanged(Editable s) {}
+            public void afterTextChanged(Editable s) {
+            }
         });
 
         builder.setView(dialogview);
@@ -463,25 +525,30 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                 editor.putString(Constants.LicensePlate, et_license_plate.getText().toString());
                 editor.putString(Constants.SMSBase, et_smsbase.getText().toString());
                 editor.putString(Constants.SettingsDistance, et_distance.getText().toString());
-                editor.putString(Constants.NAME,et_name.getText().toString());
+                editor.putString(Constants.NAME, et_name.getText().toString());
                 editor.apply();
-            }});
+                tv_distance.setText(pref.getString(Constants.SettingsDistance, null));
+                indistance.setText(pref.getString(Constants.SettingsDistance, null) + " m-es körzetben");
+                x = false;
+            }
+        });
 
         builder.setNegativeButton("Mégse", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                if (et_license_plate.getText().toString().isEmpty() && et_distance.getText().toString().isEmpty() && et_smsbase.getText().toString().isEmpty()){
+                if (et_license_plate.getText().toString().isEmpty() && et_distance.getText().toString().isEmpty() && et_smsbase.getText().toString().isEmpty()) {
                     MainActivity.super.onBackPressed();
                 } else {
                     if (x) {
                         menu.setVisibility(View.VISIBLE);
                         menu.startAnimation(slide_up);
-                        x=false;
+                        x = false;
                     } else {
                         MainActivity.super.onBackPressed();
                     }
                     dialog.dismiss();
-                }}
+                }
+            }
         });
         settings_dialog = builder.create();
         settings_dialog.show();
@@ -491,20 +558,20 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     public void onBackPressed() {
-        if (!x){
+        if (!x) {
             finish();
-        } else if (menu.getVisibility() == View.VISIBLE){
+        } else if (menu.getVisibility() == View.VISIBLE) {
             infosav.setVisibility(View.VISIBLE);
             infosav.startAnimation(slide_up1);
             menu.startAnimation(slide_down);
             menu.setVisibility(View.GONE);
-            x=false;
-        } else if (distance.getVisibility()==View.VISIBLE){
+            x = false;
+        } else if (distance.getVisibility() == View.VISIBLE) {
             distance_container.setVisibility(View.GONE);
-            distance_bg.setBackgroundTintList(getResources().getColorStateList(R.color.colorPrimaryDark,getTheme()));
-            tv_distance.setTextColor(getResources().getColorStateList(R.color.colorPrimaryDark,getTheme()));
+            distance_bg.setBackgroundTintList(getResources().getColorStateList(R.color.colorPrimaryDark, getTheme()));
+            tv_distance.setTextColor(getResources().getColorStateList(R.color.colorPrimaryDark, getTheme()));
             distance_container.startAnimation(slide_down2);
-            x=false;
+            x = false;
         }
     }
 }
