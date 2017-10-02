@@ -3,6 +3,8 @@ package hu.bitnet.smartparking.fragments;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,6 +20,7 @@ import static android.view.KeyEvent.KEYCODE_BACK;
  */
 public class Zones extends Fragment {
 
+    RecyclerView zones_rv;
 
     public Zones() {
         // Required empty public constructor
@@ -29,6 +32,11 @@ public class Zones extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View zones = inflater.inflate(R.layout.fragment_zones, container, false);
+        zones_rv = (RecyclerView) zones.findViewById(R.id.zones_rv);
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getActivity().getApplicationContext());
+        zones_rv.setLayoutManager(layoutManager);
+
+
         return zones;
     }
 
