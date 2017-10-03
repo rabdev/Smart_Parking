@@ -439,9 +439,15 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 
         settings_distance.setMax(2500);
         if (!pref.getString(Constants.SettingsDistance, null).isEmpty()) {
-            prog = Integer.parseInt(pref.getString(Constants.SettingsDistance, null));
-            settings_distance.setProgress(prog);
-            et_distance.setText(pref.getString(Constants.SettingsDistance, null));
+            if (pref.getString(Constants.SettingsDistance,null)!=null) {
+                prog = Integer.parseInt(pref.getString(Constants.SettingsDistance, null));
+                settings_distance.setProgress(prog);
+                et_distance.setText(pref.getString(Constants.SettingsDistance, null));
+            } else {
+                prog = 0;
+                settings_distance.setProgress(prog);
+                et_distance.setText(String.valueOf(prog));
+            }
         }
 
         settings_distance.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
