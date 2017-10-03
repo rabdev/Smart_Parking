@@ -147,6 +147,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                 public boolean onKey(DialogInterface arg0, int keyCode, KeyEvent event) {
                     if (keyCode == KeyEvent.KEYCODE_BACK) {
                         finish();
+                        x=false;
                         settings_dialog.dismiss();
                     }
                     return true;
