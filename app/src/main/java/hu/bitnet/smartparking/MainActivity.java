@@ -121,7 +121,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         tv_distance = (TextView) findViewById(R.id.tv_distance);
         indistance = (TextView) findViewById(R.id.indistance);
         tv_sb_distance = (TextView) findViewById(R.id.tv_sb_distance);
-        sb_distance= (SeekBar) findViewById(R.id.sb_distance);
+        sb_distance = (SeekBar) findViewById(R.id.sb_distance);
 
         menu.setVisibility(View.GONE);
         distance_container.setVisibility(View.GONE);
@@ -147,7 +147,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                 public boolean onKey(DialogInterface arg0, int keyCode, KeyEvent event) {
                     if (keyCode == KeyEvent.KEYCODE_BACK) {
                         finish();
-                        x=false;
+                        x = false;
                         settings_dialog.dismiss();
                     }
                     return true;
@@ -438,23 +438,23 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         firstrun.setVisibility(View.GONE);
 
         settings_distance.setMax(2500);
-        if (!pref.getString(Constants.SettingsDistance, null).isEmpty()) {
-            if (pref.getString(Constants.SettingsDistance,null)!=null) {
+        if (pref.getString(Constants.SettingsDistance, null) != null) {
+            if (!pref.getString(Constants.SettingsDistance, null).isEmpty()) {
                 prog = Integer.parseInt(pref.getString(Constants.SettingsDistance, null));
                 settings_distance.setProgress(prog);
                 et_distance.setText(pref.getString(Constants.SettingsDistance, null));
-            } else {
-                prog = 0;
-                settings_distance.setProgress(prog);
-                et_distance.setText(String.valueOf(prog));
             }
+        } else {
+            prog = 0;
+            settings_distance.setProgress(prog);
+            et_distance.setText(String.valueOf(prog));
         }
 
         settings_distance.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 prog = settings_distance.getProgress();
-                if (prog!=0) {
+                if (prog != 0) {
                     bool_distance = true;
                     if (bool_smsbase == true && bool_license == true && bool_distance == true) {
                         settings_dialog.getButton(DialogInterface.BUTTON_POSITIVE).setEnabled(true);
