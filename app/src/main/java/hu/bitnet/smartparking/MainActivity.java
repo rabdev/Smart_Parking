@@ -74,7 +74,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     LocationRequest mLocationRequest;
     Location location;
     android.location.LocationListener locationlistener;
-    LinearLayout infosav, menu, distance_container, distance, distance_bg;
+    LinearLayout infosav, menu, distance_container, distance, distance_bg, parking_card;
     ImageView settings, collapse, hb_menu;
     AppCompatButton history, parkingplaces;
     TextView firstrun, tv_distance, et_distance, indistance, tv_sb_distance;
@@ -93,6 +93,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         setContentView(R.layout.activity_main);
         x = false;
 
+
         /*SharedPreferences.Editor editor = pref.edit();
         editor.putString(Constants.LicensePlate,"");
         editor.putString(Constants.SMSBase,"");
@@ -105,13 +106,17 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
             ActivityCompat.requestPermissions(this,
                     new String[]{android.Manifest.permission.ACCESS_COARSE_LOCATION},
                     REQUEST_CODE_ASK_PERMISSIONS);
+            super.onCreate(savedInstanceState);
         }
+
+
 
         infosav = (LinearLayout) findViewById(R.id.infosav);
         menu = (LinearLayout) findViewById(R.id.menu_layout);
         distance_container = (LinearLayout) findViewById(R.id.distance_container);
         distance = (LinearLayout) findViewById(R.id.distance);
         distance_bg = (LinearLayout) findViewById(R.id.distance_bg);
+        parking_card= (LinearLayout) findViewById(R.id.parking_card);
         settings = (ImageView) findViewById(R.id.btn_settings);
         collapse = (ImageView) findViewById(R.id.btn_collapse);
         hb_menu = (ImageView) findViewById(R.id.hb_menu);
@@ -125,6 +130,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 
         menu.setVisibility(View.GONE);
         distance_container.setVisibility(View.GONE);
+        parking_card.setVisibility(View.GONE);
 
         slide_down = AnimationUtils.loadAnimation(getApplicationContext(),
                 R.anim.slide_down);
@@ -137,8 +143,10 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         slide_up2 = AnimationUtils.loadAnimation(getApplicationContext(),
                 R.anim.slide_up);
 
+
         if (pref.getString(Constants.LicensePlate, "").isEmpty() && pref.getString(Constants.SettingsDistance, "").isEmpty() && pref.getString(Constants.SMSBase, "").isEmpty()) {
             showDialog();
+            firstrun.setVisibility(View.VISIBLE);
             bool_distance = false;
             bool_license = false;
             bool_smsbase = false;
@@ -153,11 +161,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                     return true;
                 }
             });
-            if (et_license_plate.getText().toString().isEmpty() && et_distance.getText().toString().isEmpty() && et_smsbase.getText().toString().isEmpty()) {
-                settings_dialog.getButton(DialogInterface.BUTTON_POSITIVE).setEnabled(false);
-                settings_dialog.setCanceledOnTouchOutside(false);
-                firstrun.setVisibility(View.VISIBLE);
-            }
+            settings_dialog.getButton(DialogInterface.BUTTON_POSITIVE).setEnabled(false);
+            settings_dialog.setCanceledOnTouchOutside(false);
         }
 
         indistance.setText(pref.getString(Constants.SettingsDistance, null) + " m-es körzetben");
@@ -209,9 +214,15 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                     public void onClick(View v) {
                         showDialog();
                         x = true;
-                        et_license_plate.setText(pref.getString(Constants.LicensePlate, null));
-                        et_smsbase.setText(pref.getString(Constants.SMSBase, null));
-                        et_distance.setText(pref.getString(Constants.SettingsDistance, null));
+                        if (pref.getString(Constants.LicensePlate,null)!=null) {
+                            et_license_plate.setText(pref.getString(Constants.LicensePlate, null));
+                        }
+                        if (pref.getString(Constants.SMSBase,null)!=null) {
+                            et_smsbase.setText(pref.getString(Constants.SMSBase, null));
+                        }
+                        if(pref.getString(Constants.SettingsDistance,null)!=null) {
+                            et_distance.setText(pref.getString(Constants.SettingsDistance, null));
+                        }
                         if (!pref.getString(Constants.NAME, "").isEmpty()) {
                             et_name.setText(pref.getString(Constants.NAME, null));
                         }

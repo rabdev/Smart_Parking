@@ -8,6 +8,7 @@
     android:background="@color/colorAccent"
     tools:context="hu.bitnet.smartparking.MainActivity">
 
+
     <com.google.android.gms.maps.MapView
         android:id="@+id/mapView"
         android:layout_width="match_parent"
@@ -15,6 +16,29 @@
         android:layout_marginBottom="72dp"
         android:animateLayoutChanges="true"
         android:apiKey="AIzaSyCSGZkqewIkymr2Vs-mai26vPgnekohsRM" />
+
+    <ImageView
+        android:id="@+id/btn_search"
+        android:layout_width="38.5dp"
+        android:layout_height="39.5dp"
+        android:layout_gravity="end"
+        android:layout_marginRight="60dp"
+        android:layout_marginTop="12dp"
+        android:padding="6dp"
+        android:background="@drawable/map_button_background"
+        android:src="@drawable/ic_search"
+        android:tint="@color/colorPrimaryDark"/>
+
+    <ImageView
+        android:id="@+id/btn_navigate"
+        android:layout_width="38.2dp"
+        android:layout_height="39.5dp"
+        android:src="@drawable/ic_navigate"
+        android:tint="@color/colorPrimaryDark"
+        android:background="@drawable/map_button_background"
+        android:layout_gravity="end"
+        android:layout_marginTop="60dp"
+        android:layout_marginRight="11.5dp"/>
 
     <LinearLayout
         android:id="@+id/menu_layout"
@@ -192,24 +216,169 @@
             android:layout_height="match_parent"
             android:layout_weight="2"
             android:padding="14dp">
+
             <LinearLayout
                 android:id="@+id/distance_bg"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="@drawable/ic_marker"
                 android:backgroundTint="@color/colorPrimaryDark">
+
                 <TextView
                     android:id="@+id/tv_distance"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:gravity="center"
                     android:layout_marginBottom="8dp"
-                    android:textSize="6sp"
-                    android:textColor="@color/colorPrimaryDark"/>
+                    android:gravity="center"
+                    android:textColor="@color/colorPrimaryDark"
+                    android:textSize="6sp" />
             </LinearLayout>
         </LinearLayout>
-
-
     </LinearLayout>
+
+
+    <LinearLayout
+        android:id="@+id/parking_card"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:layout_marginBottom="64dp"
+        android:background="@drawable/parking_card_background"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:paddingBottom="8dp"
+            android:paddingRight="16dp">
+
+            <LinearLayout
+                android:layout_width="80dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginBottom="4dp"
+                android:layout_marginLeft="12dp"
+                android:layout_marginTop="6dp"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="80dp"
+                    android:layout_gravity="center"
+                    android:background="@mipmap/ic_parking_purple"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/card_count"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_marginBottom="20dp"
+                        android:layout_marginRight="6dp"
+                        android:gravity="center"
+                        android:text="12"
+                        android:textColor="@color/colorPurple"
+                        android:textSize="20sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Click to start parking"
+                    android:textAlignment="center"
+                    android:textColor="@color/colorPurple"
+                    android:textSize="10sp"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:layout_weight="2"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/card_address"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="1119 Budapest, Petzvál József utca 30-39."
+                    android:textAlignment="textEnd"
+                    android:textColor="@color/colorPrimaryDark"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/card_perprice"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="200Ft/óra"
+                    android:textAlignment="textEnd"
+                    android:textColor="@color/colorPurple"
+                    android:textSize="15sp"
+                    android:textStyle="bold"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="6dp"
+                    android:layout_marginTop="6dp"
+                    android:gravity="right"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/card_distance"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/colorPrimaryDark"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="2dp"
+                        android:text="from your current location"
+                        android:textColor="@color/colorPrimaryDark"
+                        android:textSize="14sp" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="right"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/card_traffic"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textAlignment="textEnd"
+                        android:textColor="@color/colorPrimaryDark"
+                        android:textSize="14sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="2dp"
+                        android:text="without traffic"
+                        android:textAlignment="textEnd"
+                        android:textColor="@color/colorPrimaryDark"
+                        android:textSize="14sp" />
+                </LinearLayout>
+
+            </LinearLayout>
+        </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/colorPurple"/>
+    </LinearLayout>
+
 
 </FrameLayout>
