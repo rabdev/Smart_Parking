@@ -17,13 +17,22 @@
         android:animateLayoutChanges="true"
         android:apiKey="AIzaSyCSGZkqewIkymr2Vs-mai26vPgnekohsRM" />
 
+    <EditText
+        android:id="@+id/upsearch"
+        android:layout_width="match_parent"
+        android:layout_height="39dp"
+        android:layout_marginRight="60dp"
+        android:layout_marginLeft="62dp"
+        android:layout_marginTop="18dp"
+        android:background="@drawable/map_button_background"/>
+
     <ImageView
         android:id="@+id/btn_search"
-        android:layout_width="38.5dp"
-        android:layout_height="39.5dp"
+        android:layout_width="39dp"
+        android:layout_height="39dp"
         android:layout_gravity="end"
-        android:layout_marginRight="60dp"
-        android:layout_marginTop="12dp"
+        android:layout_marginRight="12dp"
+        android:layout_marginTop="18dp"
         android:padding="6dp"
         android:background="@drawable/map_button_background"
         android:src="@drawable/ic_search"
@@ -31,14 +40,27 @@
 
     <ImageView
         android:id="@+id/btn_navigate"
-        android:layout_width="38.2dp"
-        android:layout_height="39.5dp"
+        android:layout_width="39dp"
+        android:layout_height="39dp"
         android:src="@drawable/ic_navigate"
         android:tint="@color/colorPrimaryDark"
         android:background="@drawable/map_button_background"
+        android:transitionName="@drawable/parking_transition"
         android:layout_gravity="end"
-        android:layout_marginTop="60dp"
-        android:layout_marginRight="11.5dp"/>
+        android:layout_marginTop="65dp"
+        android:layout_marginRight="12dp"/>
+
+    <ImageView
+        android:id="@+id/btn_inprogress"
+        android:layout_width="39dp"
+        android:layout_height="39dp"
+        android:src="@drawable/ic_p"
+        android:tint="@color/colorPrimaryDark"
+        android:background="@drawable/map_button_background"
+        android:layout_gravity="end"
+        android:layout_marginTop="65dp"
+        android:layout_marginRight="12dp"/>
+
 
     <LinearLayout
         android:id="@+id/menu_layout"
@@ -243,7 +265,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         android:layout_marginBottom="64dp"
-        android:background="@drawable/parking_card_background"
+        android:background="@drawable/seekbar_background"
         android:orientation="vertical">
 
         <LinearLayout

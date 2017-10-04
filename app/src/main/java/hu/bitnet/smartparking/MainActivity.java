@@ -1,7 +1,9 @@
 package hu.bitnet.smartparking;
 
 import android.*;
+import android.Manifest;
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -10,6 +12,9 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.PorterDuff;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.TransitionDrawable;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
@@ -39,6 +44,7 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
@@ -57,6 +63,7 @@ import com.google.android.gms.maps.model.LatLng;
 
 
 import hu.bitnet.smartparking.fragments.History;
+import hu.bitnet.smartparking.fragments.Search;
 import hu.bitnet.smartparking.fragments.Zones;
 import hu.bitnet.smartparking.objects.Constants;
 
@@ -75,10 +82,10 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     Location location;
     android.location.LocationListener locationlistener;
     LinearLayout infosav, menu, distance_container, distance, distance_bg, parking_card;
-    ImageView settings, collapse, hb_menu;
+    ImageView settings, collapse, hb_menu, btn_search, btn_navigate, inprogress;
     AppCompatButton history, parkingplaces;
     TextView firstrun, tv_distance, et_distance, indistance, tv_sb_distance;
-    EditText search, et_license_plate, et_name, et_smsbase;
+    EditText search, et_license_plate, et_name, et_smsbase, upsearch;
     SeekBar settings_distance, sb_distance;
     Animation slide_up, slide_up1, slide_up2, slide_down, slide_down2;
     boolean x, bool_license, bool_distance, bool_smsbase;
@@ -86,11 +93,12 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     int index, prog;
 
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        pref = getPreferences(0);
         setContentView(R.layout.activity_main);
+        pref = getPreferences(0);
         x = false;
 
 
@@ -104,11 +112,15 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED
                 && ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this,
-                    new String[]{android.Manifest.permission.ACCESS_COARSE_LOCATION},
+                    new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
                     REQUEST_CODE_ASK_PERMISSIONS);
-            super.onCreate(savedInstanceState);
         }
 
+
+        if (ActivityCompat.checkSelfPermission(this,
+                android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+
+        }
 
 
         infosav = (LinearLayout) findViewById(R.id.infosav);
@@ -120,9 +132,13 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         settings = (ImageView) findViewById(R.id.btn_settings);
         collapse = (ImageView) findViewById(R.id.btn_collapse);
         hb_menu = (ImageView) findViewById(R.id.hb_menu);
+        btn_search = (ImageView) findViewById(R.id.btn_search);
+        btn_navigate= (ImageView) findViewById(R.id.btn_navigate);
+        inprogress = (ImageView) findViewById(R.id.btn_inprogress);
         history = (AppCompatButton) findViewById(R.id.btn_history);
         parkingplaces = (AppCompatButton) findViewById(R.id.btn_parking_places);
         search = (EditText) findViewById(R.id.search);
+        upsearch = (EditText) findViewById(R.id.upsearch);
         tv_distance = (TextView) findViewById(R.id.tv_distance);
         indistance = (TextView) findViewById(R.id.indistance);
         tv_sb_distance = (TextView) findViewById(R.id.tv_sb_distance);
@@ -131,6 +147,14 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         menu.setVisibility(View.GONE);
         distance_container.setVisibility(View.GONE);
         parking_card.setVisibility(View.GONE);
+        btn_navigate.setVisibility(View.GONE);
+        inprogress.setVisibility(View.GONE);
+        upsearch.setVisibility(View.GONE);
+
+        /*ColorDrawable[] purple = {new ColorDrawable(getResources().getColor(R.color.colorPrimary, getTheme())), new ColorDrawable(getResources().getColor(R.color.colorPurple,getTheme()))};
+        TransitionDrawable transition = new TransitionDrawable(purple);
+        inprogress.setBackground(transition);
+        transition.startTransition(10000);*/
 
         slide_down = AnimationUtils.loadAnimation(getApplicationContext(),
                 R.anim.slide_down);
@@ -332,6 +356,41 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         mLocationRequest.setInterval(MINUTE);
         mLocationRequest.setFastestInterval(15 * MILLISECONDS_PER_SECOND);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+
+        upsearch.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (upsearch.getText().toString().trim().length() > 2) {
+                    Search search = new Search();
+                    FragmentManager fragmentManager = getSupportFragmentManager();
+                    fragmentManager.beginTransaction()
+                            .add(R.id.mapView, search, search.getTag())
+                            .addToBackStack("Search")
+                            .commit();
+                } else {
+                    getSupportFragmentManager().popBackStackImmediate();
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
+
+        btn_search.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (upsearch.getVisibility()!= View.VISIBLE){
+                    upsearch.setVisibility(View.VISIBLE);
+                }
+            }
+        });
+
+
     }
 
     @Override
@@ -363,8 +422,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     @Override
     public void onMapReady(GoogleMap googleMap) {
         gmap = googleMap;
-        gmap.setMyLocationEnabled(true);
-        gmap.getUiSettings().setMyLocationButtonEnabled(true);
+
+
         LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         Criteria criteria = new Criteria();
         String bestProvider = String.valueOf(locationManager.getBestProvider(criteria, true)).toString();
@@ -413,17 +472,31 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
             }
         };
 
-        location = locationManager.getLastKnownLocation(bestProvider);
-        if (location == null) {
-            locationManager.requestLocationUpdates(bestProvider, 0, 0, (android.location.LocationListener) locationlistener);
-            return;
-        } else {
-            double c = location.getLatitude();
-            double d = location.getLongitude();
-            LatLng myloc = new LatLng(c, d);
-            gmap.animateCamera(CameraUpdateFactory.newLatLng(myloc));
-            gmap.moveCamera(CameraUpdateFactory.newLatLngZoom(myloc, 16));
+        if (ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            location = locationManager.getLastKnownLocation(bestProvider);
+            gmap.setMyLocationEnabled(true);
+            gmap.getUiSettings().setMyLocationButtonEnabled(true);
+            View locationButton = ((View) mapView.findViewById(Integer.parseInt("1")).getParent()).findViewById(Integer.parseInt("2"));
+            RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) locationButton.getLayoutParams();
+            layoutParams.addRule(RelativeLayout.ALIGN_PARENT_END, 0);
+            layoutParams.addRule(RelativeLayout.ALIGN_PARENT_START, RelativeLayout.TRUE);
+            layoutParams.setMargins(40,40,0,0);
+            layoutParams.setMarginStart(40);
+            if (location == null) {
+                locationManager.requestLocationUpdates(bestProvider, 0, 0, (android.location.LocationListener) locationlistener);
+                return;
+            } else {
+                double c = location.getLatitude();
+                double d = location.getLongitude();
+                LatLng myloc = new LatLng(c, d);
+                gmap.animateCamera(CameraUpdateFactory.newLatLng(myloc));
+                gmap.moveCamera(CameraUpdateFactory.newLatLngZoom(myloc, 16));
+            }
         }
+
+
+
     }
 
     @Override
@@ -590,6 +663,23 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
             tv_distance.setTextColor(getResources().getColorStateList(R.color.colorPrimaryDark, getTheme()));
             distance_container.startAnimation(slide_down2);
             x = false;
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case REQUEST_CODE_ASK_PERMISSIONS: {
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    recreate();
+                } else {
+                   finish();
+                }
+                break;
+            }
+            default:
+                super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
     }
 }
