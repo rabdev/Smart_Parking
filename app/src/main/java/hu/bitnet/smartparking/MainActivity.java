@@ -60,6 +60,7 @@ import com.google.android.gms.maps.LocationSource;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.plus.model.people.Person;
 
 
 import hu.bitnet.smartparking.fragments.History;
@@ -81,7 +82,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     LocationRequest mLocationRequest;
     Location location;
     android.location.LocationListener locationlistener;
-    LinearLayout infosav, menu, distance_container, distance, distance_bg, parking_card;
+    LinearLayout infosav, menu, distance_container, distance, distance_bg, parking_card, btnsearch_ll;
     ImageView settings, collapse, hb_menu, btn_search, btn_navigate, inprogress;
     AppCompatButton history, parkingplaces;
     TextView firstrun, tv_distance, et_distance, indistance, tv_sb_distance;
@@ -129,6 +130,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         distance = (LinearLayout) findViewById(R.id.distance);
         distance_bg = (LinearLayout) findViewById(R.id.distance_bg);
         parking_card= (LinearLayout) findViewById(R.id.parking_card);
+        btnsearch_ll= (LinearLayout) findViewById(R.id.btnsearch_ll);
         settings = (ImageView) findViewById(R.id.btn_settings);
         collapse = (ImageView) findViewById(R.id.btn_collapse);
         hb_menu = (ImageView) findViewById(R.id.hb_menu);
@@ -148,7 +150,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         distance_container.setVisibility(View.GONE);
         parking_card.setVisibility(View.GONE);
         btn_navigate.setVisibility(View.GONE);
-        inprogress.setVisibility(View.GONE);
+        //inprogress.setVisibility(View.GONE);
         upsearch.setVisibility(View.GONE);
 
         /*ColorDrawable[] purple = {new ColorDrawable(getResources().getColor(R.color.colorPrimary, getTheme())), new ColorDrawable(getResources().getColor(R.color.colorPurple,getTheme()))};
@@ -419,6 +421,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         return;
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     public void onMapReady(GoogleMap googleMap) {
         gmap = googleMap;
@@ -475,14 +478,24 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         if (ActivityCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             location = locationManager.getLastKnownLocation(bestProvider);
+
+            ViewGroup.MarginLayoutParams upsearchmlp= (ViewGroup.MarginLayoutParams) btnsearch_ll.getLayoutParams();
+            ViewGroup.LayoutParams upsearhlp=btnsearch_ll.getLayoutParams();
+
             gmap.setMyLocationEnabled(true);
             gmap.getUiSettings().setMyLocationButtonEnabled(true);
             View locationButton = ((View) mapView.findViewById(Integer.parseInt("1")).getParent()).findViewById(Integer.parseInt("2"));
+
             RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) locationButton.getLayoutParams();
             layoutParams.addRule(RelativeLayout.ALIGN_PARENT_END, 0);
             layoutParams.addRule(RelativeLayout.ALIGN_PARENT_START, RelativeLayout.TRUE);
-            layoutParams.setMargins(40,40,0,0);
-            layoutParams.setMarginStart(40);
+            layoutParams.setMargins(0,upsearchmlp.topMargin,0,0);
+            layoutParams.setMarginStart(upsearchmlp.rightMargin);
+            layoutParams.height=upsearhlp.height;
+            layoutParams.width=upsearhlp.width;
+
+
+
             if (location == null) {
                 locationManager.requestLocationUpdates(bestProvider, 0, 0, (android.location.LocationListener) locationlistener);
                 return;

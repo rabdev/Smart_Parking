@@ -17,31 +17,48 @@
         android:animateLayoutChanges="true"
         android:apiKey="AIzaSyCSGZkqewIkymr2Vs-mai26vPgnekohsRM" />
 
-    <EditText
-        android:id="@+id/upsearch"
+    <LinearLayout
+        android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="39dp"
         android:layout_marginRight="60dp"
-        android:layout_marginLeft="62dp"
+        android:layout_marginLeft="58dp"
         android:layout_marginTop="18dp"
-        android:background="@drawable/map_button_background"/>
+        android:paddingTop="2dp">
+        <EditText
+            android:id="@+id/upsearch"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/map_button_background"/>
+    </LinearLayout>
 
-    <ImageView
-        android:id="@+id/btn_search"
-        android:layout_width="39dp"
+    <LinearLayout
+        android:id="@+id/btnsearch_ll"
+        android:layout_width="37dp"
         android:layout_height="39dp"
-        android:layout_gravity="end"
+        android:orientation="vertical"
         android:layout_marginRight="12dp"
         android:layout_marginTop="18dp"
-        android:padding="6dp"
-        android:background="@drawable/map_button_background"
-        android:src="@drawable/ic_search"
-        android:tint="@color/colorPrimaryDark"/>
+        android:layout_gravity="end"
+        android:paddingTop="2dp">
+        <ImageView
+            android:id="@+id/btn_search"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="6dp"
+            android:background="@drawable/map_button_background"
+            android:src="@drawable/ic_search"
+            android:tint="@color/colorPrimaryDark"/>
+
+    </LinearLayout>
+
+
+
 
     <ImageView
         android:id="@+id/btn_navigate"
-        android:layout_width="39dp"
-        android:layout_height="39dp"
+        android:layout_width="37dp"
+        android:layout_height="37dp"
         android:src="@drawable/ic_navigate"
         android:tint="@color/colorPrimaryDark"
         android:background="@drawable/map_button_background"
@@ -52,8 +69,8 @@
 
     <ImageView
         android:id="@+id/btn_inprogress"
-        android:layout_width="39dp"
-        android:layout_height="39dp"
+        android:layout_width="37dp"
+        android:layout_height="37dp"
         android:src="@drawable/ic_p"
         android:tint="@color/colorPrimaryDark"
         android:background="@drawable/map_button_background"
