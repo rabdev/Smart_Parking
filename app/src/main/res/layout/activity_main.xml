@@ -17,66 +17,66 @@
         android:animateLayoutChanges="true"
         android:apiKey="AIzaSyCSGZkqewIkymr2Vs-mai26vPgnekohsRM" />
 
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="39dp"
-        android:layout_marginRight="60dp"
-        android:layout_marginLeft="58dp"
-        android:layout_marginTop="18dp"
-        android:paddingTop="2dp">
-        <EditText
-            android:id="@+id/upsearch"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@drawable/map_button_background"/>
-    </LinearLayout>
 
-    <LinearLayout
-        android:id="@+id/btnsearch_ll"
-        android:layout_width="37dp"
-        android:layout_height="39dp"
-        android:orientation="vertical"
+    <ImageView
+        android:id="@+id/btn_myloc"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_gravity="start"
+        android:layout_marginLeft="12dp"
+        android:layout_marginTop="18dp"
+        android:background="@drawable/map_button_background"
+        android:padding="8dp"
+        android:src="@android:drawable/ic_menu_mylocation"
+        android:tint="@color/colorPrimaryDark" />
+
+    <EditText
+        android:id="@+id/upsearch"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_marginLeft="64dp"
+        android:layout_marginRight="64dp"
+        android:layout_marginTop="18dp"
+        android:background="@drawable/map_button_background"
+        android:textAlignment="viewEnd"
+        android:paddingLeft="8dp"
+        android:paddingRight="8dp"/>
+
+    <ImageView
+        android:id="@+id/btn_search"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_gravity="end"
         android:layout_marginRight="12dp"
         android:layout_marginTop="18dp"
-        android:layout_gravity="end"
-        android:paddingTop="2dp">
-        <ImageView
-            android:id="@+id/btn_search"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:padding="6dp"
-            android:background="@drawable/map_button_background"
-            android:src="@drawable/ic_search"
-            android:tint="@color/colorPrimaryDark"/>
-
-    </LinearLayout>
-
-
+        android:background="@drawable/map_button_background"
+        android:padding="8dp"
+        android:src="@drawable/ic_search"
+        android:tint="@color/colorPrimaryDark" />
 
 
     <ImageView
         android:id="@+id/btn_navigate"
-        android:layout_width="37dp"
-        android:layout_height="37dp"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_gravity="end"
+        android:layout_marginRight="12dp"
+        android:layout_marginTop="64dp"
+        android:background="@drawable/map_button_background"
         android:src="@drawable/ic_navigate"
         android:tint="@color/colorPrimaryDark"
-        android:background="@drawable/map_button_background"
-        android:transitionName="@drawable/parking_transition"
-        android:layout_gravity="end"
-        android:layout_marginTop="65dp"
-        android:layout_marginRight="12dp"/>
+        android:transitionName="@drawable/parking_transition" />
 
     <ImageView
         android:id="@+id/btn_inprogress"
-        android:layout_width="37dp"
-        android:layout_height="37dp"
-        android:src="@drawable/ic_p"
-        android:tint="@color/colorPrimaryDark"
-        android:background="@drawable/map_button_background"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
         android:layout_gravity="end"
-        android:layout_marginTop="65dp"
-        android:layout_marginRight="12dp"/>
+        android:layout_marginRight="12dp"
+        android:layout_marginTop="64dp"
+        android:background="@drawable/map_button_background"
+        android:src="@drawable/ic_p"
+        android:tint="@color/colorPrimaryDark" />
 
 
     <LinearLayout
@@ -359,7 +359,7 @@
                     android:textAlignment="textEnd"
                     android:textColor="@color/colorPurple"
                     android:textSize="15sp"
-                    android:textStyle="bold"/>
+                    android:textStyle="bold" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -413,10 +413,11 @@
 
             </LinearLayout>
         </LinearLayout>
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/colorPurple"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/colorPurple" />
     </LinearLayout>
 
 

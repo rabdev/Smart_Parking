@@ -1,13 +1,374 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="hu.bitnet.smartparking.fragments.Parking">
+    android:gravity="center"
+    android:orientation="vertical"
+    android:paddingLeft="48dp"
+    android:paddingRight="48dp"
+    android:paddingTop="24dp">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+        android:layout_height="wrap_content"
+        android:background="@drawable/button_circle_background"
+        android:orientation="vertical">
 
-</FrameLayout>
+            <TextView
+                android:id="@+id/parking_header"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:layout_marginTop="16dp"
+                android:gravity="center"
+                android:text="Parkolás megkezdése"
+                android:textColor="@color/colorPrimaryDark"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:id="@+id/status_start"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="horizontal"
+                    android:paddingRight="8dp"
+                    android:paddingTop="4dp">
+
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        android:layout_weight="3"
+                        android:padding="6dp"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/ic_parking"
+                        android:tint="@color/colorAccent" />
+
+                    <TextView
+                        android:id="@+id/parking_start_address"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:gravity="center_vertical|end"
+                        android:text="1119 Budapest Petzvál Lajos utca 30-39."
+                        android:textColor="@color/colorPrimaryDark"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                </LinearLayout>
+
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="horizontal"
+                    android:paddingRight="8dp">
+
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        android:layout_weight="3"
+                        android:padding="16dp"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/ic_wallet"
+                        android:tint="@color/colorAccent" />
+
+                    <TextView
+                        android:id="@+id/parking_start_priceper"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:gravity="center_vertical|end"
+                        android:text="200 Ft/óra"
+                        android:textColor="@color/colorPrimaryDark"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/parkingtime_start"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="horizontal"
+                    android:paddingRight="8dp">
+
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        android:layout_weight="3"
+                        android:padding="16dp"
+                        android:scaleType="centerCrop"
+                        android:src="@android:drawable/ic_menu_recent_history"
+                        android:tint="@color/colorAccent" />
+
+                    <TextView
+                        android:id="@+id/parking_start_time"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:gravity="center_vertical|end"
+                        android:text="Maximum parkolási idő 1 óra"
+                        android:textColor="@color/colorPrimaryDark"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
+
+                </LinearLayout>
+
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/status_inprogress"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="horizontal"
+                    android:paddingRight="8dp"
+                    android:paddingTop="4dp">
+
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        android:layout_weight="3"
+                        android:padding="6dp"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/ic_parking"
+                        android:tint="@color/colorPurple" />
+
+                    <TextView
+                        android:id="@+id/parking_inprogress_address"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:gravity="center_vertical|end"
+                        android:text="1119 Budapest Petzvál Lajos utca 30-39."
+                        android:textColor="@color/colorPrimaryDark"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="horizontal"
+                    android:paddingRight="8dp">
+
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        android:layout_weight="3"
+                        android:padding="16dp"
+                        android:scaleType="centerCrop"
+                        android:src="@android:drawable/ic_menu_recent_history"
+                        android:tint="@color/colorPurple" />
+
+                    <TextView
+                        android:id="@+id/parking_timecount"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:gravity="center_vertical|end"
+                        android:text="1:30"
+                        android:textColor="@color/colorPrimaryDark"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
+
+                </LinearLayout>
+
+
+                <LinearLayout
+                    android:id="@+id/parkingtime_inprogress"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="horizontal"
+                    android:paddingRight="8dp">
+
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        android:layout_weight="3"
+                        android:padding="16dp"
+                        android:scaleType="centerCrop"
+                        android:src="@android:drawable/ic_menu_recent_history"
+                        android:tint="@color/colorGrey" />
+
+                    <TextView
+                        android:id="@+id/parking_maxtime"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:gravity="center_vertical|end"
+                        android:text="Hátralévő idő: 0:59"
+                        android:textColor="@color/colorPurple"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="horizontal"
+                    android:paddingRight="8dp">
+
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        android:layout_weight="3"
+                        android:padding="16dp"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/ic_wallet"
+                        android:tint="@color/colorPurple" />
+
+                    <TextView
+                        android:id="@+id/parking_inprogress_price"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:gravity="center_vertical|end"
+                        android:text="200 Ft"
+                        android:textColor="@color/colorPrimaryDark"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                </LinearLayout>
+
+
+            </LinearLayout>
+
+
+
+            <LinearLayout
+                android:id="@+id/status_checkout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="horizontal"
+                    android:paddingRight="8dp"
+                    android:paddingTop="4dp">
+
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        android:layout_weight="3"
+                        android:padding="6dp"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/ic_parking"
+                        android:tint="@color/colorPrimaryDark" />
+
+                    <TextView
+                        android:id="@+id/parking_checkout_address"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:gravity="center_vertical|end"
+                        android:text="1119 Budapest Petzvál Lajos utca 30-39."
+                        android:textColor="@color/colorPrimaryDark"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="horizontal"
+                    android:paddingRight="8dp">
+
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        android:layout_weight="3"
+                        android:padding="16dp"
+                        android:scaleType="centerCrop"
+                        android:src="@android:drawable/ic_menu_recent_history"
+                        android:tint="@color/colorPrimaryDark" />
+
+                    <TextView
+                        android:id="@+id/parking_total_time"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:gravity="center_vertical|end"
+                        android:text="1:30"
+                        android:textColor="@color/colorPrimaryDark"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
+
+                </LinearLayout>
+
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="horizontal"
+                    android:paddingRight="8dp">
+
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        android:layout_weight="3"
+                        android:padding="16dp"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/ic_wallet"
+                        android:tint="@color/colorPrimaryDark" />
+
+                    <TextView
+                        android:id="@+id/parking_checkout_price"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:gravity="center_vertical|end"
+                        android:text="200 Ft"
+                        android:textColor="@color/colorPrimaryDark"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                </LinearLayout>
+
+
+            </LinearLayout>
+
+        </RelativeLayout>
+
+        <android.support.v7.widget.AppCompatButton
+            android:id="@+id/btn_status"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/button_parking"
+            android:backgroundTint="@color/colorAccent"
+            android:text="Parkolás megkezdése"
+            android:textColor="@color/colorPrimary" />
+    </LinearLayout>
+</LinearLayout>

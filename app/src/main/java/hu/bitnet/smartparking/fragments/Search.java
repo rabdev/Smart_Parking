@@ -3,10 +3,14 @@ package hu.bitnet.smartparking.fragments;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.Toast;
 
 import hu.bitnet.smartparking.R;
 
@@ -18,6 +22,7 @@ import static android.view.KeyEvent.KEYCODE_BACK;
  */
 public class Search extends Fragment {
 
+    RecyclerView search_rv;
 
     public Search() {
         // Required empty public constructor
@@ -29,6 +34,19 @@ public class Search extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View search = inflater.inflate(R.layout.fragment_search, container, false);
+
+
+        search_rv= (RecyclerView) search.findViewById(R.id.search_rv);
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getActivity().getApplicationContext());
+        search_rv.setLayoutManager(layoutManager);
+
+        EditText upsearch= (EditText) getActivity().findViewById(R.id.upsearch);
+
+        upsearch.setActivated(true);
+        upsearch.hasFocus();
+
+        //Toast.makeText(getContext(), upsearch.getText().toString(),Toast.LENGTH_LONG).show();
+
         return search;
     }
 

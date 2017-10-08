@@ -2,6 +2,9 @@ package hu.bitnet.smartparking;
 
 import android.*;
 import android.Manifest;
+import android.animation.ArgbEvaluator;
+import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Dialog;
@@ -38,6 +41,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.view.animation.LinearInterpolator;
 import android.view.animation.Transformation;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
@@ -64,6 +68,7 @@ import com.google.android.gms.plus.model.people.Person;
 
 
 import hu.bitnet.smartparking.fragments.History;
+import hu.bitnet.smartparking.fragments.Parking;
 import hu.bitnet.smartparking.fragments.Search;
 import hu.bitnet.smartparking.fragments.Zones;
 import hu.bitnet.smartparking.objects.Constants;
@@ -82,13 +87,14 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     LocationRequest mLocationRequest;
     Location location;
     android.location.LocationListener locationlistener;
-    LinearLayout infosav, menu, distance_container, distance, distance_bg, parking_card, btnsearch_ll;
-    ImageView settings, collapse, hb_menu, btn_search, btn_navigate, inprogress;
+    LinearLayout infosav, menu, distance_container, distance, distance_bg, parking_card;
+    ImageView settings, collapse, hb_menu, btn_search, btn_navigate, btn_myloc, inprogress;
     AppCompatButton history, parkingplaces;
     TextView firstrun, tv_distance, et_distance, indistance, tv_sb_distance;
     EditText search, et_license_plate, et_name, et_smsbase, upsearch;
     SeekBar settings_distance, sb_distance;
     Animation slide_up, slide_up1, slide_up2, slide_down, slide_down2;
+    TransitionDrawable transition;
     boolean x, bool_license, bool_distance, bool_smsbase;
     final private int REQUEST_CODE_ASK_PERMISSIONS = 123;
     int index, prog;
@@ -130,13 +136,13 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         distance = (LinearLayout) findViewById(R.id.distance);
         distance_bg = (LinearLayout) findViewById(R.id.distance_bg);
         parking_card= (LinearLayout) findViewById(R.id.parking_card);
-        btnsearch_ll= (LinearLayout) findViewById(R.id.btnsearch_ll);
         settings = (ImageView) findViewById(R.id.btn_settings);
         collapse = (ImageView) findViewById(R.id.btn_collapse);
         hb_menu = (ImageView) findViewById(R.id.hb_menu);
         btn_search = (ImageView) findViewById(R.id.btn_search);
         btn_navigate= (ImageView) findViewById(R.id.btn_navigate);
         inprogress = (ImageView) findViewById(R.id.btn_inprogress);
+        btn_myloc = (ImageView) findViewById(R.id.btn_myloc);
         history = (AppCompatButton) findViewById(R.id.btn_history);
         parkingplaces = (AppCompatButton) findViewById(R.id.btn_parking_places);
         search = (EditText) findViewById(R.id.search);
@@ -148,15 +154,32 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 
         menu.setVisibility(View.GONE);
         distance_container.setVisibility(View.GONE);
-        parking_card.setVisibility(View.GONE);
+        //parking_card.setVisibility(View.GONE);
         btn_navigate.setVisibility(View.GONE);
-        //inprogress.setVisibility(View.GONE);
         upsearch.setVisibility(View.GONE);
 
-        /*ColorDrawable[] purple = {new ColorDrawable(getResources().getColor(R.color.colorPrimary, getTheme())), new ColorDrawable(getResources().getColor(R.color.colorPurple,getTheme()))};
-        TransitionDrawable transition = new TransitionDrawable(purple);
-        inprogress.setBackground(transition);
-        transition.startTransition(10000);*/
+        if (pref.getString(Constants.ParkingStatus,"").equals("2")){
+            inprogress.setVisibility(View.VISIBLE);
+            ValueAnimator backgroundAnim = ObjectAnimator.ofInt(inprogress, "backgroundColor", getResources().getColor(R.color.colorPrimary, getTheme()), getResources().getColor(R.color.colorPurple, getTheme()));
+            backgroundAnim.setDuration(3000);
+            backgroundAnim.setEvaluator(new ArgbEvaluator());
+            backgroundAnim.setRepeatCount(ValueAnimator.INFINITE);
+            backgroundAnim.setRepeatMode(ValueAnimator.REVERSE);
+            backgroundAnim.start();
+        } else if (pref.getString(Constants.ParkingStatus,"").equals("3")){
+            inprogress.setVisibility(View.VISIBLE);
+            ValueAnimator backgroundAnim = ObjectAnimator.ofInt(inprogress, "backgroundColor", getResources().getColor(R.color.colorPrimary, getTheme()), getResources().getColor(R.color.colorPurple, getTheme()));
+            backgroundAnim.setDuration(3000);
+            backgroundAnim.setEvaluator(new ArgbEvaluator());
+            backgroundAnim.setRepeatCount(ValueAnimator.INFINITE);
+            backgroundAnim.setRepeatMode(ValueAnimator.REVERSE);
+            backgroundAnim.start();
+        } else {
+            inprogress.setVisibility(View.GONE);
+        }
+
+
+
 
         slide_down = AnimationUtils.loadAnimation(getApplicationContext(),
                 R.anim.slide_down);
@@ -318,6 +341,11 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                 infosav.startAnimation(slide_up1);
                 menu.startAnimation(slide_down);
                 menu.setVisibility(View.GONE);
+                btn_myloc.setVisibility(View.GONE);
+                btn_search.setVisibility(View.GONE);
+                btn_navigate.setVisibility(View.GONE);
+                inprogress.setVisibility(View.GONE);
+                upsearch.setVisibility(View.GONE);
                 x = false;
             }
         });
@@ -340,7 +368,55 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                 infosav.startAnimation(slide_up1);
                 menu.startAnimation(slide_down);
                 menu.setVisibility(View.GONE);
+                btn_myloc.setVisibility(View.GONE);
+                btn_search.setVisibility(View.GONE);
+                btn_navigate.setVisibility(View.GONE);
+                inprogress.setVisibility(View.GONE);
+                upsearch.setVisibility(View.GONE);
                 x = false;
+            }
+        });
+
+        btn_myloc.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (location != null) { // Check to ensure coordinates aren't null, probably a better way of doing this...
+                    double c = location.getLatitude();
+                    double d = location.getLongitude();
+                    LatLng myloc = new LatLng(c, d);
+                    gmap.animateCamera(CameraUpdateFactory.newLatLng(myloc));
+                    gmap.moveCamera(CameraUpdateFactory.newLatLngZoom(myloc, 16));
+                }
+            }
+        });
+
+        parking_card.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                parking_card.setVisibility(View.GONE);
+                Parking parking = new Parking();
+                FragmentManager fragmentManager = getSupportFragmentManager();
+                fragmentManager.beginTransaction()
+                        .add(R.id.mapView, parking, parking.getTag())
+                        .addToBackStack("Parking")
+                        .commit();
+                btn_myloc.setVisibility(View.GONE);
+                upsearch.setVisibility(View.GONE);
+            }
+        });
+
+        indistance.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                parking_card.setVisibility(View.GONE);
+                Parking parking = new Parking();
+                FragmentManager fragmentManager = getSupportFragmentManager();
+                fragmentManager.beginTransaction()
+                        .add(R.id.mapView, parking, parking.getTag())
+                        .addToBackStack("Parking")
+                        .commit();
+                btn_myloc.setVisibility(View.GONE);
+                upsearch.setVisibility(View.GONE);
             }
         });
 
@@ -366,14 +442,14 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (upsearch.getText().toString().trim().length() > 2) {
+                if (upsearch.getText().toString().trim().length() == 3) {
                     Search search = new Search();
                     FragmentManager fragmentManager = getSupportFragmentManager();
                     fragmentManager.beginTransaction()
                             .add(R.id.mapView, search, search.getTag())
                             .addToBackStack("Search")
                             .commit();
-                } else {
+                } else if(upsearch.getText().toString().trim().length() < 3) {
                     getSupportFragmentManager().popBackStackImmediate();
                 }
             }
@@ -388,6 +464,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
             public void onClick(View v) {
                 if (upsearch.getVisibility()!= View.VISIBLE){
                     upsearch.setVisibility(View.VISIBLE);
+                    upsearch.setActivated(true);
+                    upsearch.requestFocus();
                 }
             }
         });
@@ -479,20 +557,9 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                 Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             location = locationManager.getLastKnownLocation(bestProvider);
 
-            ViewGroup.MarginLayoutParams upsearchmlp= (ViewGroup.MarginLayoutParams) btnsearch_ll.getLayoutParams();
-            ViewGroup.LayoutParams upsearhlp=btnsearch_ll.getLayoutParams();
 
             gmap.setMyLocationEnabled(true);
-            gmap.getUiSettings().setMyLocationButtonEnabled(true);
-            View locationButton = ((View) mapView.findViewById(Integer.parseInt("1")).getParent()).findViewById(Integer.parseInt("2"));
-
-            RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) locationButton.getLayoutParams();
-            layoutParams.addRule(RelativeLayout.ALIGN_PARENT_END, 0);
-            layoutParams.addRule(RelativeLayout.ALIGN_PARENT_START, RelativeLayout.TRUE);
-            layoutParams.setMargins(0,upsearchmlp.topMargin,0,0);
-            layoutParams.setMarginStart(upsearchmlp.rightMargin);
-            layoutParams.height=upsearhlp.height;
-            layoutParams.width=upsearhlp.width;
+            gmap.getUiSettings().setMyLocationButtonEnabled(false);
 
 
 
