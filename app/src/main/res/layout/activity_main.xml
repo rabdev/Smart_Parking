@@ -159,7 +159,7 @@
             android:layout_marginLeft="46dp"
             android:layout_marginRight="46dp"
             android:background="@drawable/search_background"
-            android:drawableStart="@drawable/places_ic_search"
+            android:drawableLeft="@drawable/places_ic_search"
             android:drawableTint="@color/colorPrimary"
             android:hint="Keresés"
             android:padding="10dp"
@@ -378,6 +378,7 @@
                         android:textStyle="bold" />
 
                     <TextView
+                        android:id="@+id/distance_km"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="2dp"
@@ -402,6 +403,7 @@
                         android:textSize="14sp" />
 
                     <TextView
+                        android:id="@+id/distance_mins"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="2dp"

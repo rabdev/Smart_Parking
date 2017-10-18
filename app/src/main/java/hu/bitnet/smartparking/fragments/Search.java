@@ -10,9 +10,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
-import android.widget.Toast;
 
+import java.util.ArrayList;
+
+import hu.bitnet.smartparking.Adapters.SearchAdapter;
 import hu.bitnet.smartparking.R;
+import hu.bitnet.smartparking.objects.Parking_places;
 
 import static android.view.KeyEvent.ACTION_UP;
 import static android.view.KeyEvent.KEYCODE_BACK;
@@ -23,6 +26,8 @@ import static android.view.KeyEvent.KEYCODE_BACK;
 public class Search extends Fragment {
 
     RecyclerView search_rv;
+    public ArrayList<Parking_places> data;
+    public SearchAdapter mAdapter;
 
     public Search() {
         // Required empty public constructor

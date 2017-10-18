@@ -5,6 +5,9 @@ package hu.bitnet.smartparking.objects;
  */
 
 public class Constants {
+
+    public static final String SERVER_URL = "http://smartparking.digitalwave.hu/app/";
+
     public static final String NAME="Name";
     public static final String LicensePlate="LicensePlate";
     public static final String SettingsDistance ="Distance";
@@ -14,4 +17,6 @@ public class Constants {
     public static final String longitude="longitude";
 
     public static final String ParkingStatus = "ParkingStatus";
+
+    public static final String UID = "";
 }

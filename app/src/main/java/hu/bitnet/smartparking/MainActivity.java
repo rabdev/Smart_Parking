@@ -1,27 +1,22 @@
 package hu.bitnet.smartparking;
 
-import android.*;
 import android.Manifest;
 import android.animation.ArgbEvaluator;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.annotation.TargetApi;
-import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.content.res.Resources;
-import android.graphics.PorterDuff;
-import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
 import android.graphics.drawable.TransitionDrawable;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Build;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
@@ -30,27 +25,23 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.AppCompatButton;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.TypedValue;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.view.animation.LinearInterpolator;
-import android.view.animation.Transformation;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -64,14 +55,31 @@ import com.google.android.gms.maps.LocationSource;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.plus.model.people.Person;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 
+import hu.bitnet.smartparking.RequestInterfaces.RequestInterfaceNearest;
+import hu.bitnet.smartparking.ServerResponses.ServerResponse;
 import hu.bitnet.smartparking.fragments.History;
 import hu.bitnet.smartparking.fragments.Parking;
 import hu.bitnet.smartparking.fragments.Search;
+import hu.bitnet.smartparking.fragments.SearchZones;
 import hu.bitnet.smartparking.fragments.Zones;
 import hu.bitnet.smartparking.objects.Constants;
+import hu.bitnet.smartparking.objects.Parking_places;
+import okhttp3.OkHttpClient;
+import okhttp3.logging.HttpLoggingInterceptor;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
+
+import static android.content.ContentValues.TAG;
+import static java.lang.Integer.parseInt;
 
 public class MainActivity extends AppCompatActivity implements LocationListener, OnMapReadyCallback, LocationSource.OnLocationChangedListener,
         GoogleApiClient.OnConnectionFailedListener, GoogleApiClient.ConnectionCallbacks {
@@ -90,7 +98,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     LinearLayout infosav, menu, distance_container, distance, distance_bg, parking_card;
     ImageView settings, collapse, hb_menu, btn_search, btn_navigate, btn_myloc, inprogress;
     AppCompatButton history, parkingplaces;
-    TextView firstrun, tv_distance, et_distance, indistance, tv_sb_distance;
+    TextView firstrun, tv_distance, et_distance, indistance, tv_sb_distance, parkingcount, card_count, card_address, card_perprice, distance_km, distance_mins;
     EditText search, et_license_plate, et_name, et_smsbase, upsearch;
     SeekBar settings_distance, sb_distance;
     Animation slide_up, slide_up1, slide_up2, slide_down, slide_down2;
@@ -98,6 +106,10 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     boolean x, bool_license, bool_distance, bool_smsbase;
     final private int REQUEST_CODE_ASK_PERMISSIONS = 123;
     int index, prog;
+    public ArrayList<Parking_places> data;
+    double latitude;
+    double longitude;
+    private String search_text;
 
 
     @RequiresApi(api = Build.VERSION_CODES.M)
@@ -107,7 +119,6 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         setContentView(R.layout.activity_main);
         pref = getPreferences(0);
         x = false;
-
 
         /*SharedPreferences.Editor editor = pref.edit();
         editor.putString(Constants.LicensePlate,"");
@@ -151,10 +162,17 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         indistance = (TextView) findViewById(R.id.indistance);
         tv_sb_distance = (TextView) findViewById(R.id.tv_sb_distance);
         sb_distance = (SeekBar) findViewById(R.id.sb_distance);
+        parkingcount = (TextView) findViewById(R.id.parkingcount);
+        card_count = (TextView) findViewById(R.id.card_count);
+        card_address = (TextView) findViewById(R.id.card_address);
+        card_perprice = (TextView) findViewById(R.id.card_perprice);
+        distance_km = (TextView) findViewById(R.id.distance_km);
+        distance_mins = (TextView) findViewById(R.id.distance_mins);
+
 
         menu.setVisibility(View.GONE);
         distance_container.setVisibility(View.GONE);
-        //parking_card.setVisibility(View.GONE);
+        parking_card.setVisibility(View.GONE);
         btn_navigate.setVisibility(View.GONE);
         upsearch.setVisibility(View.GONE);
 
@@ -291,13 +309,14 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                     distance_container.startAnimation(slide_up2);
                     tv_sb_distance.setText(pref.getString(Constants.SettingsDistance, null) + " m");
                     sb_distance.setMax(2500);
-                    prog = Integer.parseInt(pref.getString(Constants.SettingsDistance, null));
+                    prog = parseInt(pref.getString(Constants.SettingsDistance, null));
                     sb_distance.setProgress(prog);
                     sb_distance.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                         @Override
                         public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                             prog = sb_distance.getProgress();
                             tv_sb_distance.setText(String.valueOf(prog) + " m");
+                            loadJSON(Double.toString(latitude), Double.toString(longitude), String.valueOf(prog));
                         }
 
                         @Override
@@ -374,6 +393,53 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                 inprogress.setVisibility(View.GONE);
                 upsearch.setVisibility(View.GONE);
                 x = false;
+            }
+        });
+
+        search.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                final int DRAWABLE_LEFT = 0;
+                final int DRAWABLE_TOP = 1;
+                final int DRAWABLE_RIGHT = 2;
+                final int DRAWABLE_BOTTOM = 3;
+
+                if(event.getAction() == MotionEvent.ACTION_UP) {
+                    if(event.getX() <= (search.getCompoundDrawables()[DRAWABLE_LEFT].getBounds().width())) {
+                        // your action here
+
+                        Log.d(TAG, "keresés");
+
+                        search_text = search.getText().toString();
+                        SharedPreferences.Editor editor = pref.edit();
+                        editor.putString("address",search_text);
+                        editor.apply();
+
+                        SearchZones searchZones = new SearchZones();
+                        history.setBackgroundResource(R.drawable.button_background);
+                        parkingplaces.setBackgroundResource(R.drawable.button_background);
+                        FragmentManager fragmentManager = getSupportFragmentManager();
+                        index = fragmentManager.getBackStackEntryCount();
+                        if (index != 0) {
+                            fragmentManager.popBackStack();
+                        }
+                        fragmentManager.beginTransaction()
+                                .add(R.id.mapView, searchZones, searchZones.getTag())
+                                .addToBackStack("Zones")
+                                .commit();
+                        infosav.setVisibility(View.VISIBLE);
+                        infosav.startAnimation(slide_up1);
+                        menu.startAnimation(slide_down);
+                        menu.setVisibility(View.GONE);
+                        btn_myloc.setVisibility(View.GONE);
+                        btn_search.setVisibility(View.GONE);
+                        btn_navigate.setVisibility(View.GONE);
+                        inprogress.setVisibility(View.GONE);
+                        upsearch.setVisibility(View.GONE);
+                        x = false;
+                    }
+                }
+                return false;
             }
         });
 
@@ -470,7 +536,6 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
             }
         });
 
-
     }
 
     @Override
@@ -491,11 +556,15 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 
     @Override
     public void onLocationChanged(Location loc) {
-        double latitude = loc.getLatitude();
-        double longitude = loc.getLongitude();
+        latitude = loc.getLatitude();
+        longitude = loc.getLongitude();
         location = new Location("");
         location.setLatitude(latitude);
         location.setLongitude(longitude);
+
+        loadJSON(Double.toString(latitude), Double.toString(longitude), /*pref.getString(Constants.SettingsDistance, "0")*/ "100000");
+        Log.d(TAG, pref.getString(Constants.SettingsDistance, "0"));
+
         return;
     }
 
@@ -503,7 +572,6 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     @Override
     public void onMapReady(GoogleMap googleMap) {
         gmap = googleMap;
-
 
         LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         Criteria criteria = new Criteria();
@@ -604,7 +672,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         settings_distance.setMax(2500);
         if (pref.getString(Constants.SettingsDistance, null) != null) {
             if (!pref.getString(Constants.SettingsDistance, null).isEmpty()) {
-                prog = Integer.parseInt(pref.getString(Constants.SettingsDistance, null));
+                prog = parseInt(pref.getString(Constants.SettingsDistance, null));
                 settings_distance.setProgress(prog);
                 et_distance.setText(pref.getString(Constants.SettingsDistance, null));
             }
@@ -697,6 +765,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                 editor.putString(Constants.SMSBase, et_smsbase.getText().toString());
                 editor.putString(Constants.SettingsDistance, et_distance.getText().toString());
                 editor.putString(Constants.NAME, et_name.getText().toString());
+                Log.i("TAG","android.os.Build.SERIAL: " + Build.SERIAL);
+                editor.putString(Constants.UID, Build.SERIAL);
                 editor.apply();
                 tv_distance.setText(pref.getString(Constants.SettingsDistance, null));
                 indistance.setText(pref.getString(Constants.SettingsDistance, null) + " m-es körzetben");
@@ -762,4 +832,137 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                 super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
     }
+
+    public void loadJSON(String latitude, String longitude, String distance){
+
+        HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
+        logging.setLevel(HttpLoggingInterceptor.Level.BODY);
+
+        OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
+        httpClient.addInterceptor(logging);
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .client(httpClient.build())
+                .baseUrl(Constants.SERVER_URL)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+        RequestInterfaceNearest requestInterface = retrofit.create(RequestInterfaceNearest.class);
+        Call<ServerResponse> response= requestInterface.post(distance, latitude, longitude);
+        response.enqueue(new Callback<ServerResponse>() {
+            @Override
+            public void onResponse(Call<ServerResponse> call, Response<ServerResponse> response) {
+                ServerResponse resp = response.body();
+                if(resp.getAlert() != ""){
+                    Toast.makeText(getApplication(), resp.getAlert(), Toast.LENGTH_LONG).show();
+                }
+                if(resp.getError() != null){
+                    /*Toast.makeText(getContext(), resp.getError().getMessage()+" - "+resp.getError().getMessageDetail(), Toast.LENGTH_SHORT).show();
+                    SharedPreferences.Editor editor = pref.edit();
+                    editor.putBoolean(Constants.IS_LOGGED_IN,false);
+                    editor.apply();*/
+                    Intent intent = new Intent(getApplication(), MainActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    startActivity(intent);
+                }
+                if(resp.getParking_places() != null){
+                    data = new ArrayList<Parking_places>(Arrays.asList(resp.getParking_places()));
+
+                    gmap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+                        @Override
+                        public boolean onMarkerClick(Marker marker1) {
+                            /*Toast.makeText(getContext(), String.valueOf(marker1.getPosition())
+                                    + String.valueOf(marker1.getTitle()), Toast.LENGTH_LONG).show();*/
+
+                            marker1.hideInfoWindow();
+                            LatLng position = marker1.getPosition();
+                            parking_card.setVisibility(View.VISIBLE);
+                            card_address.setText(marker1.getTitle());
+                            card_count.setText(data.get(parseInt(marker1.getId().substring(1))).getFreePlaces());
+                            card_perprice.setText(String.format("%.0f", Double.parseDouble(data.get(parseInt(marker1.getId().substring(1))).getPrice())) + " Ft/óra");
+                            distance_km.setText(String.format("%.1f", Double.parseDouble(data.get(parseInt(marker1.getId().substring(1))).getDistance())/1000.0) + " km from your current location");
+                            distance_mins.setText(String.format("%.1f", Double.parseDouble(data.get(parseInt(marker1.getId().substring(1))).getTime())/1.0) + " mins without traffic");
+                            /*SharedPreferences.Editor editor = pref.edit();
+                            editor.putString("id", data.get(parseInt(marker1.getId().substring(1))).getId());
+                            editor.putString("address", data.get(parseInt(marker1.getId().substring(1))).getAddress());
+                            editor.putString("price", String.format("%.0f", Double.parseDouble(data.get(parseInt(marker1.getId().substring(1))).getPrice())));
+                            editor.putString("latitude", String.format("%.0f", Double.parseDouble(data.get(parseInt(marker1.getId().substring(1))).getLatitude())));
+                            editor.putString("longitude", String.format("%.0f", Double.parseDouble(data.get(parseInt(marker1.getId().substring(1))).getLatitude())));
+                            /*editor.putString("host", data.get(parseInt(marker1.getId().substring(1))).getMQTT().getHost());
+                            editor.putString("port", data.get(parseInt(marker1.getId().substring(1))).getMQTT().getPort());
+                            editor.putString("topic", data.get(parseInt(marker1.getId().substring(1))).getMQTT().getTopic());
+                            editor.putString("service", data.get(parseInt(marker1.getId().substring(1))).getBLE().getService());
+                            editor.putString("characteristic", data.get(parseInt(marker1.getId().substring(1))).getBLE().getCharacteristic());*/
+                            //editor.apply();
+                            //checkForSlot();
+                            return false;
+                        }
+                    });
+
+                    int freePlaces = 0;
+                    for(int i = 0; i < data.size(); i++){
+                        Log.d(TAG, "Szabad helyek száma: "+ data.get(i).getFreePlaces());
+                        freePlaces += Integer.valueOf(data.get(i).getFreePlaces());
+                        createMarker(data.get(i).getCenterLatitude(), data.get(i).getCenterLongitude(), data.get(i).getAddress());
+                    }
+
+                    parkingcount.setText(String.valueOf(freePlaces));
+                    card_count.setText(String.valueOf(freePlaces));
+                    /*mAdapter = new SearchAdapter(data);
+                    mRecyclerView.setAdapter(mAdapter);
+
+                    mAdapter.setOnItemClickListener(new SearchAdapter.ClickListener(){
+                        @Override
+                        public void onItemClick(final int position, View v){
+                            SharedPreferences.Editor editor = pref.edit();
+                            editor.putString("address", data.get(position).getAddress().toString());
+                            editor.putString("price", data.get(position).getPrice().toString());
+                            editor.putString("id", data.get(position).getId().toString());
+                            editor.putString("latitude", data.get(position).getLatitude().toString());
+                            editor.putString("longitude", data.get(position).getLongitude().toString());
+                            editor.putString("distance", data.get(position).getDistance().toString());
+                            editor.putString("time", data.get(position).getTime().toString());
+                            editor.apply();
+                            String id = data.get(position).getId().toString();
+                            String sessionId = pref.getString("sessionId", null);
+                            loadJSONSelect(sessionId, id);
+                            FragmentManager map = getActivity().getSupportFragmentManager();
+                            map.beginTransaction()
+                                    .replace(R.id.frame, new Map())
+                                    .addToBackStack(null)
+                                    .commit();
+                        }
+
+                        @Override
+                        public void onItemLongClick(int position, View v) {
+                            Log.d(TAG, "onItemLongClick pos = " + position);
+                        }
+                    });*/
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ServerResponse> call, Throwable t) {
+                Toast.makeText(getApplication(), "Hiba a hálózati kapcsolatban. Kérjük, ellenőrizze, hogy csatlakozik-e hálózathoz.", Toast.LENGTH_SHORT).show();
+                Log.d(TAG, "No response");
+            }
+        });
+
+    }
+
+    protected Marker createMarker(String parklat, String parklong, String address) {
+
+        //, String title, String snippet, int iconResID
+        double parklatitude = Double.parseDouble(parklat);
+        double parklongitude = Double.parseDouble(parklong);
+
+        LatLng myloc = new LatLng(parklatitude, parklongitude);
+
+        /*gmap.animateCamera(CameraUpdateFactory.newLatLng(myloc));
+        gmap.moveCamera(CameraUpdateFactory.newLatLngZoom(myloc, 15));*/
+
+        return gmap.addMarker(new MarkerOptions()
+                .position(new LatLng(parklatitude, parklongitude))
+                .title(address));
+    }
+
 }

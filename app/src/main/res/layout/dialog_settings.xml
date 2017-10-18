@@ -52,8 +52,9 @@
                 android:layout_height="wrap_content"
                 android:layout_marginRight="4dp"
                 android:layout_weight="1"
-                android:background="@color/colorPrimary"
                 android:hint="Kovács András"
+                android:textColorHint="@android:color/black"
+                android:textColor="@android:color/black"
                 android:textAlignment="viewEnd"
                 android:textSize="18sp" />
         </LinearLayout>
