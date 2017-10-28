@@ -42,19 +42,19 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
 
         // Create a calendar object that will convert the date and time value in milliseconds to date.
         Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(parseLong(android.get(i).getStartedAt()+"000"));
+        calendar.setTimeInMillis(parseLong(android.get(i).getSum().getStart()+"000"));
         Log.d(TAG, "calendar: "+calendar);
 
-        Calendar calendar2 = Calendar.getInstance();
+        /*Calendar calendar2 = Calendar.getInstance();
         calendar2.setTimeInMillis(parseLong(android.get(i).getStoppedAt()+"000"));
-        Log.d(TAG, "calendar: "+calendar2);
+        Log.d(TAG, "calendar: "+calendar2);*/
 
-        viewHolder.tv_address.setText(android.get(i).getZoneId().toString() + ". zóna");
-        viewHolder.tv_priceper.setText(android.get(i).getParkingPrice().toString()+" Ft ("+android.get(i).getZonePrice().toString()+" Ft/óra)");
+        viewHolder.tv_address.setText(android.get(i).getZone().getAddress().toString() + " ("+android.get(i).getZone().getId().toString() + ". zóna)");
+        viewHolder.tv_priceper.setText(android.get(i).getSum().getPrice().toString()+" Ft ("+android.get(i).getZone().getPrice().toString()+" Ft/óra)");
         //viewHolder.tv_price.setText(android.get(i).getSum().getPrice().toString()+ " Ft");
-        viewHolder.tv_timestamp.setText(formatter.format(calendar.getTime()).toString() +" - "+ formatter.format(calendar2.getTime()).toString());
-        Log.d(TAG, "time: "+String.valueOf((int) Math.ceil(Double.parseDouble(android.get(i).getElapsedTime())/60.0)));
-        viewHolder.tv_time.setText(String.valueOf((int) Math.ceil(Double.parseDouble(android.get(i).getElapsedTime())/60.0)) + " perc");
+        //viewHolder.tv_timestamp.setText(formatter.format(calendar.getTime()).toString() +" - "+ formatter.format(calendar2.getTime()).toString());
+        Log.d(TAG, "time: "+String.valueOf((int) Math.ceil(Double.parseDouble(android.get(i).getSum().getTime())/60.0)));
+        viewHolder.tv_time.setText(String.valueOf((int) Math.ceil(Double.parseDouble(android.get(i).getSum().getTime())/60.0)) + " perc");
     }
 
     @Override

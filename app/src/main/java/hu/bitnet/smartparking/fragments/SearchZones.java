@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -170,28 +171,32 @@ public class SearchZones extends Fragment {
                         mAdapter = new SearchZonesAdapter(data);
                         zones_rv.setAdapter(mAdapter);
 
-                        /*mAdapter.setOnItemClickListener(new SearchAdapter.ClickListener(){
-                            @Override
-                            public void onItemClick(final int position, View v){
-                                SharedPreferences.Editor editor = pref.edit();
-                                editor.putString("address", data.get(position).getAddress().toString());
-                                editor.putString("price", data.get(position).getPrice().toString());
-                                editor.putString("id", data.get(position).getId().toString());
-                                editor.putString("latitude", data.get(position).getLatitude().toString());
-                                editor.putString("longitude", data.get(position).getLongitude().toString());
-                                editor.putString("distance", data.get(position).getDistance().toString());
-                                editor.putString("time", data.get(position).getTime().toString());
-                                editor.apply();
-                                String id = data.get(position).getId().toString();
-                                String sessionId = pref.getString("sessionId", null);
-                                loadJSONSelect(sessionId, id);
-                            }
+                    mAdapter.setOnItemClickListener(new SearchZonesAdapter.ClickListener(){
+                        @Override
+                        public void onItemClick(final int position, View v){
+                            SharedPreferences.Editor editor = pref.edit();
+                            editor.putString("address", data.get(position).getAddress().toString());
+                            //editor.putString("zone", data.get(position).getId().toString());
+                            editor.putString("price", data.get(position).getPrice().toString());
+                            //editor.putString("id", data.get(position).getId().toString());
+                            editor.putString("latitudeZone", data.get(position).getLatitude().toString());
+                            editor.putString("longitudeZone", data.get(position).getLongitude().toString());
+                            editor.putString("click", "yes");
+                            editor.apply();
+                            /*FragmentManager map = getActivity().getSupportFragmentManager();
+                            map.beginTransaction()
+                                    .replace(R.id.frame, new Map())
+                                    .addToBackStack(null)
+                                    .commit();*/
+                            FragmentManager fm = getFragmentManager();
+                            fm.popBackStack();
+                        }
 
-                            @Override
-                            public void onItemLongClick(int position, View v) {
-                                Log.d(TAG, "onItemLongClick pos = " + position);
-                            }
-                        });*/
+                        @Override
+                        public void onItemLongClick(int position, View v) {
+                            Log.d(TAG, "onItemLongClick pos = " + position);
+                        }
+                    });
                 }
             }
 

@@ -13,11 +13,13 @@ public class History {
     private Sum sum;
     private Place place;
     private String zone_id;
-    private String elapsed_time;
-    private String started_at;
+    private String time;
+    private String start;
     private String stopped_at;
     private String parking_price;
     private String zone_price;
+    private String price;
+    private Zone zone;
 
     public Profile getProfile() { return profile; }
     public BLE getBle() { return ble; }
@@ -26,10 +28,12 @@ public class History {
     public Sum getSum() { return sum; }
     public Place getPlace() { return place; }
     public String getZoneId() { return zone_id; }
-    public String getElapsedTime() { return elapsed_time; }
-    public String getStartedAt() { return started_at; }
+    public String getTime() { return time; }
+    public String getStart() { return start; }
     public String getStoppedAt() { return stopped_at; }
     public String getParkingPrice() { return parking_price; }
     public String getZonePrice() { return zone_price; }
+    public String getPrice() { return price; }
+    public Zone getZone() { return zone; }
 
 }

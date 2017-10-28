@@ -1,8 +1,7 @@
 package hu.bitnet.smartparking.Adapters;
 
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,43 +10,39 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 import hu.bitnet.smartparking.R;
-import hu.bitnet.smartparking.objects.Parking_places;
+import hu.bitnet.smartparking.objects.Addresses;
+
+import static android.content.ContentValues.TAG;
 
 /**
  * Created by nyulg on 2017. 08. 05..
  */
 
-public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.ViewHolder> {
-    private ArrayList<Parking_places> android;
-    private static SearchAdapter.ClickListener clickListener;
-    SharedPreferences pref;
+public class UpSearchAdapter extends RecyclerView.Adapter<UpSearchAdapter.ViewHolder> {
+    private ArrayList<Addresses> android;
+    private static UpSearchAdapter.ClickListener clickListener;
 
-    private Context mContext;
-
-    public SearchAdapter(Context context)
-    {
-        mContext = context;
-    }
-
-    public SearchAdapter(ArrayList<Parking_places> android) {
+    public UpSearchAdapter(ArrayList<Addresses> android) {
         this.android = android;
     }
 
 
     @Override
-    public SearchAdapter.ViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
-        View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.card_zones, viewGroup, false);
+    public UpSearchAdapter.ViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
+        View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.upsearch_list, viewGroup, false);
         return new ViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(SearchAdapter.ViewHolder viewHolder, int i) {
+    public void onBindViewHolder(UpSearchAdapter.ViewHolder viewHolder, int i) {
 
         viewHolder.tv_address.setText(android.get(i).getAddress());
+        Log.d(TAG, "cím: "+android.get(i).getAddress());
+        viewHolder.tv_count.setText(String.valueOf(android.size()));
         viewHolder.tv_priceper.setText(String.format("%.0f", Double.parseDouble(android.get(i).getPrice())) + " Ft/óra");
-        viewHolder.tv_km.setText(String.format("%.1f", Double.parseDouble(android.get(i).getDistance())/1000.0)+" km");
-        viewHolder.tv_traffic.setText(String.format("%.1f", Double.parseDouble(android.get(i).getTime()))+" min without traffic");
-        viewHolder.tv_count.setText(android.get(i).getFreePlaces());
+        //viewHolder.tv_km.setText(String.format("%.1f", Double.parseDouble(android.get(i).getDistance())/1000.0)+" km");
+        //viewHolder.tv_traffic.setText(String.format("%.1f", Double.parseDouble(android.get(i).getTime()))+" min without traffic");
+        //viewHolder.tv_count.setText(android.get(i).getFreePlaces());*/
     }
 
     @Override
@@ -84,8 +79,8 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.ViewHolder
         }
     }
 
-    public void setOnItemClickListener(SearchAdapter.ClickListener clickListener) {
-        SearchAdapter.clickListener = clickListener;
+    public void setOnItemClickListener(UpSearchAdapter.ClickListener clickListener) {
+        UpSearchAdapter.clickListener = clickListener;
     }
 
     public interface ClickListener {

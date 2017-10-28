@@ -1,6 +1,7 @@
 package hu.bitnet.smartparking.Adapters;
 
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,6 +11,8 @@ import java.util.ArrayList;
 
 import hu.bitnet.smartparking.R;
 import hu.bitnet.smartparking.objects.Addresses;
+
+import static android.content.ContentValues.TAG;
 
 /**
  * Created by nyulg on 2017. 08. 05..
@@ -34,11 +37,12 @@ public class SearchZonesAdapter extends RecyclerView.Adapter<SearchZonesAdapter.
     public void onBindViewHolder(SearchZonesAdapter.ViewHolder viewHolder, int i) {
 
         viewHolder.tv_address.setText(android.get(i).getAddress());
+        Log.d(TAG, "cím: "+android.get(i).getAddress());
         viewHolder.tv_count.setText(String.valueOf(android.size()));
-        /*viewHolder.tv_priceper.setText(String.format("%.0f", Double.parseDouble(android.get(i).getPrice())) + " Ft/óra");
-        viewHolder.tv_km.setText(String.format("%.1f", Double.parseDouble(android.get(i).getDistance())/1000.0)+" km");
-        viewHolder.tv_traffic.setText(String.format("%.1f", Double.parseDouble(android.get(i).getTime()))+" min without traffic");
-        viewHolder.tv_count.setText(android.get(i).getFreePlaces());*/
+        viewHolder.tv_priceper.setText(String.format("%.0f", Double.parseDouble(android.get(i).getPrice())) + " Ft/óra");
+        //viewHolder.tv_km.setText(String.format("%.1f", Double.parseDouble(android.get(i).getDistance())/1000.0)+" km");
+        //viewHolder.tv_traffic.setText(String.format("%.1f", Double.parseDouble(android.get(i).getTime()))+" min without traffic");
+        //viewHolder.tv_count.setText(android.get(i).getFreePlaces());*/
     }
 
     @Override

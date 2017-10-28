@@ -22,6 +22,7 @@ public class Parking_places {
     private String centerLatitude, centerLongitude;
     private BLE ble;
     private MQTT mqtt;
+    private String timeLimit;
 
 
     public String getAddress() { return address; }
@@ -36,5 +37,6 @@ public class Parking_places {
     public String getCenterLongitude() {return centerLongitude;}
     public BLE getBLE() { return ble; }
     public MQTT getMQTT() { return mqtt; }
+    public String getTimeLimit() { return timeLimit; }
 
 }

@@ -10,10 +10,14 @@ public class Addresses {
     private String latitude;
     private String longitude;
     private String address;
+    private String price;
+    private String freeplaces;
 
     public String getName() { return name; }
     public String getLatitude() { return latitude; }
     public String getLongitude() { return longitude; }
     public String getAddress() { return address; }
+    public String getPrice() { return price; }
+    public String getFreePlaces() { return freeplaces; }
 
 }

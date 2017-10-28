@@ -7,6 +7,7 @@ import hu.bitnet.smartparking.objects.Parking_places;
 import hu.bitnet.smartparking.objects.Place;
 import hu.bitnet.smartparking.objects.Profile;
 import hu.bitnet.smartparking.objects.Sum;
+import hu.bitnet.smartparking.objects.Zone;
 
 /**
  * Created by Attila on 2017.10.13..
@@ -30,6 +31,7 @@ public class ServerResponse {
     private Place place;
     private String free;
     private String devaddr;
+    private Zone zone;
 
     public Profile getProfile() { return profile; }
     public Error getError() { return error; }
@@ -47,5 +49,6 @@ public class ServerResponse {
     public Place getPlace() { return place; }
     public String getFree() { return free; }
     public String getDevaddr() { return devaddr; }
+    public Zone getZone() { return zone; }
 
 }
