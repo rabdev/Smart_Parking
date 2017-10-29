@@ -537,8 +537,18 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                             .add(R.id.mapView, search, search.getTag())
                             .addToBackStack("Search")
                             .commit();
+                    upsearch.setActivated(true);
+                    upsearch.hasFocus();
+                    upsearch.requestFocus();
                 } else if(upsearch.getText().toString().trim().length() < 3) {
-                    getSupportFragmentManager().popBackStackImmediate();
+                    FragmentManager fragmentManager = getSupportFragmentManager();
+                    index = fragmentManager.getBackStackEntryCount();
+                    if (index != 0) {
+                        fragmentManager.popBackStackImmediate();
+                    }
+                    upsearch.setActivated(true);
+                    upsearch.hasFocus();
+                    upsearch.requestFocus();
                 }
             }
 

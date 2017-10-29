@@ -76,6 +76,7 @@ public class Search extends Fragment {
 
         upsearch.setActivated(true);
         upsearch.hasFocus();
+        upsearch.requestFocus();
 
         loadJSON(upsearch.getText().toString());
 
@@ -89,6 +90,9 @@ public class Search extends Fragment {
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if (upsearch.getText().toString().trim().length() > 2) {
                     loadJSON(upsearch.getText().toString());
+                    upsearch.hasFocus();
+                    upsearch.setActivated(true);
+                    upsearch.requestFocus();
                 }
             }
 
