@@ -20,10 +20,17 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapView;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.LatLng;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 
 import hu.bitnet.smartparking.Adapters.SearchAdapter;
+import hu.bitnet.smartparking.MainActivity;
 import hu.bitnet.smartparking.R;
 import hu.bitnet.smartparking.RequestInterfaces.RequestInterfaceNearest;
 import hu.bitnet.smartparking.ServerResponses.ServerResponse;
@@ -55,6 +62,7 @@ public class Zones extends Fragment {
     boolean isNetworkEnabled = false;
     boolean canGetLocation = false;
     Location location;
+    GoogleMap gmap;
     private double latitude, longitude;
 
     LocationManager locationManager;
@@ -170,12 +178,21 @@ public class Zones extends Fragment {
                             Log.d(TAG, "free: "+data.get(position).getFreePlaces().toString());
                             editor.putString("click", "yes");
                             editor.apply();
+
+                            double c = Double.parseDouble(data.get(position).getCenterLatitude().toString());
+                            double d = Double.parseDouble(data.get(position).getCenterLongitude().toString());
+
+                            ((MainActivity)getActivity()).addMarker(c,d);
+
                             /*FragmentManager map = getActivity().getSupportFragmentManager();
                             map.beginTransaction()
                                     .replace(R.id.frame, new Map())
                                     .addToBackStack(null)
                                     .commit();*/
-                            FragmentManager fm = getFragmentManager();
+                            FragmentManager fm = getActivity().getSupportFragmentManager();
+                            getActivity().findViewById(R.id.btn_parking_places).setBackgroundResource(R.drawable.button_background);
+                            getActivity().findViewById(R.id.btn_myloc).setVisibility(View.VISIBLE);
+                            getActivity().findViewById(R.id.btn_search).setVisibility(View.VISIBLE);
                             fm.popBackStack();
                         }
 

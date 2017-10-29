@@ -9,6 +9,8 @@ import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -48,6 +50,7 @@ public class Search extends Fragment {
     public UpSearchAdapter mAdapter;
     public ArrayList<Addresses> data;
     public String address;
+    EditText upsearch;
     SharedPreferences pref;
     //public SearchAdapter mAdapter;
 
@@ -69,12 +72,31 @@ public class Search extends Fragment {
 
         pref = getActivity().getPreferences(0);
 
-        EditText upsearch= (EditText) getActivity().findViewById(R.id.upsearch);
+        upsearch= (EditText) getActivity().findViewById(R.id.upsearch);
 
         upsearch.setActivated(true);
         upsearch.hasFocus();
 
         loadJSON(upsearch.getText().toString());
+
+        upsearch.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (upsearch.getText().toString().trim().length() > 2) {
+                    loadJSON(upsearch.getText().toString());
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
 
         //Toast.makeText(getContext(), upsearch.getText().toString(),Toast.LENGTH_LONG).show();
 
@@ -163,7 +185,7 @@ public class Search extends Fragment {
                     alertDialog.show();
                 }else{
                     data = new ArrayList<Addresses>(Arrays.asList(resp.getAddresses()));
-                    Log.d(TAG, "data: "+data.get(0).getAddress().toString());
+                    //Log.d(TAG, "data: "+data.get(0).getAddress().toString());
                     mAdapter = new UpSearchAdapter(data);
                     search_rv.setAdapter(mAdapter);
 

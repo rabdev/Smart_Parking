@@ -108,7 +108,9 @@ public class Parking extends Fragment {
         parking_start_priceper_text = pref.getString("price", null);
         parking_start_time_text = pref.getString("timeLimit", null);
 
-        parking_limit = Long.parseLong(pref.getString("maxTime", null))*60;
+        if (pref.getString("maxTime",null)!=null){
+            parking_limit = Long.parseLong(pref.getString("maxTime", null))*60;
+        }
         Log.d(TAG, "parkinglimit: "+parking_limit);
 
         parking_start_address.setText(parking_start_address_text);
@@ -204,12 +206,18 @@ public class Parking extends Fragment {
                             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("sms:" + pref.getString(Constants.SMSBase, null)));
                             intent.putExtra("sms_body", pref.getString(Constants.LicensePlate, null));
                             startActivity(intent);
+                            SharedPreferences.Editor editor = pref.edit();
+                            editor.putString(Constants.ParkingStatus, "1");
+                            editor.apply();
                         }
                     });
 
                     alertDialog.setNegativeButton("Mégsem", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
                             //Toast.makeText(getContext(), "Kérjük, ne felejtse el elhozni beutalóját!", Toast.LENGTH_SHORT).show();
+                            SharedPreferences.Editor editor = pref.edit();
+                            editor.putString(Constants.ParkingStatus, "1");
+                            editor.apply();
                         }
                     });
 
@@ -223,9 +231,6 @@ public class Parking extends Fragment {
                     status_inprogress.setVisibility(View.GONE);
                     status_checkout.setVisibility(View.GONE);
 
-                    SharedPreferences.Editor editor = pref.edit();
-                    editor.putString(Constants.ParkingStatus, "1");
-                    editor.apply();
                 } else if (pref.getString(Constants.ParkingStatus,"").isEmpty()){
                     SharedPreferences.Editor editor = pref.edit();
                     editor.putString(Constants.ParkingStatus, "1");

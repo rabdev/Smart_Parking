@@ -188,7 +188,7 @@ public class SearchZones extends Fragment {
                                     .replace(R.id.frame, new Map())
                                     .addToBackStack(null)
                                     .commit();*/
-                            FragmentManager fm = getFragmentManager();
+                            FragmentManager fm = getActivity().getSupportFragmentManager();
                             fm.popBackStack();
                         }
 
