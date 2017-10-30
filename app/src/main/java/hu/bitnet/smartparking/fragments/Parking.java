@@ -24,6 +24,7 @@ import android.widget.Toast;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import hu.bitnet.smartparking.MainActivity;
 import hu.bitnet.smartparking.R;
 import hu.bitnet.smartparking.RequestInterfaces.RequestInterfaceParkingStart;
 import hu.bitnet.smartparking.RequestInterfaces.RequestInterfaceParkingStatus;
@@ -179,6 +180,7 @@ public class Parking extends Fragment {
                     SharedPreferences.Editor editor = pref.edit();
                     editor.putString(Constants.ParkingStatus, "2");
                     editor.apply();
+                    ((MainActivity)getActivity()).ParkinginProgress();
                 } else if (pref.getString(Constants.ParkingStatus,"").equals("2")) {
                     //loadJSONStop(pref.getString(Constants.UID, null), zoneId);
                     loadJSONStop("F3050076-1CB2-6A54-8AAD-7DF067232155*ABC123", zoneId);
@@ -194,6 +196,7 @@ public class Parking extends Fragment {
                     SharedPreferences.Editor editor = pref.edit();
                     editor.putString(Constants.ParkingStatus, "3");
                     editor.apply();
+                    ((MainActivity)getActivity()).ParkinginProgress();
                 } else if (pref.getString(Constants.ParkingStatus,"").equals("3")){
 
                     AlertDialog.Builder alertDialog = new AlertDialog.Builder(getActivity());
@@ -209,6 +212,7 @@ public class Parking extends Fragment {
                             SharedPreferences.Editor editor = pref.edit();
                             editor.putString(Constants.ParkingStatus, "1");
                             editor.apply();
+                            ((MainActivity)getActivity()).ParkinginProgress();
                         }
                     });
 
@@ -218,6 +222,7 @@ public class Parking extends Fragment {
                             SharedPreferences.Editor editor = pref.edit();
                             editor.putString(Constants.ParkingStatus, "1");
                             editor.apply();
+                            ((MainActivity)getActivity()).ParkinginProgress();
                         }
                     });
 
@@ -236,6 +241,7 @@ public class Parking extends Fragment {
                     editor.putString(Constants.ParkingStatus, "1");
                     editor.apply();
                     btn_status.callOnClick();
+                    ((MainActivity)getActivity()).ParkinginProgress();
                 }
             }
         });
@@ -337,7 +343,9 @@ public class Parking extends Fragment {
                     SharedPreferences.Editor editor = pref.edit();
                     editor.putString("ParkTime", resp.getSum().getTime().toString());
                     Log.d(TAG, "time: "+resp.getSum().getTime().toString());
-                    editor.putString("ParkPrice", resp.getSum().getPrice().toString());
+                    if (pref.getString("ParkPrice",null)!=null){
+                        editor.putString("ParkPrice", resp.getSum().getPrice().toString());
+                    }
                     editor.apply();
 
                     parking_checkout_address.setText(parking_start_address_text);

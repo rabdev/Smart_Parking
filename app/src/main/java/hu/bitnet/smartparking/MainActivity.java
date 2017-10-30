@@ -180,25 +180,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         btn_navigate.setVisibility(View.GONE);
         upsearch.setVisibility(View.GONE);
 
-        if (pref.getString(Constants.ParkingStatus,"").equals("2")){
-            inprogress.setVisibility(View.VISIBLE);
-            ValueAnimator backgroundAnim = ObjectAnimator.ofInt(inprogress, "backgroundColor", getResources().getColor(R.color.colorPrimary, getTheme()), getResources().getColor(R.color.colorPurple, getTheme()));
-            backgroundAnim.setDuration(3000);
-            backgroundAnim.setEvaluator(new ArgbEvaluator());
-            backgroundAnim.setRepeatCount(ValueAnimator.INFINITE);
-            backgroundAnim.setRepeatMode(ValueAnimator.REVERSE);
-            backgroundAnim.start();
-        } else if (pref.getString(Constants.ParkingStatus,"").equals("3")){
-            inprogress.setVisibility(View.VISIBLE);
-            ValueAnimator backgroundAnim = ObjectAnimator.ofInt(inprogress, "backgroundColor", getResources().getColor(R.color.colorPrimary, getTheme()), getResources().getColor(R.color.colorPurple, getTheme()));
-            backgroundAnim.setDuration(3000);
-            backgroundAnim.setEvaluator(new ArgbEvaluator());
-            backgroundAnim.setRepeatCount(ValueAnimator.INFINITE);
-            backgroundAnim.setRepeatMode(ValueAnimator.REVERSE);
-            backgroundAnim.start();
-        } else {
-            inprogress.setVisibility(View.GONE);
-        }
+        ParkinginProgress();
 
 
 
@@ -1123,4 +1105,25 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         upsearch.requestFocus();
     }
 
+    public void ParkinginProgress(){
+        if (pref.getString(Constants.ParkingStatus,"").equals("2")){
+            inprogress.setVisibility(View.VISIBLE);
+            ValueAnimator backgroundAnim = ObjectAnimator.ofInt(inprogress, "backgroundColor", getResources().getColor(R.color.colorPrimary, getTheme()), getResources().getColor(R.color.colorPurple, getTheme()));
+            backgroundAnim.setDuration(3000);
+            backgroundAnim.setEvaluator(new ArgbEvaluator());
+            backgroundAnim.setRepeatCount(ValueAnimator.INFINITE);
+            backgroundAnim.setRepeatMode(ValueAnimator.REVERSE);
+            backgroundAnim.start();
+        } else if (pref.getString(Constants.ParkingStatus,"").equals("3")){
+            inprogress.setVisibility(View.VISIBLE);
+            ValueAnimator backgroundAnim = ObjectAnimator.ofInt(inprogress, "backgroundColor", getResources().getColor(R.color.colorPrimary, getTheme()), getResources().getColor(R.color.colorPurple, getTheme()));
+            backgroundAnim.setDuration(3000);
+            backgroundAnim.setEvaluator(new ArgbEvaluator());
+            backgroundAnim.setRepeatCount(ValueAnimator.INFINITE);
+            backgroundAnim.setRepeatMode(ValueAnimator.REVERSE);
+            backgroundAnim.start();
+        } else {
+            inprogress.setVisibility(View.GONE);
+        }
+    }
 }
