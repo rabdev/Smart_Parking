@@ -105,13 +105,14 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     SeekBar settings_distance, sb_distance;
     Animation slide_up, slide_up1, slide_up2, slide_down, slide_down2;
     TransitionDrawable transition;
-    boolean x, bool_license, bool_distance, bool_smsbase;
+    boolean x, bool_license, bool_distance, bool_smsbase, search_active;
     final private int REQUEST_CODE_ASK_PERMISSIONS = 123;
     int index, prog;
     public ArrayList<Parking_places> data;
     double latitude,z;
     double longitude,y;
     private String search_text;
+    InputMethodManager imm;
 
 
     @RequiresApi(api = Build.VERSION_CODES.M)
@@ -121,6 +122,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         setContentView(R.layout.activity_main);
         pref = getPreferences(0);
         x = false;
+        search_active=false;
 
         /*SharedPreferences.Editor editor = pref.edit();
         editor.putString(Constants.LicensePlate,"");
@@ -478,6 +480,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                 btn_myloc.setVisibility(View.GONE);
                 btn_navigate.setVisibility(View.GONE);
                 upsearch.setVisibility(View.GONE);
+                x=false;
             }
         });
 
@@ -485,6 +488,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
             @Override
             public void onClick(View v) {
                 parking_card.setVisibility(View.GONE);
+                x=false;
                 btn_navigate.setVisibility(View.GONE);
                 Parking parking = new Parking();
                 FragmentManager fragmentManager = getSupportFragmentManager();
@@ -501,6 +505,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
             @Override
             public void onClick(View v) {
                 parking_card.setVisibility(View.GONE);
+                x=false;
                 btn_navigate.setVisibility(View.GONE);
                 Parking parking = new Parking();
                 FragmentManager fragmentManager = getSupportFragmentManager();
@@ -531,20 +536,39 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         upsearch.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                if (upsearch.getText().toString().trim().length() >= 3) {
+                    if (search_active == false) {
+                        Search search = new Search();
+                        FragmentManager fragmentManager = getSupportFragmentManager();
+                        fragmentManager.beginTransaction()
+                                .add(R.id.mapView, search, search.getTag())
+                                .addToBackStack("Search")
+                                .commit();
+                        upsearch.setActivated(true);
+                        upsearch.hasFocus();
+                        upsearch.requestFocus();
+                        search_active = true;
+                        x=true;
+                    }
+                }
             }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if (upsearch.getText().toString().trim().length() == 3) {
-                    Search search = new Search();
-                    FragmentManager fragmentManager = getSupportFragmentManager();
-                    fragmentManager.beginTransaction()
-                            .add(R.id.mapView, search, search.getTag())
-                            .addToBackStack("Search")
-                            .commit();
-                    upsearch.setActivated(true);
-                    upsearch.hasFocus();
-                    upsearch.requestFocus();
+                    if (search_active==false){
+                        Search search = new Search();
+                        FragmentManager fragmentManager = getSupportFragmentManager();
+                        fragmentManager.beginTransaction()
+                                .add(R.id.mapView, search, search.getTag())
+                                .addToBackStack("Search")
+                                .commit();
+                        upsearch.setActivated(true);
+                        upsearch.hasFocus();
+                        upsearch.requestFocus();
+                        search_active=true;
+                        x=true;
+                    }
                 } else if(upsearch.getText().toString().trim().length() < 3) {
                     FragmentManager fragmentManager = getSupportFragmentManager();
                     index = fragmentManager.getBackStackEntryCount();
@@ -554,6 +578,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                     upsearch.setActivated(true);
                     upsearch.hasFocus();
                     upsearch.requestFocus();
+                    search_active=false;
+                    x=false;
                 }
             }
 
@@ -569,6 +595,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                     upsearch.setVisibility(View.VISIBLE);
                     upsearch.setActivated(true);
                     upsearch.requestFocus();
+                    imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.showSoftInput(upsearch, InputMethodManager.SHOW_IMPLICIT);
                 }
             }
         });
@@ -837,20 +865,27 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     public void onBackPressed() {
-        if (!x) {
-            finish();
-        } else if (menu.getVisibility() == View.VISIBLE) {
+        if (search_active){
+            getSupportFragmentManager().popBackStackImmediate();
+            changeSearch();
+        } else if (parking_card.getVisibility() == View.VISIBLE){
+            parking_card.setVisibility(View.GONE);
+            btn_navigate.setVisibility(View.GONE);
+            x=false;
+        } else if (menu.getVisibility() == View.VISIBLE){
             infosav.setVisibility(View.VISIBLE);
             infosav.startAnimation(slide_up1);
             menu.startAnimation(slide_down);
             menu.setVisibility(View.GONE);
             x = false;
-        } else if (distance.getVisibility() == View.VISIBLE) {
+        } else if (distance_container.getVisibility() == View.VISIBLE){
             distance_container.setVisibility(View.GONE);
             distance_bg.setBackgroundTintList(getResources().getColorStateList(R.color.colorPrimaryDark, getTheme()));
             tv_distance.setTextColor(getResources().getColorStateList(R.color.colorPrimaryDark, getTheme()));
             distance_container.startAnimation(slide_down2);
             x = false;
+        } else if (!x) {
+            finish();
         }
     }
 
@@ -931,6 +966,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                             editor.putString("maxTime", data.get(parseInt(marker1.getId().substring(1))).getTimeLimit());
                             editor.apply();
                             parking_card.setVisibility(View.VISIBLE);
+                            x=true;
                             btn_navigate.setVisibility(View.VISIBLE);
                             btn_navigate.setOnClickListener(new View.OnClickListener() {
                                 @Override
@@ -982,13 +1018,18 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                             card_count.setText(pref.getString("freeplaces", null));
                             parkingcount.setText(pref.getString("freeplaces", null));
                             card_perprice.setText(pref.getString("price", null) + " Ft/óra");
-                            distance_km.setText(String.format("%.1f", Double.parseDouble(pref.getString("distance", null))/1000.0) + " km from your current location");
-                            distance_mins.setText(String.format("%.1f", Double.parseDouble(pref.getString("time", null))) + " mins without traffic");
+                            if (pref.getString("distance",null)!=null){
+                                distance_km.setText(String.format("%.1f", Double.parseDouble(pref.getString("distance", null))/1000.0) + " km from your current location");
+                            }
+                            if (pref.getString("time", null)!=null){
+                                distance_mins.setText(String.format("%.1f", Double.parseDouble(pref.getString("time", null))) + " mins without traffic");
+                            }
                             parking_card.setVisibility(View.VISIBLE);
                             btn_navigate.setVisibility(View.VISIBLE);
                             //}
                         } else {
                             parking_card.setVisibility(View.GONE);
+                            x=false;
                             btn_navigate.setVisibility(View.GONE);
                             for (int i = 0; i < data.size(); i++) {
                                 Log.d(TAG, "Szabad helyek száma: " + data.get(i).getFreePlaces());
@@ -1070,6 +1111,16 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         LatLng myloc = new LatLng(c, d);
         gmap.animateCamera(CameraUpdateFactory.newLatLng(myloc));
         gmap.moveCamera(CameraUpdateFactory.newLatLngZoom(myloc, 16));
+    }
+
+    public void changeSearch(){
+        search_active=false;
+        x=false;
+    }
+
+    public void searchFocusRequest(){
+        upsearch.setActivated(true);
+        upsearch.requestFocus();
     }
 
 }

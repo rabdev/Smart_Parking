@@ -282,7 +282,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         android:layout_marginBottom="64dp"
-        android:background="@drawable/seekbar_background"
+        android:background="@drawable/parking_card_background"
         android:orientation="vertical">
 
         <LinearLayout

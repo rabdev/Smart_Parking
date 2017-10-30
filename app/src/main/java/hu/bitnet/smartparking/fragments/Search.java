@@ -1,6 +1,7 @@
 package hu.bitnet.smartparking.fragments;
 
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -16,6 +17,7 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -23,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import hu.bitnet.smartparking.Adapters.UpSearchAdapter;
+import hu.bitnet.smartparking.MainActivity;
 import hu.bitnet.smartparking.R;
 import hu.bitnet.smartparking.RequestInterfaces.RequestInterfaceAutocomplete;
 import hu.bitnet.smartparking.ServerResponses.ServerResponseSearchZones;
@@ -74,10 +77,6 @@ public class Search extends Fragment {
 
         upsearch= (EditText) getActivity().findViewById(R.id.upsearch);
 
-        upsearch.setActivated(true);
-        upsearch.hasFocus();
-        upsearch.requestFocus();
-
         loadJSON(upsearch.getText().toString());
 
         upsearch.addTextChangedListener(new TextWatcher() {
@@ -90,9 +89,7 @@ public class Search extends Fragment {
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if (upsearch.getText().toString().trim().length() > 2) {
                     loadJSON(upsearch.getText().toString());
-                    upsearch.hasFocus();
-                    upsearch.setActivated(true);
-                    upsearch.requestFocus();
+                    //((MainActivity)getActivity()).searchFocusRequest();
                 }
             }
 
@@ -117,7 +114,11 @@ public class Search extends Fragment {
             public boolean onKey(View v, int keyCode, KeyEvent event) {
                 if (event.getAction() == ACTION_UP && keyCode == KEYCODE_BACK) {
                     // handle back button's click listener
-                    getFragmentManager().popBackStackImmediate();
+                    View view = getActivity().getCurrentFocus();
+                    if (view != null) {
+                        InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+                    }
                     return true;
                 }
                 return false;
@@ -192,6 +193,9 @@ public class Search extends Fragment {
                     //Log.d(TAG, "data: "+data.get(0).getAddress().toString());
                     mAdapter = new UpSearchAdapter(data);
                     search_rv.setAdapter(mAdapter);
+                    if (getView()!=null){
+                        ((MainActivity)getActivity()).searchFocusRequest();
+                    }
 
                     mAdapter.setOnItemClickListener(new UpSearchAdapter.ClickListener(){
                         @Override
@@ -210,8 +214,18 @@ public class Search extends Fragment {
                                     .replace(R.id.frame, new Map())
                                     .addToBackStack(null)
                                     .commit();*/
-                            FragmentManager fm = getFragmentManager();
+                            View view = getActivity().getCurrentFocus();
+                            if (view != null) {
+                                InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                                imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+                            }
+
+                            double c = Double.parseDouble(data.get(position).getLatitude().toString());
+                            double d = Double.parseDouble(data.get(position).getLongitude().toString());
+                            ((MainActivity)getActivity()).addMarker(c,d);
+                            FragmentManager fm = getActivity().getSupportFragmentManager();
                             fm.popBackStack();
+                            ((MainActivity)getActivity()).changeSearch();
                         }
 
                         @Override
