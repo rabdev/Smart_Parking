@@ -15,6 +15,7 @@ import android.graphics.drawable.TransitionDrawable;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -94,6 +95,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     GoogleApiClient mGoogleApiClient;
     LocationRequest mLocationRequest;
     Location location;
+    LatLng position;
     android.location.LocationListener locationlistener;
     LinearLayout infosav, menu, distance_container, distance, distance_bg, parking_card;
     ImageView settings, collapse, hb_menu, btn_search, btn_navigate, btn_myloc, inprogress;
@@ -107,8 +109,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     final private int REQUEST_CODE_ASK_PERMISSIONS = 123;
     int index, prog;
     public ArrayList<Parking_places> data;
-    double latitude;
-    double longitude;
+    double latitude,z;
+    double longitude,y;
     private String search_text;
 
 
@@ -474,6 +476,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                         .addToBackStack("Parking")
                         .commit();
                 btn_myloc.setVisibility(View.GONE);
+                btn_navigate.setVisibility(View.GONE);
                 upsearch.setVisibility(View.GONE);
             }
         });
@@ -482,6 +485,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
             @Override
             public void onClick(View v) {
                 parking_card.setVisibility(View.GONE);
+                btn_navigate.setVisibility(View.GONE);
                 Parking parking = new Parking();
                 FragmentManager fragmentManager = getSupportFragmentManager();
                 fragmentManager.beginTransaction()
@@ -497,6 +501,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
             @Override
             public void onClick(View v) {
                 parking_card.setVisibility(View.GONE);
+                btn_navigate.setVisibility(View.GONE);
                 Parking parking = new Parking();
                 FragmentManager fragmentManager = getSupportFragmentManager();
                 fragmentManager.beginTransaction()
@@ -916,7 +921,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                                     + String.valueOf(marker1.getTitle()), Toast.LENGTH_LONG).show();*/
 
                             marker1.hideInfoWindow();
-                            LatLng position = marker1.getPosition();
+                            position = marker1.getPosition();
                             SharedPreferences.Editor editor = pref.edit();
                             editor.putString("id", data.get(parseInt(marker1.getId().substring(1))).getId());
                             editor.putString("address", data.get(parseInt(marker1.getId().substring(1))).getAddress());
@@ -926,6 +931,17 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                             editor.putString("maxTime", data.get(parseInt(marker1.getId().substring(1))).getTimeLimit());
                             editor.apply();
                             parking_card.setVisibility(View.VISIBLE);
+                            btn_navigate.setVisibility(View.VISIBLE);
+                            btn_navigate.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    z = position.latitude;
+                                    y = position.longitude;
+                                    String uri = String.format("http://maps.google.com/maps?" + "saddr="+latitude+","+longitude+ "&daddr="+z+","+y+"");
+                                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
+                                    startActivity(intent);
+                                }
+                            });
                             card_address.setText(pref.getString("address", null));
                             card_count.setText(data.get(parseInt(marker1.getId().substring(1))).getFreePlaces());
                             card_perprice.setText(pref.getString("price", null) + " Ft/óra");
@@ -969,9 +985,11 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                             distance_km.setText(String.format("%.1f", Double.parseDouble(pref.getString("distance", null))/1000.0) + " km from your current location");
                             distance_mins.setText(String.format("%.1f", Double.parseDouble(pref.getString("time", null))) + " mins without traffic");
                             parking_card.setVisibility(View.VISIBLE);
+                            btn_navigate.setVisibility(View.VISIBLE);
                             //}
                         } else {
                             parking_card.setVisibility(View.GONE);
+                            btn_navigate.setVisibility(View.GONE);
                             for (int i = 0; i < data.size(); i++) {
                                 Log.d(TAG, "Szabad helyek száma: " + data.get(i).getFreePlaces());
                                 freePlaces += Integer.valueOf(data.get(i).getFreePlaces());
