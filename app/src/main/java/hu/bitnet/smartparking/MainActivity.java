@@ -660,6 +660,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 
             gmap.setMyLocationEnabled(true);
             gmap.getUiSettings().setMyLocationButtonEnabled(false);
+            gmap.getUiSettings().setMapToolbarEnabled(false);
 
 
 
@@ -928,8 +929,12 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                             card_address.setText(pref.getString("address", null));
                             card_count.setText(data.get(parseInt(marker1.getId().substring(1))).getFreePlaces());
                             card_perprice.setText(pref.getString("price", null) + " Ft/óra");
-                            distance_km.setText(String.format("%.1f", Double.parseDouble(pref.getString("distance", null))/1000.0) + " km from your current location");
-                            distance_mins.setText(String.format("%.1f", Double.parseDouble(pref.getString("time", null))) + " mins without traffic");
+                            if (pref.getString("distance",null)!=null){
+                                distance_km.setText(String.format("%.1f", Double.parseDouble(pref.getString("distance", null))/1000.0) + " km from your current location");
+                            }
+                            if (pref.getString("time",null)!=null){
+                                distance_mins.setText(String.format("%.1f", Double.parseDouble(pref.getString("time", null))) + " mins without traffic");
+                            }
                             //editor.apply();
                             //checkForSlot();
                             return false;
