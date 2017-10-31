@@ -203,7 +203,7 @@ public class Search extends Fragment {
                             SharedPreferences.Editor editor = pref.edit();
                             editor.putString("address", data.get(position).getAddress().toString());
                             //editor.putString("zone", data.get(position).getId().toString());
-                            editor.putString("price", data.get(position).getPrice().toString());
+                            editor.putString("price", String.format("%.0f", Double.parseDouble((data.get(position).getPrice().toString()))));
                             //editor.putString("id", data.get(position).getId().toString());
                             editor.putString("latitudeZone", data.get(position).getLatitude().toString());
                             editor.putString("longitudeZone", data.get(position).getLongitude().toString());

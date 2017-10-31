@@ -1059,6 +1059,22 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                             Log.d(TAG, "onItemLongClick pos = " + position);
                         }
                     });*/
+                    }else{
+                        parking_card.setVisibility(View.GONE);
+                        x=false;
+                        btn_navigate.setVisibility(View.GONE);
+                        for (int i = 0; i < data.size(); i++) {
+                            Log.d(TAG, "Szabad helyek száma: " + data.get(i).getFreePlaces());
+                            freePlaces += Integer.valueOf(data.get(i).getFreePlaces());
+                            //createMarker(data.get(i).getCenterLatitude(), data.get(i).getCenterLongitude(), data.get(i).getAddress());
+                            /*double c = Double.parseDouble(pref.getString("latitude", null));
+                            double d = Double.parseDouble(pref.getString("longitude", null));
+                            LatLng myloc = new LatLng(c, d);
+                            gmap.animateCamera(CameraUpdateFactory.newLatLng(myloc));
+                            gmap.moveCamera(CameraUpdateFactory.newLatLngZoom(myloc, 16));*/
+                            parkingcount.setText(String.valueOf(freePlaces));
+                            card_count.setText(String.valueOf(freePlaces));
+                        }
                     }
                 }
 
