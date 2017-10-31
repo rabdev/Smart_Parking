@@ -176,7 +176,7 @@ public class Zones extends Fragment {
                             editor.putString("time", data.get(position).getTime().toString());
                             editor.putString("freeplaces", data.get(position).getFreePlaces().toString());
                             Log.d(TAG, "free: "+data.get(position).getFreePlaces().toString());
-                            editor.putString("click", "yes");
+                            //editor.putString("click", "yes");
                             editor.apply();
 
                             double c = Double.parseDouble(data.get(position).getCenterLatitude().toString());

@@ -937,6 +937,14 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                             /*Toast.makeText(getContext(), String.valueOf(marker1.getPosition())
                                     + String.valueOf(marker1.getTitle()), Toast.LENGTH_LONG).show();*/
 
+                            if (x){
+                                infosav.setVisibility(View.VISIBLE);
+                                infosav.startAnimation(slide_up1);
+                                menu.startAnimation(slide_down);
+                                menu.setVisibility(View.GONE);
+                                x = false;
+                            }
+
                             marker1.hideInfoWindow();
                             position = marker1.getPosition();
                             SharedPreferences.Editor editor = pref.edit();
