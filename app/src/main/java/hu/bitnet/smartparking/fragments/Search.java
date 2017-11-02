@@ -208,6 +208,8 @@ public class Search extends Fragment {
                             editor.putString("latitudeZone", data.get(position).getLatitude().toString());
                             editor.putString("longitudeZone", data.get(position).getLongitude().toString());
                             editor.putString("click", "yes");
+                            editor.putString("time", "nincs megadva");
+                            editor.putString("distance", "nincs megadva");
                             editor.apply();
                             /*FragmentManager map = getActivity().getSupportFragmentManager();
                             map.beginTransaction()

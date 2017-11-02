@@ -41,7 +41,8 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 import static android.view.KeyEvent.ACTION_UP;
 import static android.view.KeyEvent.KEYCODE_BACK;
-import static com.google.android.gms.internal.zzagz.runOnUiThread;
+//import static com.google.android.gms.internal.zzagz.runOnUiThread;
+import static com.google.android.gms.internal.zzahg.runOnUiThread;
 import static com.google.android.gms.wearable.DataMap.TAG;
 import static java.lang.Long.parseLong;
 

@@ -6,9 +6,12 @@ import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.annotation.TargetApi;
 import android.app.Dialog;
+import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.TransitionDrawable;
@@ -45,8 +48,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.ActivityRecognition;
+import com.google.android.gms.location.ActivityRecognitionClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
@@ -92,7 +97,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     AlertDialog settings_dialog;
     GoogleMap gmap;
     MapView mapView;
-    GoogleApiClient mGoogleApiClient;
+    public GoogleApiClient mGoogleApiClient;
     LocationRequest mLocationRequest;
     Location location;
     LatLng position;
@@ -113,7 +118,11 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     double longitude,y;
     private String search_text;
     InputMethodManager imm;
-
+    public boolean parking_card_bool;
+    public Integer markerKey;
+    private Marker marker;
+    private PendingIntent pIntent;
+    private BroadcastReceiver receiver;
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
@@ -123,6 +132,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         pref = getPreferences(0);
         x = false;
         search_active=false;
+        parking_card_bool = false;
 
         /*SharedPreferences.Editor editor = pref.edit();
         editor.putString(Constants.LicensePlate,"");
@@ -181,8 +191,6 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         upsearch.setVisibility(View.GONE);
 
         ParkinginProgress();
-
-
 
 
         slide_down = AnimationUtils.loadAnimation(getApplicationContext(),
@@ -590,6 +598,10 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
+        Intent intent = new Intent( this, DetectActivity.class );
+        PendingIntent pendingIntent = PendingIntent.getService( this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT );
+        ActivityRecognition.ActivityRecognitionApi.requestActivityUpdates( mGoogleApiClient, 3000, pendingIntent );
+        Log.d(TAG, "mozgás");
         LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
     }
 
@@ -676,6 +688,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
             gmap.setMyLocationEnabled(true);
             gmap.getUiSettings().setMyLocationButtonEnabled(false);
             gmap.getUiSettings().setMapToolbarEnabled(false);
+            gmap.setInfoWindowAdapter(new MyInfoWindowAdapter());
 
 
 
@@ -926,8 +939,11 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 
                     int freePlaces = 0;
 
+                    gmap.clear();
+
                     for (int i = 0; i < data.size(); i++) {
-                        createMarker(data.get(i).getCenterLatitude(), data.get(i).getCenterLongitude(), data.get(i).getAddress());
+                        createMarker(data.get(i).getCenterLatitude(), data.get(i).getCenterLongitude(), data.get(i).getAddress(), i);
+                        //markerKey = i;
                         //freePlaces += Integer.valueOf(data.get(i).getFreePlaces());
                     }
 
@@ -945,15 +961,20 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                                 x = false;
                             }
 
+                            parking_card_bool = true;
+
+                            Log.d(TAG, "marker: "+marker1.getId());
+                            Log.d(TAG, "marker: "+marker1.getSnippet());
+
                             marker1.hideInfoWindow();
                             position = marker1.getPosition();
                             SharedPreferences.Editor editor = pref.edit();
-                            editor.putString("id", data.get(parseInt(marker1.getId().substring(1))).getId());
-                            editor.putString("address", data.get(parseInt(marker1.getId().substring(1))).getAddress());
-                            editor.putString("price", String.format("%.0f", Double.parseDouble(data.get(parseInt(marker1.getId().substring(1))).getPrice())));
-                            editor.putString("latitude", String.format("%.0f", Double.parseDouble(data.get(parseInt(marker1.getId().substring(1))).getCenterLatitude())));
-                            editor.putString("longitude", String.format("%.0f", Double.parseDouble(data.get(parseInt(marker1.getId().substring(1))).getCenterLatitude())));
-                            editor.putString("maxTime", data.get(parseInt(marker1.getId().substring(1))).getTimeLimit());
+                            editor.putString("id", data.get(parseInt(marker1.getSnippet())).getId());
+                            editor.putString("address", data.get(parseInt(marker1.getSnippet())).getAddress());
+                            editor.putString("price", String.format("%.0f", Double.parseDouble(data.get(parseInt(marker1.getSnippet())).getPrice())));
+                            editor.putString("latitude", String.format("%.0f", Double.parseDouble(data.get(parseInt(marker1.getSnippet())).getCenterLatitude())));
+                            editor.putString("longitude", String.format("%.0f", Double.parseDouble(data.get(parseInt(marker1.getSnippet())).getCenterLatitude())));
+                            editor.putString("maxTime", data.get(parseInt(marker1.getSnippet())).getTimeLimit());
                             editor.apply();
                             parking_card.setVisibility(View.VISIBLE);
                             x=true;
@@ -969,13 +990,21 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                                 }
                             });
                             card_address.setText(pref.getString("address", null));
-                            card_count.setText(data.get(parseInt(marker1.getId().substring(1))).getFreePlaces());
+                            card_count.setText(data.get(parseInt(marker1.getSnippet())).getFreePlaces());
                             card_perprice.setText(pref.getString("price", null) + " Ft/óra");
                             if (pref.getString("distance",null)!=null){
-                                distance_km.setText(String.format("%.1f", Double.parseDouble(pref.getString("distance", null))/1000.0) + " km from your current location");
+                                if(!pref.getString("distance", null).equals("nincs megadva")){
+                                    distance_km.setText(String.format("%.1f", Double.parseDouble(pref.getString("distance", null))/1000.0) + " km from your current location");
+                                }else{
+                                    distance_km.setText(pref.getString("distance", null) + " km from your current location");
+                                }
                             }
                             if (pref.getString("time",null)!=null){
-                                distance_mins.setText(String.format("%.1f", Double.parseDouble(pref.getString("time", null))) + " mins without traffic");
+                                if(!pref.getString("time", null).equals("nincs megadva")){
+                                    distance_mins.setText(String.format("%.1f", Double.parseDouble(pref.getString("time", null))) + " mins without traffic");
+                                }else{
+                                    distance_mins.setText(pref.getString("time", null) + " mins without traffic");
+                                }
                             }
                             //editor.apply();
                             //checkForSlot();
@@ -1009,16 +1038,26 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                             parkingcount.setText(pref.getString("freeplaces", null));
                             card_perprice.setText(pref.getString("price", null) + " Ft/óra");
                             if (pref.getString("distance",null)!=null){
-                                distance_km.setText(String.format("%.1f", Double.parseDouble(pref.getString("distance", null))/1000.0) + " km from your current location");
+                                if(!pref.getString("distance", null).equals("nincs megadva")){
+                                    distance_km.setText(String.format("%.1f", Double.parseDouble(pref.getString("distance", null))/1000.0) + " km from your current location");
+                                }else{
+                                    distance_km.setText(pref.getString("distance", null) + " km from your current location");
+                                }
                             }
-                            if (pref.getString("time", null)!=null){
-                                distance_mins.setText(String.format("%.1f", Double.parseDouble(pref.getString("time", null))) + " mins without traffic");
+                            if (pref.getString("time",null)!=null){
+                                if(!pref.getString("time", null).equals("nincs megadva")){
+                                    distance_mins.setText(String.format("%.1f", Double.parseDouble(pref.getString("time", null))) + " mins without traffic");
+                                }else{
+                                    distance_mins.setText(pref.getString("time", null) + " mins without traffic");
+                                }
                             }
                             parking_card.setVisibility(View.VISIBLE);
                             btn_navigate.setVisibility(View.VISIBLE);
                             //}
                         } else {
-                            parking_card.setVisibility(View.GONE);
+                            if(parking_card_bool == false){
+                                parking_card.setVisibility(View.GONE);
+                            }
                             x=false;
                             btn_navigate.setVisibility(View.GONE);
                             for (int i = 0; i < data.size(); i++) {
@@ -1068,7 +1107,9 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                         }
                     });*/
                     }else{
-                        parking_card.setVisibility(View.GONE);
+                        if(parking_card_bool == false){
+                            parking_card.setVisibility(View.GONE);
+                        }
                         x=false;
                         btn_navigate.setVisibility(View.GONE);
                         for (int i = 0; i < data.size(); i++) {
@@ -1097,7 +1138,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 
     }
 
-    protected Marker createMarker(String parklat, String parklong, String address) {
+    protected Marker createMarker(String parklat, String parklong, String address, Integer markerKey) {
 
         //, String title, String snippet, int iconResID
         double parklatitude = Double.parseDouble(parklat);
@@ -1108,9 +1149,42 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         /*gmap.animateCamera(CameraUpdateFactory.newLatLng(myloc));
         gmap.moveCamera(CameraUpdateFactory.newLatLngZoom(myloc, 15));*/
 
-        return gmap.addMarker(new MarkerOptions()
+        marker = gmap.addMarker(new MarkerOptions()
                 .position(new LatLng(parklatitude, parklongitude))
                 .title(address));
+        marker.setSnippet(String.valueOf(markerKey));
+        Log.d(TAG, "i: "+markerKey);
+        Log.d(TAG, "marker: "+marker.getSnippet());
+
+        return marker;
+    }
+
+    class MyInfoWindowAdapter implements GoogleMap.InfoWindowAdapter {
+
+        private final View myContentsView;
+
+        MyInfoWindowAdapter(){
+            myContentsView = getLayoutInflater().inflate(R.layout.info_window_layout, null);
+        }
+
+        @Override
+        public View getInfoContents(Marker marker) {
+
+            TextView tvTitle = ((TextView)myContentsView.findViewById(R.id.titleUi));
+            tvTitle.setText(marker.getTitle());
+            TextView tvSnippet = ((TextView)myContentsView.findViewById(R.id.snippetUi));
+            Log.d(TAG, "marker: "+marker.getSnippet());
+            tvSnippet.setText("");
+
+            return myContentsView;
+        }
+
+        @Override
+        public View getInfoWindow(Marker marker) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
     }
 
     public void addMarker(double c, double d){

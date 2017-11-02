@@ -181,6 +181,8 @@ public class SearchZones extends Fragment {
                             //editor.putString("id", data.get(position).getId().toString());
                             editor.putString("latitudeZone", data.get(position).getLatitude().toString());
                             editor.putString("longitudeZone", data.get(position).getLongitude().toString());
+                            editor.putString("time", "nincs megadva");
+                            editor.putString("distance", "nincs megadva");
                             editor.putString("click", "yes");
                             editor.apply();
                             /*FragmentManager map = getActivity().getSupportFragmentManager();
