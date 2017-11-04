@@ -879,7 +879,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
             }
         });
 
-        builder.setNegativeButton("Mégse", new DialogInterface.OnClickListener() {
+        builder.setNegativeButton("Csak navigációt használok", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 ActivityRecognition.ActivityRecognitionApi.removeActivityUpdates(mGoogleApiClient, pendingIntent);

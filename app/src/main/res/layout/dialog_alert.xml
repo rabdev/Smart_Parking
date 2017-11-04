@@ -17,7 +17,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="4dp"
-            android:text="Vezetés közben kérjük, ne használd okostelefonod!"
+            android:text="Vezetés közben kérjük, ne használd okostelefonod csak navigációra!"
             android:textAlignment="center"
             android:textColor="@color/colorPurple"
             android:textSize="18sp" />
