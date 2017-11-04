@@ -44,10 +44,12 @@ public class DetectActivity extends IntentService {
                     builder.setContentTitle( getString( R.string.app_name ) );
                     NotificationManagerCompat.from(this).notify(0, builder.build());
                     Log.d(TAG, "Autózol");*/
-                    Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    intent.putExtra("activity", "driving");
-                    startActivity(intent);
+                    if(activity.getConfidence() > 75) {
+                        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        intent.putExtra("activity", "driving");
+                        startActivity(intent);
+                    }
                     break;
                 }
                 case DetectedActivity.ON_BICYCLE: {
