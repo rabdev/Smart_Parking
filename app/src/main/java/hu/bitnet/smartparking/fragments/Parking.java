@@ -142,7 +142,7 @@ public class Parking extends Fragment {
                 status_checkout.setVisibility(View.GONE);
             } else if (pref.getString(Constants.ParkingStatus,"").equals("2")) {
                 //loadJSONStatus(pref.getString(Constants.UID, null));
-                loadJSONStatus("F3050076-1CB2-6A54-8AAD-7DF067232155*ABC123");
+                loadJSONStatus2("F3050076-1CB2-6A54-8AAD-7DF067232155*ABC123");
                 btn_status.setBackgroundTintList(getResources().getColorStateList(R.color.colorPurple, getActivity().getTheme()));
                 btn_status.setText("Parkolás befejezése");
                 header.setText("Parkolás folyamatban");
@@ -181,7 +181,7 @@ public class Parking extends Fragment {
                     SharedPreferences.Editor editor = pref.edit();
                     editor.putString(Constants.ParkingStatus, "2");
                     editor.apply();
-                    ((MainActivity)getActivity()).ParkinginProgress();
+                    //((MainActivity)getActivity()).ParkinginProgress();
                 } else if (pref.getString(Constants.ParkingStatus,"").equals("2")) {
                     //loadJSONStop(pref.getString(Constants.UID, null), zoneId);
                     loadJSONStop("F3050076-1CB2-6A54-8AAD-7DF067232155*ABC123", zoneId);
@@ -197,7 +197,7 @@ public class Parking extends Fragment {
                     SharedPreferences.Editor editor = pref.edit();
                     editor.putString(Constants.ParkingStatus, "3");
                     editor.apply();
-                    ((MainActivity)getActivity()).ParkinginProgress();
+                    //((MainActivity)getActivity()).ParkinginProgress();
                 } else if (pref.getString(Constants.ParkingStatus,"").equals("3")){
 
                     AlertDialog.Builder alertDialog = new AlertDialog.Builder(getActivity());
@@ -214,35 +214,38 @@ public class Parking extends Fragment {
                             editor.putString(Constants.ParkingStatus, "1");
                             editor.apply();
                             ((MainActivity)getActivity()).ParkinginProgress();
+                            btn_status.setBackgroundTintList(getResources().getColorStateList(R.color.colorAccent, getActivity().getTheme()));
+                            btn_status.setText("Parkolás megkezdése");
+                            header.setText("Parkolás megkezdése");
+
+                            status_start.setVisibility(View.VISIBLE);
+                            status_inprogress.setVisibility(View.GONE);
+                            status_checkout.setVisibility(View.GONE);
+
+                            ((MainActivity)getActivity()).ParkinginProgress();
+
+                            getFragmentManager().popBackStack();
                         }
                     });
 
                     alertDialog.setNegativeButton("Mégsem", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
                             //Toast.makeText(getContext(), "Kérjük, ne felejtse el elhozni beutalóját!", Toast.LENGTH_SHORT).show();
-                            SharedPreferences.Editor editor = pref.edit();
+                            /*SharedPreferences.Editor editor = pref.edit();
                             editor.putString(Constants.ParkingStatus, "1");
                             editor.apply();
-                            ((MainActivity)getActivity()).ParkinginProgress();
+                            ((MainActivity)getActivity()).ParkinginProgress();*/
                         }
                     });
 
                     alertDialog.show();
-
-                    btn_status.setBackgroundTintList(getResources().getColorStateList(R.color.colorAccent, getActivity().getTheme()));
-                    btn_status.setText("Parkolás megkezdése");
-                    header.setText("Parkolás megkezdése");
-
-                    status_start.setVisibility(View.VISIBLE);
-                    status_inprogress.setVisibility(View.GONE);
-                    status_checkout.setVisibility(View.GONE);
 
                 } else if (pref.getString(Constants.ParkingStatus,"").isEmpty()){
                     SharedPreferences.Editor editor = pref.edit();
                     editor.putString(Constants.ParkingStatus, "1");
                     editor.apply();
                     btn_status.callOnClick();
-                    ((MainActivity)getActivity()).ParkinginProgress();
+                    //((MainActivity)getActivity()).ParkinginProgress();
                 }
             }
         });
@@ -260,6 +263,7 @@ public class Parking extends Fragment {
             public boolean onKey(View v, int keyCode, KeyEvent event) {
                 if (event.getAction() == ACTION_UP && keyCode == KEYCODE_BACK) {
                     // handle back button's click listener
+                    ((MainActivity)getActivity()).ParkinginProgress();
                     getFragmentManager().popBackStack();
                     getActivity().findViewById(R.id.btn_myloc).setVisibility(View.VISIBLE);
                     return true;
@@ -290,6 +294,7 @@ public class Parking extends Fragment {
                 ServerResponse resp = response.body();
                 if (resp.getAlert() != "") {
                     Toast.makeText(getContext(), resp.getAlert(), Toast.LENGTH_LONG).show();
+                    loadJSONStatus("F3050076-1CB2-6A54-8AAD-7DF067232155*ABC123");
                     /*Status status = new Status();
                     FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
                     fragmentManager.popBackStack();
@@ -309,13 +314,9 @@ public class Parking extends Fragment {
                 Log.d(ContentValues.TAG, "No response");
             }
         });
-
-        loadJSONStatus("F3050076-1CB2-6A54-8AAD-7DF067232155*ABC123");
     }
 
     public void loadJSONStop(String userId, String zoneId) {
-
-        count = 0;
 
         HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
         logging.setLevel(HttpLoggingInterceptor.Level.BODY);
@@ -353,6 +354,7 @@ public class Parking extends Fragment {
                     parking_total_time.setText(String.format("%.0f", Math.ceil(Double.parseDouble(resp.getSum().getTime())))+ " perc");
                     parking_checkout_price.setText(resp.getSum().getPrice()+" Ft");
 
+                    //loadJSONStatus("F3050076-1CB2-6A54-8AAD-7DF067232155*ABC123");
                 }
             }
 
@@ -365,6 +367,137 @@ public class Parking extends Fragment {
     }
 
     public void loadJSONStatus(String userId) {
+
+        T = null;
+        T2 = null;
+        count = 0;
+        count2 = 0;
+        timeHourString = "";
+        timeHourString2 = "";
+        timeMinString = "";
+        timeMinString2 = "";
+        timeSecString = "";
+        timeSecString2 = "";
+
+        HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
+        logging.setLevel(HttpLoggingInterceptor.Level.BODY);
+
+        OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
+        httpClient.addInterceptor(logging);
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .client(httpClient.build())
+                .baseUrl(Constants.SERVER_URL)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+        RequestInterfaceParkingStatus requestInterface = retrofit.create(RequestInterfaceParkingStatus.class);
+        Call<ServerResponse> response = requestInterface.post(userId);
+        response.enqueue(new Callback<ServerResponse>() {
+            @Override
+            public void onResponse(Call<ServerResponse> call, Response<ServerResponse> response) {
+                ServerResponse resp = response.body();
+                if (resp.getAlert() != "") {
+                    Toast.makeText(getContext(), resp.getAlert(), Toast.LENGTH_LONG).show();
+                }
+                if (resp.getError() != null) {
+                    //Toast.makeText(getContext(), resp.getError().getMessage() + " - " + resp.getError().getMessageDetail(), Toast.LENGTH_SHORT).show();
+                }
+                if (resp.getSum() != null) {
+                    price = resp.getZone().getPrice().toString();
+                    priceDouble = Double.parseDouble(price);
+                    if(T == null){
+                        T=new Timer();
+                        count = System.currentTimeMillis()/1000-parseLong(resp.getSum().getStart());
+                        T.scheduleAtFixedRate(new TimerTask() {
+                            @Override
+                            public void run() {
+                                runOnUiThread(new Runnable()
+                                {
+                                    @Override
+                                    public void run()
+                                    {
+                                        if(count < 0){
+                                        }else {
+                                            timeHour = Math.floor(count / 3600);
+                                            timeMin = Math.floor((count - timeHour * 3600) / 60);
+                                            timeSec = count - timeHour * 3600 - timeMin * 60;
+                                            if (timeHour < 10) {
+                                                timeHourString = "0" + Integer.toString((int) timeHour);
+                                            } else {
+                                                timeHourString = Integer.toString((int) timeHour);
+                                            }
+                                            if (timeMin < 10) {
+                                                timeMinString = "0" + Integer.toString((int) timeMin);
+                                            } else {
+                                                timeMinString = Integer.toString((int) timeMin);
+                                            }
+                                            if (timeSec < 10) {
+                                                timeSecString = "0" + Integer.toString((int) timeSec);
+                                            } else {
+                                                timeSecString = Integer.toString((int) timeSec);
+                                            }
+                                            priceDouble2 = Math.ceil(priceDouble * Double.valueOf(Long.toString(count)) / 3600.0);
+                                            parking_timeCount.setText(timeHourString + ":" + timeMinString + ":" + timeSecString);
+                                            parking_inprogressPrice.setText(Integer.toString((int) priceDouble2) + " Ft");
+                                        }
+                                        count++;
+                                    }
+                                });
+                            }
+                        }, 1000, 1000);
+                    }
+
+
+                    if(T2 == null){
+                        T2=new Timer();
+                        count2 = parseLong(resp.getSum().getStart())*1000+parking_limit*1000-System.currentTimeMillis();
+                        count2 = count2 / 1000;
+                        Log.d(TAG, "count: "+count2);
+                        T2.scheduleAtFixedRate(new TimerTask() {
+                            @Override
+                            public void run() {
+                                runOnUiThread(new Runnable()
+                                {
+                                    @Override
+                                    public void run()
+                                    {
+                                        timeHour2 = Math.floor(count2/3600);
+                                        timeMin2 = Math.floor((count2-timeHour2*3600)/60);
+                                        timeSec2 = count2-timeHour2*3600-timeMin2*60;
+                                        if(timeHour2 < 10){
+                                            timeHourString2 = "0"+Integer.toString((int)timeHour2);
+                                        }else{
+                                            timeHourString2 = Integer.toString((int)timeHour2);
+                                        }
+                                        if(timeMin2 < 10){
+                                            timeMinString2 = "0"+Integer.toString((int)timeMin2);
+                                        }else{
+                                            timeMinString2 = Integer.toString((int)timeMin2);
+                                        }
+                                        if(timeSec2 < 10){
+                                            timeSecString2 = "0"+Integer.toString((int)timeSec2);
+                                        }else{
+                                            timeSecString2 = Integer.toString((int)timeSec2);
+                                        }
+                                        parking_maxTime.setText(timeHourString2 + ":" + timeMinString2 + ":" + timeSecString2);
+                                        count2--;
+                                    }
+                                });
+                            }
+                        }, 1000, 1000);
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ServerResponse> call, Throwable t) {
+                Toast.makeText(getContext(), "Hiba a hálózati kapcsolatban. Kérjük, ellenőrizze, hogy csatlakozik-e hálózathoz.", Toast.LENGTH_SHORT).show();
+                Log.d(ContentValues.TAG, "No response");
+            }
+        });
+    }
+
+    public void loadJSONStatus2(String userId) {
 
         HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
         logging.setLevel(HttpLoggingInterceptor.Level.BODY);

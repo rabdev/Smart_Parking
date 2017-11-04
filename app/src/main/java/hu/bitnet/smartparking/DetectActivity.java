@@ -2,10 +2,7 @@ package hu.bitnet.smartparking;
 
 import android.app.IntentService;
 import android.content.Intent;
-import android.support.v4.app.NotificationManagerCompat;
-import android.support.v7.app.NotificationCompat;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.google.android.gms.location.ActivityRecognitionResult;
 import com.google.android.gms.location.DetectedActivity;
@@ -41,51 +38,82 @@ public class DetectActivity extends IntentService {
             switch( activity.getType() ) {
                 case DetectedActivity.IN_VEHICLE: {
                     Log.e( "ActivityRecogition", "In Vehicle: " + activity.getConfidence() );
-                    Toast.makeText(getApplicationContext(), "AUTÓ", Toast.LENGTH_LONG).show();
-                    Log.d(TAG, "Autózol");
+                    /*NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
+                    builder.setContentText( "Are you driving?" );
+                    builder.setSmallIcon( R.mipmap.ic_launcher );
+                    builder.setContentTitle( getString( R.string.app_name ) );
+                    NotificationManagerCompat.from(this).notify(0, builder.build());
+                    Log.d(TAG, "Autózol");*/
+                    Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    intent.putExtra("activity", "driving");
+                    startActivity(intent);
                     break;
                 }
                 case DetectedActivity.ON_BICYCLE: {
                     Log.e( "ActivityRecogition", "On Bicycle: " + activity.getConfidence() );
-                    Toast.makeText(getApplicationContext(), "AUTÓ", Toast.LENGTH_LONG).show();
+                    /*NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
+                    builder.setContentText( "Are you cycling?" );
+                    builder.setSmallIcon( R.mipmap.ic_launcher );
+                    builder.setContentTitle( getString( R.string.app_name ) );
+                    NotificationManagerCompat.from(this).notify(0, builder.build());
                     Log.d(TAG, "Biciklizel");
+                    Intent intent = new Intent(this, MainActivity.class);
+                    intent.putExtra("activity", "driving");
+                    startActivity(intent);*/
+
                     break;
                 }
                 case DetectedActivity.ON_FOOT: {
                     Log.e( "ActivityRecogition", "On Foot: " + activity.getConfidence() );
-                    Toast.makeText(getApplicationContext(), "AUTÓ", Toast.LENGTH_LONG).show();
-                    Log.d(TAG, "Gyalog vagy");
+                    /*NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
+                    builder.setContentText( "Are you walking?" );
+                    builder.setSmallIcon( R.mipmap.ic_launcher );
+                    builder.setContentTitle( getString( R.string.app_name ) );
+                    NotificationManagerCompat.from(this).notify(0, builder.build());
+                    Log.d(TAG, "Gyalog vagy");*/
                     break;
                 }
                 case DetectedActivity.RUNNING: {
                     Log.e( "ActivityRecogition", "Running: " + activity.getConfidence() );
-                    Toast.makeText(getApplicationContext(), "AUTÓ", Toast.LENGTH_LONG).show();
-                    Log.d(TAG, "Futsz");
+                    /*NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
+                    builder.setContentText( "Are you running?" );
+                    builder.setSmallIcon( R.mipmap.ic_launcher );
+                    builder.setContentTitle( getString( R.string.app_name ) );
+                    NotificationManagerCompat.from(this).notify(0, builder.build());
+                    Log.d(TAG, "Futsz");*/
                     break;
                 }
                 case DetectedActivity.STILL: {
                     Log.e( "ActivityRecogition", "Still: " + activity.getConfidence() );
-                    Toast.makeText(getApplicationContext(), "AUTÓ", Toast.LENGTH_LONG).show();
-                    Log.d(TAG, "Állsz");
+                    /*NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
+                    builder.setContentText( "Are you waiting?" );
+                    builder.setSmallIcon( R.mipmap.ic_launcher );
+                    builder.setContentTitle( getString( R.string.app_name ) );
+                    NotificationManagerCompat.from(this).notify(0, builder.build());
+                    Log.d(TAG, "Állsz");*/
                     break;
                 }
                 case DetectedActivity.TILTING: {
                     Log.e( "ActivityRecogition", "Tilting: " + activity.getConfidence() );
-                    Toast.makeText(getApplicationContext(), "AUTÓ", Toast.LENGTH_LONG).show();
                     Log.d(TAG, "fogalmam sincs");
+                    /*NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
+                    builder.setContentText( "Are you tilting?" );
+                    builder.setSmallIcon( R.mipmap.ic_launcher );
+                    builder.setContentTitle( getString( R.string.app_name ) );
+                    NotificationManagerCompat.from(this).notify(0, builder.build());*/
                     break;
                 }
                 case DetectedActivity.WALKING: {
                     Log.e( "ActivityRecogition", "Walking: " + activity.getConfidence() );
-                    Toast.makeText(getApplicationContext(), "AUTÓ", Toast.LENGTH_LONG).show();
                     Log.d(TAG, "sétálsz");
-                    if( activity.getConfidence() >= 75 ) {
+                    /*if( activity.getConfidence() >= 75 ) {
                         NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
                         builder.setContentText( "Are you walking?" );
                         builder.setSmallIcon( R.mipmap.ic_launcher );
                         builder.setContentTitle( getString( R.string.app_name ) );
                         NotificationManagerCompat.from(this).notify(0, builder.build());
-                    }
+                    }*/
                     break;
                 }
                 case DetectedActivity.UNKNOWN: {

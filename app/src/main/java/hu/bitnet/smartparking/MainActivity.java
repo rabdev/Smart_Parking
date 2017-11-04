@@ -7,11 +7,10 @@ import android.animation.ValueAnimator;
 import android.annotation.TargetApi;
 import android.app.Dialog;
 import android.app.PendingIntent;
-import android.content.BroadcastReceiver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.TransitionDrawable;
@@ -48,10 +47,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.ActivityRecognition;
-import com.google.android.gms.location.ActivityRecognitionClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
@@ -68,6 +65,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import hu.bitnet.smartparking.RequestInterfaces.RequestInterfaceNearest;
+import hu.bitnet.smartparking.RequestInterfaces.RequestInterfaceParkingStatus;
 import hu.bitnet.smartparking.ServerResponses.ServerResponse;
 import hu.bitnet.smartparking.fragments.History;
 import hu.bitnet.smartparking.fragments.Parking;
@@ -119,10 +117,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     private String search_text;
     InputMethodManager imm;
     public boolean parking_card_bool;
-    public Integer markerKey;
     private Marker marker;
-    private PendingIntent pIntent;
-    private BroadcastReceiver receiver;
+    public PendingIntent pendingIntent;
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
@@ -133,6 +129,17 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         x = false;
         search_active=false;
         parking_card_bool = false;
+
+        Intent intent2 = getIntent();
+        if(intent2 != null) {
+            String message = intent2.getStringExtra("activity");
+            if(message != null && message.equals("driving")){
+                Log.d(TAG, "ACTIVITY: driving!");
+                showDialog2();
+            }else{
+                Log.d(TAG, "ACTIVITY: not driving");
+            }
+        }
 
         /*SharedPreferences.Editor editor = pref.edit();
         editor.putString(Constants.LicensePlate,"");
@@ -203,7 +210,6 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                 R.anim.slide_up);
         slide_up2 = AnimationUtils.loadAnimation(getApplicationContext(),
                 R.anim.slide_up);
-
 
         if (pref.getString(Constants.LicensePlate, "").isEmpty() && pref.getString(Constants.SettingsDistance, "").isEmpty() && pref.getString(Constants.SMSBase, "").isEmpty()) {
             showDialog();
@@ -494,17 +500,19 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         inprogress.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                parking_card.setVisibility(View.GONE);
-                x=false;
-                btn_navigate.setVisibility(View.GONE);
-                Parking parking = new Parking();
-                FragmentManager fragmentManager = getSupportFragmentManager();
-                fragmentManager.beginTransaction()
-                        .add(R.id.mapView, parking, parking.getTag())
-                        .addToBackStack("Parking")
-                        .commit();
-                btn_myloc.setVisibility(View.GONE);
-                upsearch.setVisibility(View.GONE);
+                    parking_card.setVisibility(View.GONE);
+                    x = false;
+                    inprogress.setVisibility(View.GONE);
+                    btn_navigate.setVisibility(View.GONE);
+
+                    Parking parking = new Parking();
+                    FragmentManager fragmentManager = getSupportFragmentManager();
+                    fragmentManager.beginTransaction()
+                            .add(R.id.mapView, parking, parking.getTag())
+                            .addToBackStack("Parking")
+                            .commit();
+                    btn_myloc.setVisibility(View.GONE);
+                    upsearch.setVisibility(View.GONE);
             };
         });
 
@@ -599,7 +607,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
             return;
         }
         Intent intent = new Intent( this, DetectActivity.class );
-        PendingIntent pendingIntent = PendingIntent.getService( this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT );
+        pendingIntent = PendingIntent.getService( this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT );
         ActivityRecognition.ActivityRecognitionApi.requestActivityUpdates( mGoogleApiClient, 3000, pendingIntent );
         Log.d(TAG, "mozgás");
         LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
@@ -711,6 +719,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     @Override
     public void onResume() {
         mapView.onResume();
+        ParkinginProgress();
         super.onResume();
     }
 
@@ -850,6 +859,30 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                     }
                     dialog.dismiss();
                 }
+            }
+        });
+        settings_dialog = builder.create();
+        settings_dialog.show();
+    }
+
+    private void showDialog2() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+        LayoutInflater inflater = (LayoutInflater.from(getApplicationContext()));
+        View dialogview = inflater.inflate(R.layout.dialog_alert, null);
+
+        builder.setView(dialogview);
+        builder.setTitle("Figyelmezetéts");
+        builder.setPositiveButton("Csak utas vagyok", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                ActivityRecognition.ActivityRecognitionApi.removeActivityUpdates(mGoogleApiClient, pendingIntent);
+            }
+        });
+
+        builder.setNegativeButton("Mégse", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                ActivityRecognition.ActivityRecognitionApi.removeActivityUpdates(mGoogleApiClient, pendingIntent);
             }
         });
         settings_dialog = builder.create();
@@ -1137,6 +1170,43 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         });
 
     }
+
+    /*public void loadJSONStatus(String userId) {
+
+        HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
+        logging.setLevel(HttpLoggingInterceptor.Level.BODY);
+
+        OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
+        httpClient.addInterceptor(logging);
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .client(httpClient.build())
+                .baseUrl(Constants.SERVER_URL)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+        RequestInterfaceParkingStatus requestInterface = retrofit.create(RequestInterfaceParkingStatus.class);
+        Call<ServerResponse> response = requestInterface.post(userId);
+        response.enqueue(new Callback<ServerResponse>() {
+            @Override
+            public void onResponse(Call<ServerResponse> call, Response<ServerResponse> response) {
+                ServerResponse resp = response.body();
+                if (resp.getAlert() != "") {
+                    //Toast.makeText(getApplicationContext(), resp.getAlert(), Toast.LENGTH_LONG).show();
+                }
+                if (resp.getError() != null) {
+                    //Toast.makeText(getContext(), resp.getError().getMessage() + " - " + resp.getError().getMessageDetail(), Toast.LENGTH_SHORT).show();
+                }
+                if (resp.getSum() != null) {
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ServerResponse> call, Throwable t) {
+                Toast.makeText(getApplicationContext(), "Hiba a hálózati kapcsolatban. Kérjük, ellenőrizze, hogy csatlakozik-e hálózathoz.", Toast.LENGTH_SHORT).show();
+                Log.d(ContentValues.TAG, "No response");
+            }
+        });
+    }*/
 
     protected Marker createMarker(String parklat, String parklong, String address, Integer markerKey) {
 

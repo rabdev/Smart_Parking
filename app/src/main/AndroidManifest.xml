@@ -33,6 +33,7 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyCSGZkqewIkymr2Vs-mai26vPgnekohsRM"/>
         <service android:name=".DetectActivity" android:exported="false"></service>
+        <receiver android:name=".MainActivity" />
     </application>
 
 </manifest>
