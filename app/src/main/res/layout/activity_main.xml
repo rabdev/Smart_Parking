@@ -151,6 +151,12 @@
             android:text="Korábbi parkolások"
             android:textColor="@color/colorPrimary" />
 
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:focusable="true"
+            android:focusableInTouchMode="true"/>
+
         <EditText
             android:id="@+id/search"
             android:layout_width="match_parent"
@@ -165,7 +171,7 @@
             android:padding="10dp"
             android:textAlignment="center"
             android:textColor="@color/colorPrimary"
-            android:textColorHint="@color/colorPrimary" />
+            android:textColorHint="@drawable/selector" />
 
     </LinearLayout>
 
@@ -232,7 +238,7 @@
                 android:id="@+id/parkingcount"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="25 parkoló"
+                android:text=""
                 android:textAlignment="center"
                 android:textColor="@color/colorPrimary"
                 android:textSize="20sp"
@@ -243,7 +249,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:text="500 m-es körzetben"
+                android:text=""
                 android:textAlignment="center"
                 android:textColor="@color/colorPrimary"
                 android:textSize="14sp" />
@@ -324,7 +330,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Click to start parking"
+                    android:text="Klikk a parkolás megkezdéséhez"
                     android:textAlignment="center"
                     android:textColor="@color/colorPurple"
                     android:textSize="10sp"
@@ -382,7 +388,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="2dp"
-                        android:text="from your current location"
+                        android:text="távolság jelenlegi helyétől"
                         android:textColor="@color/colorPrimaryDark"
                         android:textSize="14sp" />
 
@@ -407,7 +413,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="2dp"
-                        android:text="without traffic"
+                        android:text="forgalom nélkül"
                         android:textAlignment="textEnd"
                         android:textColor="@color/colorPrimaryDark"
                         android:textSize="14sp" />

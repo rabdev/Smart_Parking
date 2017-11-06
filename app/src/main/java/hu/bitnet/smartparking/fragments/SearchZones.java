@@ -136,7 +136,7 @@ public class SearchZones extends Fragment {
                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     startActivity(intent);*/
                 }
-                if(resp.getAddresses() == null){
+                if(resp.getAddresses() == null || resp.getAddresses().length == 0){
                         AlertDialog.Builder alertDialog = new AlertDialog.Builder(getActivity());
                         alertDialog.setTitle("Nincs eredmény!");
                         alertDialog.setMessage("Próbálkozzon más kulcsszóval vagy metódussal!");
@@ -144,16 +144,11 @@ public class SearchZones extends Fragment {
 
                         alertDialog.setPositiveButton("Rendben", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
-                                /*Home home1 = new Home();
-                                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-                                fragmentManager.beginTransaction()
-                                        .replace(R.id.frame, home1, "Home")
-                                        .addToBackStack(null)
-                                        .commit();*/
+                                getFragmentManager().popBackStack();
                             }
                         });
 
-                        alertDialog.setNegativeButton("Mégsem", new DialogInterface.OnClickListener() {
+                        /*alertDialog.setNegativeButton("Mégsem", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
                                 /*Home home1 = new Home();
                                 FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
@@ -161,8 +156,8 @@ public class SearchZones extends Fragment {
                                         .replace(R.id.frame, home1, "Home")
                                         .addToBackStack(null)
                                         .commit();*/
-                            }
-                        });
+                            /*}
+                        });*/
 
                         alertDialog.show();
                 }else{
@@ -178,11 +173,13 @@ public class SearchZones extends Fragment {
                             editor.putString("address", data.get(position).getAddress().toString());
                             //editor.putString("zone", data.get(position).getId().toString());
                             editor.putString("price", String.format("%.0f", Double.parseDouble((data.get(position).getPrice().toString()))));
-                            //editor.putString("id", data.get(position).getId().toString());
+                            editor.putString("zone", data.get(position).getId().toString());
+                            Log.d(TAG, "zone:"+data.get(position).getId().toString());
                             editor.putString("latitudeZone", data.get(position).getLatitude().toString());
                             editor.putString("longitudeZone", data.get(position).getLongitude().toString());
                             editor.putString("time", "nincs megadva");
                             editor.putString("distance", "nincs megadva");
+                            editor.putString("timeLimit", "nincs megadva");
                             editor.putString("click", "yes");
                             editor.apply();
                             /*FragmentManager map = getActivity().getSupportFragmentManager();

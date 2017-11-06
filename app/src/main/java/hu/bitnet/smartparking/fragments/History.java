@@ -58,7 +58,7 @@ public class History extends Fragment {
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getActivity().getApplicationContext());
         history_rv.setLayoutManager(layoutManager);
 
-        loadJSON("F3050076-1CB2-6A54-8AAD-7DF067232155*ABC123");
+        loadJSON(pref.getString(Constants.UID, null));
 
         return history;
     }
@@ -106,7 +106,7 @@ public class History extends Fragment {
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         RequestInterfaceHistory requestInterface = retrofit.create(RequestInterfaceHistory.class);
-        Call<ServerResponse> response= requestInterface.post("F3050076-1CB2-6A54-8AAD-7DF067232155*ABC123");
+        Call<ServerResponse> response= requestInterface.post(sessionId);
         response.enqueue(new Callback<ServerResponse>() {
             @Override
             public void onResponse(Call<ServerResponse> call, Response<ServerResponse> response) {

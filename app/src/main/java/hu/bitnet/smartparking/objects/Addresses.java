@@ -12,6 +12,7 @@ public class Addresses {
     private String address;
     private String price;
     private String freeplaces;
+    private String id;
 
     public String getName() { return name; }
     public String getLatitude() { return latitude; }
@@ -19,5 +20,6 @@ public class Addresses {
     public String getAddress() { return address; }
     public String getPrice() { return price; }
     public String getFreePlaces() { return freeplaces; }
+    public String getId() { return id; }
 
 }

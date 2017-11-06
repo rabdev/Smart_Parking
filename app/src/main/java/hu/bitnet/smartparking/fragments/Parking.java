@@ -142,7 +142,7 @@ public class Parking extends Fragment {
                 status_checkout.setVisibility(View.GONE);
             } else if (pref.getString(Constants.ParkingStatus,"").equals("2")) {
                 //loadJSONStatus(pref.getString(Constants.UID, null));
-                loadJSONStatus2("F3050076-1CB2-6A54-8AAD-7DF067232155*ABC123");
+                loadJSONStatus2(pref.getString(Constants.UID, null));
                 btn_status.setBackgroundTintList(getResources().getColorStateList(R.color.colorPurple, getActivity().getTheme()));
                 btn_status.setText("Parkolás befejezése");
                 header.setText("Parkolás folyamatban");
@@ -168,7 +168,7 @@ public class Parking extends Fragment {
             public void onClick(View v) {
                 if (pref.getString(Constants.ParkingStatus,"").equals("1")) {
                     //loadJSONStart(pref.getString(Constants.UID, null), zoneId);
-                    loadJSONStart("F3050076-1CB2-6A54-8AAD-7DF067232155*ABC123", zoneId, latitude, longitude);
+                    loadJSONStart(pref.getString(Constants.UID, null), zoneId, latitude, longitude);
                     //loadJSONStatus(pref.getString(Constants.UID, null));
                     btn_status.setBackgroundTintList(getResources().getColorStateList(R.color.colorPurple, getActivity().getTheme()));
                     btn_status.setText("Parkolás befejezése");
@@ -184,7 +184,7 @@ public class Parking extends Fragment {
                     //((MainActivity)getActivity()).ParkinginProgress();
                 } else if (pref.getString(Constants.ParkingStatus,"").equals("2")) {
                     //loadJSONStop(pref.getString(Constants.UID, null), zoneId);
-                    loadJSONStop("F3050076-1CB2-6A54-8AAD-7DF067232155*ABC123", zoneId);
+                    loadJSONStop(pref.getString(Constants.UID, null), zoneId);
                     btn_status.setBackgroundTintList(getResources().getColorStateList(R.color.colorPrimaryDark, getActivity().getTheme()));
                     btn_status.setText("Fizetés");
                     header.setText("Parkolás befejezése");
@@ -273,7 +273,9 @@ public class Parking extends Fragment {
         });
     }
 
-    public void loadJSONStart(String userId, String zoneId, String latitude, String longitude) {
+    public void loadJSONStart(final String userId, String zoneId, String latitude, String longitude) {
+
+        Log.d(TAG, "zone: "+zoneId);
 
         HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
         logging.setLevel(HttpLoggingInterceptor.Level.BODY);
@@ -294,7 +296,7 @@ public class Parking extends Fragment {
                 ServerResponse resp = response.body();
                 if (resp.getAlert() != "") {
                     Toast.makeText(getContext(), resp.getAlert(), Toast.LENGTH_LONG).show();
-                    loadJSONStatus("F3050076-1CB2-6A54-8AAD-7DF067232155*ABC123");
+                    loadJSONStatus(userId);
                     /*Status status = new Status();
                     FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
                     fragmentManager.popBackStack();
@@ -450,41 +452,41 @@ public class Parking extends Fragment {
 
                     if(T2 == null){
                         T2=new Timer();
-                        count2 = parseLong(resp.getSum().getStart())*1000+parking_limit*1000-System.currentTimeMillis();
-                        count2 = count2 / 1000;
-                        Log.d(TAG, "count: "+count2);
-                        T2.scheduleAtFixedRate(new TimerTask() {
-                            @Override
-                            public void run() {
-                                runOnUiThread(new Runnable()
-                                {
-                                    @Override
-                                    public void run()
-                                    {
-                                        timeHour2 = Math.floor(count2/3600);
-                                        timeMin2 = Math.floor((count2-timeHour2*3600)/60);
-                                        timeSec2 = count2-timeHour2*3600-timeMin2*60;
-                                        if(timeHour2 < 10){
-                                            timeHourString2 = "0"+Integer.toString((int)timeHour2);
-                                        }else{
-                                            timeHourString2 = Integer.toString((int)timeHour2);
+                        if(parking_limit != null) {
+                            count2 = parseLong(resp.getSum().getStart()) * 1000 + parking_limit * 1000 - System.currentTimeMillis();
+                            count2 = count2 / 1000;
+                            Log.d(TAG, "count: " + count2);
+                            T2.scheduleAtFixedRate(new TimerTask() {
+                                @Override
+                                public void run() {
+                                    runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            timeHour2 = Math.floor(count2 / 3600);
+                                            timeMin2 = Math.floor((count2 - timeHour2 * 3600) / 60);
+                                            timeSec2 = count2 - timeHour2 * 3600 - timeMin2 * 60;
+                                            if (timeHour2 < 10) {
+                                                timeHourString2 = "0" + Integer.toString((int) timeHour2);
+                                            } else {
+                                                timeHourString2 = Integer.toString((int) timeHour2);
+                                            }
+                                            if (timeMin2 < 10) {
+                                                timeMinString2 = "0" + Integer.toString((int) timeMin2);
+                                            } else {
+                                                timeMinString2 = Integer.toString((int) timeMin2);
+                                            }
+                                            if (timeSec2 < 10) {
+                                                timeSecString2 = "0" + Integer.toString((int) timeSec2);
+                                            } else {
+                                                timeSecString2 = Integer.toString((int) timeSec2);
+                                            }
+                                            parking_maxTime.setText(timeHourString2 + ":" + timeMinString2 + ":" + timeSecString2);
+                                            count2--;
                                         }
-                                        if(timeMin2 < 10){
-                                            timeMinString2 = "0"+Integer.toString((int)timeMin2);
-                                        }else{
-                                            timeMinString2 = Integer.toString((int)timeMin2);
-                                        }
-                                        if(timeSec2 < 10){
-                                            timeSecString2 = "0"+Integer.toString((int)timeSec2);
-                                        }else{
-                                            timeSecString2 = Integer.toString((int)timeSec2);
-                                        }
-                                        parking_maxTime.setText(timeHourString2 + ":" + timeMinString2 + ":" + timeSecString2);
-                                        count2--;
-                                    }
-                                });
-                            }
-                        }, 1000, 1000);
+                                    });
+                                }
+                            }, 1000, 1000);
+                        }
                     }
                 }
             }
@@ -570,41 +572,41 @@ public class Parking extends Fragment {
 
                     if(T2 == null){
                         T2=new Timer();
-                        count2 = parseLong(resp.getSum().getStart())*1000+parking_limit*1000-System.currentTimeMillis();
-                        count2 = count2 / 1000;
-                        Log.d(TAG, "count: "+count2);
-                        T2.scheduleAtFixedRate(new TimerTask() {
-                            @Override
-                            public void run() {
-                                runOnUiThread(new Runnable()
-                                {
-                                    @Override
-                                    public void run()
-                                    {
-                                        timeHour2 = Math.floor(count2/3600);
-                                        timeMin2 = Math.floor((count2-timeHour2*3600)/60);
-                                        timeSec2 = count2-timeHour2*3600-timeMin2*60;
-                                        if(timeHour2 < 10){
-                                            timeHourString2 = "0"+Integer.toString((int)timeHour2);
-                                        }else{
-                                            timeHourString2 = Integer.toString((int)timeHour2);
+                        if(parking_limit != null) {
+                            count2 = parseLong(resp.getSum().getStart()) * 1000 + parking_limit * 1000 - System.currentTimeMillis();
+                            count2 = count2 / 1000;
+                            Log.d(TAG, "count: " + count2);
+                            T2.scheduleAtFixedRate(new TimerTask() {
+                                @Override
+                                public void run() {
+                                    runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            timeHour2 = Math.floor(count2 / 3600);
+                                            timeMin2 = Math.floor((count2 - timeHour2 * 3600) / 60);
+                                            timeSec2 = count2 - timeHour2 * 3600 - timeMin2 * 60;
+                                            if (timeHour2 < 10) {
+                                                timeHourString2 = "0" + Integer.toString((int) timeHour2);
+                                            } else {
+                                                timeHourString2 = Integer.toString((int) timeHour2);
+                                            }
+                                            if (timeMin2 < 10) {
+                                                timeMinString2 = "0" + Integer.toString((int) timeMin2);
+                                            } else {
+                                                timeMinString2 = Integer.toString((int) timeMin2);
+                                            }
+                                            if (timeSec2 < 10) {
+                                                timeSecString2 = "0" + Integer.toString((int) timeSec2);
+                                            } else {
+                                                timeSecString2 = Integer.toString((int) timeSec2);
+                                            }
+                                            parking_maxTime.setText(timeHourString2 + ":" + timeMinString2 + ":" + timeSecString2);
+                                            count2--;
                                         }
-                                        if(timeMin2 < 10){
-                                            timeMinString2 = "0"+Integer.toString((int)timeMin2);
-                                        }else{
-                                            timeMinString2 = Integer.toString((int)timeMin2);
-                                        }
-                                        if(timeSec2 < 10){
-                                            timeSecString2 = "0"+Integer.toString((int)timeSec2);
-                                        }else{
-                                            timeSecString2 = Integer.toString((int)timeSec2);
-                                        }
-                                        parking_maxTime.setText(timeHourString2 + ":" + timeMinString2 + ":" + timeSecString2);
-                                        count2--;
-                                    }
-                                });
-                            }
-                        }, 1000, 1000);
+                                    });
+                                }
+                            }, 1000, 1000);
+                        }
                     }
                 }
             }

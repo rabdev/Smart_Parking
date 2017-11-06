@@ -316,6 +316,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                         @Override
                         public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                             prog = sb_distance.getProgress();
+                            Log.d(TAG, "progress:"+prog);
                             tv_sb_distance.setText(String.valueOf(prog) + " m");
                             loadJSON(Double.toString(latitude), Double.toString(longitude), String.valueOf(prog));
                         }
@@ -739,6 +740,17 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         firstrun = (TextView) dialogview.findViewById(R.id.tv_firstrun);
         firstrun.setVisibility(View.GONE);
 
+        et_name.clearFocus();
+
+        et_name.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (hasFocus)
+                    et_name.setHint("");
+                else
+                    et_name.setHint("Kovács András");
+            }
+        });
+
         settings_distance.setMax(2500);
         if (pref.getString(Constants.SettingsDistance, null) != null) {
             if (!pref.getString(Constants.SettingsDistance, null).isEmpty()) {
@@ -841,6 +853,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                 tv_distance.setText(pref.getString(Constants.SettingsDistance, null));
                 indistance.setText(pref.getString(Constants.SettingsDistance, null) + " m-es körzetben");
                 x = false;
+                finish();
+                startActivity(getIntent());
             }
         });
 
@@ -965,7 +979,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     startActivity(intent);
                 }
-                if(resp.getParking_places() != null){
+                if(resp.getParking_places() != null && resp.getParking_places().length != 0){
                     data = new ArrayList<Parking_places>(Arrays.asList(resp.getParking_places()));
 
                     ArrayList<Parking_places> markersArray = new ArrayList<>();
@@ -1003,10 +1017,14 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                             position = marker1.getPosition();
                             SharedPreferences.Editor editor = pref.edit();
                             editor.putString("id", data.get(parseInt(marker1.getSnippet())).getId());
+                            editor.putString("zone", data.get(parseInt(marker1.getSnippet())).getId());
                             editor.putString("address", data.get(parseInt(marker1.getSnippet())).getAddress());
                             editor.putString("price", String.format("%.0f", Double.parseDouble(data.get(parseInt(marker1.getSnippet())).getPrice())));
                             editor.putString("latitude", String.format("%.0f", Double.parseDouble(data.get(parseInt(marker1.getSnippet())).getCenterLatitude())));
                             editor.putString("longitude", String.format("%.0f", Double.parseDouble(data.get(parseInt(marker1.getSnippet())).getCenterLatitude())));
+                            editor.putString("time", String.format("%.0f", Double.parseDouble(data.get(parseInt(marker1.getSnippet())).getTime())));
+                            editor.putString("distance", String.format("%.0f", Double.parseDouble(data.get(parseInt(marker1.getSnippet())).getDistance())));
+                            editor.putString("timeLimit", String.format("%.0f", Double.parseDouble(data.get(parseInt(marker1.getSnippet())).getTimeLimit())));
                             editor.putString("maxTime", data.get(parseInt(marker1.getSnippet())).getTimeLimit());
                             editor.apply();
                             parking_card.setVisibility(View.VISIBLE);
@@ -1027,16 +1045,16 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                             card_perprice.setText(pref.getString("price", null) + " Ft/óra");
                             if (pref.getString("distance",null)!=null){
                                 if(!pref.getString("distance", null).equals("nincs megadva")){
-                                    distance_km.setText(String.format("%.1f", Double.parseDouble(pref.getString("distance", null))/1000.0) + " km from your current location");
+                                    distance_km.setText(String.format("%.1f", Double.parseDouble(pref.getString("distance", null))/1000.0) + " km jelenlegi tartózkodási helytől");
                                 }else{
-                                    distance_km.setText(pref.getString("distance", null) + " km from your current location");
+                                    distance_km.setText(pref.getString("distance", null) + " km jelenlegi tartózkodási helytől");
                                 }
                             }
                             if (pref.getString("time",null)!=null){
                                 if(!pref.getString("time", null).equals("nincs megadva")){
-                                    distance_mins.setText(String.format("%.1f", Double.parseDouble(pref.getString("time", null))) + " mins without traffic");
+                                    distance_mins.setText(String.format("%.1f", Double.parseDouble(pref.getString("time", null))) + " perc forgalom nélkül");
                                 }else{
-                                    distance_mins.setText(pref.getString("time", null) + " mins without traffic");
+                                    distance_mins.setText(pref.getString("time", null) + " perc forgalom nélkül");
                                 }
                             }
                             //editor.apply();
@@ -1055,6 +1073,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                             createMarker(pref.getString("latitudeZone", null), pref.getString("longitudeZone", null), pref.getString("address", null));*/
                             double c = Double.parseDouble(pref.getString("latitudeZone", null));
                             double d = Double.parseDouble(pref.getString("longitudeZone", null));
+                            Log.d(TAG, "latlong"+c+" "+d);
                         /*parking_card.setVisibility(View.VISIBLE);
                         card_address.setText(pref.getString("address", null));
                         //card_count.setText(data.get(parseInt(marker1.getId().substring(1))).getFreePlaces());
@@ -1068,20 +1087,20 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 
                             card_address.setText(pref.getString("address", null));
                             card_count.setText(pref.getString("freeplaces", null));
-                            parkingcount.setText(pref.getString("freeplaces", null));
+                            parkingcount.setText(pref.getString("freeplaces", "0")+ "szabad");
                             card_perprice.setText(pref.getString("price", null) + " Ft/óra");
                             if (pref.getString("distance",null)!=null){
                                 if(!pref.getString("distance", null).equals("nincs megadva")){
-                                    distance_km.setText(String.format("%.1f", Double.parseDouble(pref.getString("distance", null))/1000.0) + " km from your current location");
+                                    distance_km.setText(String.format("%.1f", Double.parseDouble(pref.getString("distance", null))/1000.0) + " km jelenlegi tartózkodási helytől");
                                 }else{
-                                    distance_km.setText(pref.getString("distance", null) + " km from your current location");
+                                    distance_km.setText(pref.getString("distance", null) + " km jelenlegi tartózkodási helytől");
                                 }
                             }
                             if (pref.getString("time",null)!=null){
                                 if(!pref.getString("time", null).equals("nincs megadva")){
-                                    distance_mins.setText(String.format("%.1f", Double.parseDouble(pref.getString("time", null))) + " mins without traffic");
+                                    distance_mins.setText(String.format("%.1f", Double.parseDouble(pref.getString("time", null))) + " perc forgalom nélkül");
                                 }else{
-                                    distance_mins.setText(pref.getString("time", null) + " mins without traffic");
+                                    distance_mins.setText(pref.getString("time", null) + " perc forgalom nélkül");
                                 }
                             }
                             parking_card.setVisibility(View.VISIBLE);
@@ -1102,7 +1121,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                             LatLng myloc = new LatLng(c, d);
                             gmap.animateCamera(CameraUpdateFactory.newLatLng(myloc));
                             gmap.moveCamera(CameraUpdateFactory.newLatLngZoom(myloc, 16));*/
-                                parkingcount.setText(String.valueOf(freePlaces));
+                                parkingcount.setText(String.valueOf(freePlaces) + " szabad");
                                 card_count.setText(String.valueOf(freePlaces));
                             }
                         }
@@ -1154,10 +1173,13 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                             LatLng myloc = new LatLng(c, d);
                             gmap.animateCamera(CameraUpdateFactory.newLatLng(myloc));
                             gmap.moveCamera(CameraUpdateFactory.newLatLngZoom(myloc, 16));*/
-                            parkingcount.setText(String.valueOf(freePlaces));
+                            parkingcount.setText(String.valueOf(freePlaces) + " szabad");
                             card_count.setText(String.valueOf(freePlaces));
                         }
                     }
+                }else{
+                    parkingcount.setText("0 szabad");
+                    gmap.clear();
                 }
 
             }

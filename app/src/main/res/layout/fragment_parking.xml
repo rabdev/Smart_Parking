@@ -60,7 +60,7 @@
                         android:layout_height="match_parent"
                         android:layout_weight="1"
                         android:gravity="center_vertical|end"
-                        android:text="1119 Budapest Petzvál Lajos utca 30-39."
+                        android:text=""
                         android:textColor="@color/colorPrimaryDark"
                         android:textSize="16sp"
                         android:textStyle="bold" />
@@ -90,7 +90,7 @@
                         android:layout_height="match_parent"
                         android:layout_weight="1"
                         android:gravity="center_vertical|end"
-                        android:text="200 Ft/óra"
+                        android:text=""
                         android:textColor="@color/colorPrimaryDark"
                         android:textSize="16sp"
                         android:textStyle="bold" />
@@ -120,7 +120,7 @@
                         android:layout_height="match_parent"
                         android:layout_weight="1"
                         android:gravity="center_vertical|end"
-                        android:text="Maximum parkolási idő 1 óra"
+                        android:text=""
                         android:textColor="@color/colorPrimaryDark"
                         android:textSize="15sp"
                         android:textStyle="bold" />
@@ -160,7 +160,7 @@
                         android:layout_height="match_parent"
                         android:layout_weight="1"
                         android:gravity="center_vertical|end"
-                        android:text="1119 Budapest Petzvál Lajos utca 30-39."
+                        android:text=""
                         android:textColor="@color/colorPrimaryDark"
                         android:textSize="16sp"
                         android:textStyle="bold" />
@@ -189,7 +189,7 @@
                         android:layout_height="match_parent"
                         android:layout_weight="1"
                         android:gravity="center_vertical|end"
-                        android:text="1:30"
+                        android:text=""
                         android:textColor="@color/colorPrimaryDark"
                         android:textSize="15sp"
                         android:textStyle="bold" />
@@ -220,7 +220,7 @@
                         android:layout_height="match_parent"
                         android:layout_weight="1"
                         android:gravity="center_vertical|end"
-                        android:text="Hátralévő idő: 0:59"
+                        android:text=""
                         android:textColor="@color/colorPurple"
                         android:textSize="15sp"
                         android:textStyle="bold" />
@@ -291,7 +291,7 @@
                         android:layout_height="match_parent"
                         android:layout_weight="1"
                         android:gravity="center_vertical|end"
-                        android:text="1119 Budapest Petzvál Lajos utca 30-39."
+                        android:text=""
                         android:textColor="@color/colorPrimaryDark"
                         android:textSize="16sp"
                         android:textStyle="bold" />
@@ -320,7 +320,7 @@
                         android:layout_height="match_parent"
                         android:layout_weight="1"
                         android:gravity="center_vertical|end"
-                        android:text="1:30"
+                        android:text=""
                         android:textColor="@color/colorPrimaryDark"
                         android:textSize="15sp"
                         android:textStyle="bold" />
