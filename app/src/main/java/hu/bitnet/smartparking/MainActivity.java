@@ -5,9 +5,9 @@ import android.animation.ArgbEvaluator;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.annotation.TargetApi;
+import android.app.ActivityManager;
 import android.app.Dialog;
 import android.app.PendingIntent;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -65,7 +65,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import hu.bitnet.smartparking.RequestInterfaces.RequestInterfaceNearest;
-import hu.bitnet.smartparking.RequestInterfaces.RequestInterfaceParkingStatus;
 import hu.bitnet.smartparking.ServerResponses.ServerResponse;
 import hu.bitnet.smartparking.fragments.History;
 import hu.bitnet.smartparking.fragments.Parking;
@@ -82,6 +81,8 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
+import static android.app.ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND;
+import static android.app.ActivityManager.RunningAppProcessInfo.IMPORTANCE_VISIBLE;
 import static android.content.ContentValues.TAG;
 import static java.lang.Integer.parseInt;
 
@@ -134,8 +135,9 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         if(intent2 != null) {
             String message = intent2.getStringExtra("activity");
             if(message != null && message.equals("driving")){
-                Log.d(TAG, "ACTIVITY: driving!");
-                showDialog2();
+                if(foregrounded() == true){
+                    showDialog2();
+                }
             }else{
                 Log.d(TAG, "ACTIVITY: not driving");
             }
@@ -607,10 +609,11 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
-        Intent intent = new Intent( this, DetectActivity.class );
-        pendingIntent = PendingIntent.getService( this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT );
-        ActivityRecognition.ActivityRecognitionApi.requestActivityUpdates( mGoogleApiClient, 3000, pendingIntent );
-        Log.d(TAG, "mozgás");
+        if(foregrounded() == true) {
+            Intent intent = new Intent(this, DetectActivity.class);
+            pendingIntent = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+            ActivityRecognition.ActivityRecognitionApi.requestActivityUpdates(mGoogleApiClient, 3000, pendingIntent);
+        }
         LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
     }
 
@@ -722,6 +725,12 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         mapView.onResume();
         ParkinginProgress();
         super.onResume();
+    }
+
+    public boolean foregrounded() {
+        ActivityManager.RunningAppProcessInfo appProcessInfo = new ActivityManager.RunningAppProcessInfo();
+        ActivityManager.getMyMemoryState(appProcessInfo);
+        return (appProcessInfo.importance == IMPORTANCE_FOREGROUND || appProcessInfo.importance == IMPORTANCE_VISIBLE);
     }
 
     private void showDialog() {
@@ -885,7 +894,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         View dialogview = inflater.inflate(R.layout.dialog_alert, null);
 
         builder.setView(dialogview);
-        builder.setTitle("Figyelmezetéts");
+        builder.setTitle("Figyelmeztetés");
         builder.setPositiveButton("Csak utas vagyok", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
