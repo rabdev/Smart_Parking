@@ -168,6 +168,33 @@ public class Parking extends Fragment {
             public void onClick(View v) {
                 if (pref.getString(Constants.ParkingStatus,"").equals("1")) {
                     //loadJSONStart(pref.getString(Constants.UID, null), zoneId);
+
+                    AlertDialog.Builder alertDialog = new AlertDialog.Builder(getActivity());
+                    alertDialog.setTitle("SMS");
+                    alertDialog.setMessage("Parkolás SMS küldésével");
+                    alertDialog.setIcon(R.drawable.ic_parking);
+
+                    alertDialog.setPositiveButton("SMS küldés", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("sms:" + pref.getString(Constants.SMSBase, null)));
+                            intent.putExtra("sms_body", pref.getString(Constants.LicensePlate, null));
+                            startActivity(intent);
+
+                        }
+                    });
+
+                    alertDialog.setNegativeButton("Mégsem", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            //Toast.makeText(getContext(), "Kérjük, ne felejtse el elhozni beutalóját!", Toast.LENGTH_SHORT).show();
+                            /*SharedPreferences.Editor editor = pref.edit();
+                            editor.putString(Constants.ParkingStatus, "1");
+                            editor.apply();
+                            ((MainActivity)getActivity()).ParkinginProgress();*/
+                        }
+                    });
+
+                    alertDialog.show();
+
                     loadJSONStart(pref.getString(Constants.UID, null), zoneId, latitude, longitude);
                     //loadJSONStatus(pref.getString(Constants.UID, null));
                     btn_status.setBackgroundTintList(getResources().getColorStateList(R.color.colorPurple, getActivity().getTheme()));

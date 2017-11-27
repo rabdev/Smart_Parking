@@ -49,6 +49,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="3"
+                android:textColor="@android:color/black"
                 android:text="Név:"
                 android:textSize="18sp"
                 android:textStyle="bold" />
@@ -60,7 +61,8 @@
                 android:layout_marginRight="4dp"
                 android:layout_weight="1"
                 android:hint="Kovács András"
-                android:textColorHint="@drawable/selector_dialog"
+                android:inputType="textPersonName"
+                android:textColorHint="@color/cardview_shadow_start_color"
                 android:textColor="@android:color/black"
                 android:textAlignment="viewEnd"
                 android:textSize="18sp" />
@@ -76,6 +78,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:textColor="@android:color/black"
                 android:text="Rendszám:*"
                 android:textSize="18sp"
                 android:textStyle="bold" />
@@ -87,7 +90,8 @@
                 android:layout_marginRight="4dp"
                 android:layout_weight="2"
                 android:hint="ABC-123"
-                android:textColorHint="@drawable/selector_dialog"
+                android:inputType="textShortMessage"
+                android:textColorHint="@color/cardview_shadow_start_color"
                 android:textColor="@android:color/black"
                 android:textAlignment="viewEnd"
                 android:textSize="18sp" />
@@ -104,6 +108,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="Távolság:*"
+                android:textColor="@android:color/black"
                 android:textSize="18sp"
                 android:textStyle="bold" />
 
@@ -123,6 +128,7 @@
                 android:layout_marginLeft="4dp"
                 android:layout_marginRight="4dp"
                 android:layout_weight="0"
+                android:textColor="@android:color/black"
                 android:text="m"
                 android:textAlignment="viewEnd"
                 android:textSize="18sp" />
@@ -135,6 +141,7 @@
             android:layout_marginBottom="8dp"
             android:layout_marginTop="8dp"
             android:layout_weight="2"
+            android:textColor="@android:color/black"
             android:progressTint="@color/colorPurple"
             android:thumbTint="@color/colorPrimaryDark"
             android:tickMarkTint="@color/colorPrimaryDark" />
@@ -158,6 +165,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="0.5"
                 android:text="Mobilszolgáltató:*"
+                android:textColor="@android:color/black"
                 android:textSize="18sp"
                 android:textStyle="bold" />
 
@@ -167,8 +175,10 @@
                 android:layout_height="wrap_content"
                 android:layout_marginRight="4dp"
                 android:layout_weight="2"
-                android:hint="30-123"
-                android:textColorHint="@drawable/selector_dialog"
+                android:hint="30"
+                android:inputType="number"
+                android:maxLength="2"
+                android:textColorHint="@color/cardview_shadow_start_color"
                 android:textColor="@android:color/black"
                 android:textAlignment="viewEnd"
                 android:textSize="18sp" />
