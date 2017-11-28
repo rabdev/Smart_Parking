@@ -243,6 +243,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
             public void onClick(View v) {
                 if (x) {
                     distance_container.setVisibility(View.GONE);
+                    //parking_card.setVisibility(View.GONE);
                     distance_bg.setBackgroundTintList(getResources().getColorStateList(R.color.colorPrimaryDark, getTheme()));
                     tv_distance.setTextColor(getResources().getColorStateList(R.color.colorPrimaryDark, getTheme()));
                     //distance_bg.setColo(getResources().getColor(R.color.colorPrimaryDark,getTheme()));
@@ -307,6 +308,9 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
             public void onClick(View v) {
                 if (!x) {
                     distance_container.setVisibility(View.VISIBLE);
+                    if(parking_card.getVisibility()==View.VISIBLE){
+                        parking_card.setVisibility(View.GONE);
+                    }
                     distance_bg.setBackgroundTintList(getResources().getColorStateList(R.color.colorPurple, getTheme()));
                     tv_distance.setTextColor(getResources().getColorStateList(R.color.colorPurple, getTheme()));
                     distance_container.startAnimation(slide_up2);
@@ -336,6 +340,10 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                     x = true;
                 } else {
                     distance_container.setVisibility(View.GONE);
+                    if(parking_card.getVisibility()==View.VISIBLE){
+                        parking_card.setVisibility(View.GONE);
+                    }
+                    //parking_card.setVisibility(View.GONE);
                     distance_bg.setBackgroundTintList(getResources().getColorStateList(R.color.colorPrimaryDark, getTheme()));
                     tv_distance.setTextColor(getResources().getColorStateList(R.color.colorPrimaryDark, getTheme()));
                     distance_container.startAnimation(slide_down2);
@@ -1012,11 +1020,15 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                             if (x){
                                 infosav.setVisibility(View.VISIBLE);
                                 infosav.startAnimation(slide_up1);
-                                menu.startAnimation(slide_down);
-                                menu.setVisibility(View.GONE);
-                                x = false;
+                                if(menu.getVisibility()==View.VISIBLE){
+                                    menu.startAnimation(slide_down);
+                                    menu.setVisibility(View.GONE);
+                                }
                             }
-
+                            if (distance_container.getVisibility()==View.VISIBLE){
+                               distance_container.setVisibility(View.GONE);
+                            }
+                            x = false;
                             parking_card_bool = true;
 
                             Log.d(TAG, "marker: "+marker1.getId());
@@ -1037,7 +1049,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                             editor.putString("maxTime", data.get(parseInt(marker1.getSnippet())).getTimeLimit());
                             editor.apply();
                             parking_card.setVisibility(View.VISIBLE);
-                            x=true;
+                            //x=true;
                             btn_navigate.setVisibility(View.VISIBLE);
                             btn_navigate.setOnClickListener(new View.OnClickListener() {
                                 @Override
@@ -1324,5 +1336,9 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         } else {
             inprogress.setVisibility(View.GONE);
         }
+    }
+
+    public void setX(){
+        x=true;
     }
 }
