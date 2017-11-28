@@ -215,12 +215,12 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         slide_up2 = AnimationUtils.loadAnimation(getApplicationContext(),
                 R.anim.slide_up);
 
-        if (pref.getString(Constants.LicensePlate, "").isEmpty() && pref.getString(Constants.SettingsDistance, "").isEmpty() && pref.getString(Constants.SMSBase, "").isEmpty()) {
-            showDialog();
-            firstrun.setVisibility(View.VISIBLE);
+        if (pref.getString(Constants.LicensePlate, "").isEmpty() || pref.getString(Constants.SettingsDistance, "").isEmpty() || pref.getString(Constants.SMSBase, "").isEmpty()) {
             bool_distance = false;
             bool_license = false;
             bool_smsbase = false;
+            showDialog();
+            firstrun.setVisibility(View.VISIBLE);
             settings_dialog.setOnKeyListener(new Dialog.OnKeyListener() {
                 @Override
                 public boolean onKey(DialogInterface arg0, int keyCode, KeyEvent event) {
@@ -228,8 +228,9 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                         finish();
                         x = false;
                         settings_dialog.dismiss();
+                        return true;
                     }
-                    return true;
+                    return false;
                 }
             });
             settings_dialog.getButton(DialogInterface.BUTTON_POSITIVE).setEnabled(false);
@@ -770,6 +771,22 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
             }
         });
 
+        if (pref.getString(Constants.LicensePlate,null)!=null) {
+            et_license_plate.setText(pref.getString(Constants.LicensePlate, null));
+            bool_license = true;
+        }
+        if (pref.getString(Constants.SMSBase,null)!=null) {
+            et_smsbase.setText(pref.getString(Constants.SMSBase, null));
+            bool_smsbase = true;
+        }
+        if(pref.getString(Constants.SettingsDistance,null)!=null) {
+            et_distance.setText(pref.getString(Constants.SettingsDistance, null));
+            bool_distance = true;
+        }
+        if (!pref.getString(Constants.NAME, "").isEmpty()) {
+            et_name.setText(pref.getString(Constants.NAME, null));
+        }
+
         settings_distance.setMax(2500);
         if (pref.getString(Constants.SettingsDistance, null) != null) {
             if (!pref.getString(Constants.SettingsDistance, null).isEmpty()) {
@@ -878,18 +895,28 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                     finish();
                     startActivity(getIntent());
                 }else{
-                    AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                    LayoutInflater inflater = (LayoutInflater.from(getApplicationContext()));
-                    View dialogview = inflater.inflate(R.layout.dialog_licence, null);
-
-                    builder.setView(dialogview);
-                    builder.setTitle("Figyelmeztetés");
-                    builder.setPositiveButton("Javítom", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            showDialog();
-                        }
-                    });
+                    SharedPreferences.Editor editor = pref.edit();
+                    editor.putString(Constants.SMSBase, et_smsbase.getText().toString());
+                    editor.putString(Constants.SettingsDistance, et_distance.getText().toString());
+                    editor.putString(Constants.NAME, et_name.getText().toString());
+                    Log.i("TAG","android.os.Build.SERIAL: " + Build.SERIAL);
+                    editor.putString(Constants.UID, Build.SERIAL+"*"+pref.getString(Constants.LicensePlate, null));
+                    editor.apply();
+                    showDialog3();
+                    if(pref.getString(Constants.LicensePlate, null) == null) {
+                        settings_dialog.setOnKeyListener(new Dialog.OnKeyListener() {
+                            @Override
+                            public boolean onKey(DialogInterface arg0, int keyCode, KeyEvent event) {
+                                if (keyCode == KeyEvent.KEYCODE_BACK) {
+                                    finish();
+                                    x = false;
+                                    settings_dialog.dismiss();
+                                    return true;
+                                }
+                                return false;
+                            }
+                        });
+                    }
 
                     /*builder.setNegativeButton("Csak navigációt használok", new DialogInterface.OnClickListener() {
                         @Override
@@ -897,8 +924,6 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                             ActivityRecognition.ActivityRecognitionApi.removeActivityUpdates(mGoogleApiClient, pendingIntent);
                         }
                     });*/
-                    settings_dialog = builder.create();
-                    settings_dialog.show();
                 }
             }
         });
@@ -942,6 +967,38 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 ActivityRecognition.ActivityRecognitionApi.removeActivityUpdates(mGoogleApiClient, pendingIntent);
+            }
+        });
+        settings_dialog = builder.create();
+        settings_dialog.show();
+    }
+
+    private void showDialog3() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+        LayoutInflater inflater = (LayoutInflater.from(getApplicationContext()));
+        View dialogview = inflater.inflate(R.layout.dialog_licence, null);
+
+        builder.setView(dialogview);
+        builder.setTitle("Figyelmeztetés");
+        builder.setPositiveButton("Javítom", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                showDialog();
+                if(pref.getString(Constants.LicensePlate, null) == null) {
+                    settings_dialog.setOnKeyListener(new Dialog.OnKeyListener() {
+                        @Override
+                        public boolean onKey(DialogInterface arg0, int keyCode, KeyEvent event) {
+                            if (keyCode == KeyEvent.KEYCODE_BACK) {
+                                finish();
+                                x = false;
+                                settings_dialog.dismiss();
+                                return true;
+                            }
+                            return false;
+                        }
+                    });
+                    settings_dialog.setCanceledOnTouchOutside(false);
+                }
             }
         });
         settings_dialog = builder.create();
