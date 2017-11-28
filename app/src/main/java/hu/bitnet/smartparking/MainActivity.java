@@ -63,6 +63,8 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import hu.bitnet.smartparking.RequestInterfaces.RequestInterfaceNearest;
 import hu.bitnet.smartparking.ServerResponses.ServerResponse;
@@ -859,19 +861,45 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         builder.setPositiveButton("Mentés", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                SharedPreferences.Editor editor = pref.edit();
-                editor.putString(Constants.LicensePlate, et_license_plate.getText().toString());
-                editor.putString(Constants.SMSBase, et_smsbase.getText().toString());
-                editor.putString(Constants.SettingsDistance, et_distance.getText().toString());
-                editor.putString(Constants.NAME, et_name.getText().toString());
-                Log.i("TAG","android.os.Build.SERIAL: " + Build.SERIAL);
-                editor.putString(Constants.UID, Build.SERIAL+"*"+pref.getString(Constants.LicensePlate, null));
-                editor.apply();
-                tv_distance.setText(pref.getString(Constants.SettingsDistance, null));
-                indistance.setText(pref.getString(Constants.SettingsDistance, null) + " m-es körzetben");
-                x = false;
-                finish();
-                startActivity(getIntent());
+                Pattern p = Pattern.compile("^[a-zA-Z]{3}[-]{1}[0-9]{3}$");
+                Matcher m = p.matcher(et_license_plate.getText());
+                if(m.matches()) {
+                    SharedPreferences.Editor editor = pref.edit();
+                    editor.putString(Constants.LicensePlate, et_license_plate.getText().toString());
+                    editor.putString(Constants.SMSBase, et_smsbase.getText().toString());
+                    editor.putString(Constants.SettingsDistance, et_distance.getText().toString());
+                    editor.putString(Constants.NAME, et_name.getText().toString());
+                    Log.i("TAG","android.os.Build.SERIAL: " + Build.SERIAL);
+                    editor.putString(Constants.UID, Build.SERIAL+"*"+pref.getString(Constants.LicensePlate, null));
+                    editor.apply();
+                    tv_distance.setText(pref.getString(Constants.SettingsDistance, null));
+                    indistance.setText(pref.getString(Constants.SettingsDistance, null) + " m-es körzetben");
+                    x = false;
+                    finish();
+                    startActivity(getIntent());
+                }else{
+                    AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                    LayoutInflater inflater = (LayoutInflater.from(getApplicationContext()));
+                    View dialogview = inflater.inflate(R.layout.dialog_licence, null);
+
+                    builder.setView(dialogview);
+                    builder.setTitle("Figyelmeztetés");
+                    builder.setPositiveButton("Javítom", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            showDialog();
+                        }
+                    });
+
+                    /*builder.setNegativeButton("Csak navigációt használok", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            ActivityRecognition.ActivityRecognitionApi.removeActivityUpdates(mGoogleApiClient, pendingIntent);
+                        }
+                    });*/
+                    settings_dialog = builder.create();
+                    settings_dialog.show();
+                }
             }
         });
 
