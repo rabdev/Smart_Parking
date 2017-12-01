@@ -173,7 +173,7 @@
 
             <EditText
                 android:id="@+id/sms_base"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="4dp"
                 android:hint="30"
