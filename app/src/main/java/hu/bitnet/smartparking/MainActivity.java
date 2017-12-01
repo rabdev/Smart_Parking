@@ -48,10 +48,14 @@ import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.ActivityRecognition;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
+import com.google.android.gms.location.places.ui.PlaceSelectionListener;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.LocationSource;
@@ -510,6 +514,30 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
             }
         });
 
+        /*PlaceAutocompleteFragment autocompleteFragment = (PlaceAutocompleteFragment)
+                getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment);
+
+        autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
+            @Override
+            public void onPlaceSelected(Place place) {
+                // TODO: Get info about the selected place.
+                Log.i(TAG, "Place: " + place.getName());
+
+                String placeDetailsStr = place.getName() + "\n"
+                        + place.getId() + "\n"
+                        + place.getLatLng().toString() + "\n"
+                        + place.getAddress() + "\n"
+                        + place.getAttributions();
+                Toast.makeText(getApplicationContext(), placeDetailsStr, Toast.LENGTH_LONG).show();
+                //.setText(placeDetailsStr);
+            }
+
+            @Override
+            public void onError(Status status) {
+                Log.i(TAG, "An error occurred: " + status);
+            }
+        });*/
+
         inprogress.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -567,7 +595,30 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if (upsearch.getText().toString().trim().length() == 3) {
-                    if (search_active==false){
+                    /*PlaceAutocompleteFragment autocompleteFragment = (PlaceAutocompleteFragment)
+                            getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment);
+
+                    autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
+                        @Override
+                        public void onPlaceSelected(Place place) {
+                            // TODO: Get info about the selected place.
+                            Log.i(TAG, "Place: " + place.getName());
+
+                            String placeDetailsStr = place.getName() + "\n"
+                                    + place.getId() + "\n"
+                                    + place.getLatLng().toString() + "\n"
+                                    + place.getAddress() + "\n"
+                                    + place.getAttributions();
+                            upsearch.setText(placeDetailsStr);
+                        }
+
+                        @Override
+                        public void onError(Status status) {
+                            // TODO: Handle the error.
+                            Log.i(TAG, "An error occurred: " + status);
+                        }
+                    });
+                    /*if (search_active==false){
                         Search search = new Search();
                         FragmentManager fragmentManager = getSupportFragmentManager();
                         fragmentManager.beginTransaction()
@@ -579,7 +630,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                         upsearch.requestFocus();
                         search_active=true;
                         x=true;
-                    }
+                    }*/
                 } else if(upsearch.getText().toString().trim().length() < 3) {
                     FragmentManager fragmentManager = getSupportFragmentManager();
                     index = fragmentManager.getBackStackEntryCount();
@@ -602,17 +653,40 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         btn_search.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (upsearch.getVisibility()!= View.VISIBLE){
+                PlaceAutocompleteFragment autocompleteFragment = (PlaceAutocompleteFragment)
+                        getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment);
+                autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
+                    @Override
+                    public void onPlaceSelected(Place place) {
+                        // TODO: Get info about the selected place.
+                        Log.i(TAG, "Place: " + place.getName());
+
+                        String placeDetailsStr = place.getName() + "\n"
+                                + place.getId() + "\n"
+                                + place.getLatLng().toString() + "\n"
+                                + place.getAddress() + "\n"
+                                + place.getAttributions();
+                        Toast.makeText(getApplicationContext(), placeDetailsStr, Toast.LENGTH_LONG).show();
+                        //.setText(placeDetailsStr);
+                    }
+
+                    @Override
+                    public void onError(Status status) {
+                        Log.i(TAG, "An error occurred: " + status);
+                    }
+                });
+                /*if (upsearch.getVisibility()!= View.VISIBLE){
                     upsearch.setVisibility(View.VISIBLE);
                     upsearch.setActivated(true);
                     upsearch.requestFocus();
                     imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                     imm.showSoftInput(upsearch, InputMethodManager.SHOW_IMPLICIT);
-                }
+                }*/
             }
         });
 
     }
+
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {

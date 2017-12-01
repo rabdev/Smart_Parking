@@ -38,9 +38,15 @@
         android:layout_marginRight="64dp"
         android:layout_marginTop="18dp"
         android:background="@drawable/map_button_background"
-        android:textAlignment="viewEnd"
         android:paddingLeft="8dp"
-        android:paddingRight="8dp"/>
+        android:paddingRight="8dp"
+        android:textAlignment="viewEnd" />
+
+    <fragment
+        android:id="@+id/place_autocomplete_fragment"
+        android:name="com.google.android.gms.location.places.ui.PlaceAutocompleteFragment"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 
     <ImageView
         android:id="@+id/btn_search"
@@ -155,7 +161,7 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:focusable="true"
-            android:focusableInTouchMode="true"/>
+            android:focusableInTouchMode="true" />
 
         <EditText
             android:id="@+id/search"
