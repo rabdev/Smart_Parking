@@ -653,28 +653,6 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         btn_search.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                PlaceAutocompleteFragment autocompleteFragment = (PlaceAutocompleteFragment)
-                        getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment);
-                autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
-                    @Override
-                    public void onPlaceSelected(Place place) {
-                        // TODO: Get info about the selected place.
-                        Log.i(TAG, "Place: " + place.getName());
-
-                        String placeDetailsStr = place.getName() + "\n"
-                                + place.getId() + "\n"
-                                + place.getLatLng().toString() + "\n"
-                                + place.getAddress() + "\n"
-                                + place.getAttributions();
-                        Toast.makeText(getApplicationContext(), placeDetailsStr, Toast.LENGTH_LONG).show();
-                        //.setText(placeDetailsStr);
-                    }
-
-                    @Override
-                    public void onError(Status status) {
-                        Log.i(TAG, "An error occurred: " + status);
-                    }
-                });
                 /*if (upsearch.getVisibility()!= View.VISIBLE){
                     upsearch.setVisibility(View.VISIBLE);
                     upsearch.setActivated(true);
@@ -682,6 +660,40 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                     imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                     imm.showSoftInput(upsearch, InputMethodManager.SHOW_IMPLICIT);
                 }*/
+            }
+        });
+        PlaceAutocompleteFragment autocompleteFragment = (PlaceAutocompleteFragment)
+                getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment);
+        autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
+            @Override
+            public void onPlaceSelected(Place place) {
+                // TODO: Get info about the selected place.
+                Log.i(TAG, "Place: " + place.getName());
+
+                String placeDetailsStr = place.getName() + "\n"
+                        + place.getId() + "\n"
+                        + place.getLatLng().toString() + "\n"
+                        + place.getAddress() + "\n"
+                        + place.getAttributions();
+                marker = gmap.addMarker(new MarkerOptions().position(place.getLatLng()));
+                gmap.animateCamera(CameraUpdateFactory.newLatLng(place.getLatLng()));
+                gmap.moveCamera(CameraUpdateFactory.newLatLngZoom(place.getLatLng(), 16));
+                btn_navigate.setVisibility(View.VISIBLE);
+                btn_navigate.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        String uri = String.format("http://maps.google.com/maps?" + "saddr="+latitude+","+longitude+ "&daddr="+marker.getPosition().latitude+","+marker.getPosition().longitude+"");
+                        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
+                        startActivity(intent);
+                    }
+                });
+                //Toast.makeText(getApplicationContext(), placeDetailsStr, Toast.LENGTH_LONG).show();
+                //.setText(placeDetailsStr);
+            }
+
+            @Override
+            public void onError(Status status) {
+                Log.i(TAG, "An error occurred: " + status);
             }
         });
 

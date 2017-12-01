@@ -31,7 +31,7 @@
         </activity>
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyA3lVsf4hOOBy6FSM5YCv0eqGcZBa_34Xs"/>
+            android:value="AIzaSyAFfez8u9h15sexbcOcgWgK_8p09KvKr4o"/>
         <service android:name=".DetectActivity" android:exported="false"></service>
         <receiver android:name=".MainActivity" />
     </application>
