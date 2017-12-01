@@ -15,7 +15,7 @@
         android:layout_height="match_parent"
         android:layout_marginBottom="72dp"
         android:animateLayoutChanges="true"
-        android:apiKey="AIzaSyCSGZkqewIkymr2Vs-mai26vPgnekohsRM" />
+        android:apiKey="AIzaSyAFfez8u9h15sexbcOcgWgK_8p09KvKr4o" />
 
 
     <ImageView
@@ -31,6 +31,7 @@
         android:tint="@color/colorPrimaryDark" />
 
     <EditText
+        android:visibility="gone"
         android:id="@+id/upsearch"
         android:layout_width="match_parent"
         android:layout_height="40dp"
@@ -38,11 +39,12 @@
         android:layout_marginRight="64dp"
         android:layout_marginTop="18dp"
         android:background="@drawable/map_button_background"
-        android:textAlignment="viewEnd"
         android:paddingLeft="8dp"
-        android:paddingRight="8dp"/>
+        android:paddingRight="8dp"
+        android:textAlignment="viewEnd" />
 
     <ImageView
+        android:visibility="gone"
         android:id="@+id/btn_search"
         android:layout_width="40dp"
         android:layout_height="40dp"
@@ -59,8 +61,8 @@
         android:id="@+id/btn_navigate"
         android:layout_width="40dp"
         android:layout_height="40dp"
-        android:layout_gravity="end"
-        android:layout_marginRight="12dp"
+        android:layout_gravity="start"
+        android:layout_marginLeft="12dp"
         android:layout_marginTop="64dp"
         android:background="@drawable/map_button_background"
         android:src="@drawable/ic_navigate"
@@ -71,8 +73,8 @@
         android:id="@+id/btn_inprogress"
         android:layout_width="40dp"
         android:layout_height="40dp"
-        android:layout_gravity="end"
-        android:layout_marginRight="12dp"
+        android:layout_gravity="start"
+        android:layout_marginLeft="12dp"
         android:layout_marginTop="64dp"
         android:background="@drawable/map_button_background"
         android:src="@drawable/ic_p"
@@ -155,7 +157,7 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:focusable="true"
-            android:focusableInTouchMode="true"/>
+            android:focusableInTouchMode="true" />
 
         <EditText
             android:id="@+id/search"
@@ -427,6 +429,25 @@
             android:layout_height="1dp"
             android:background="@color/colorPurple" />
     </LinearLayout>
+
+    <android.support.v7.widget.CardView
+        xmlns:card_view="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/card_view"
+        android:layout_width="match_parent"
+        android:layout_height="38dp"
+        android:layout_gravity="top"
+        android:layout_marginLeft="64dp"
+        android:layout_marginRight="12dp"
+        android:layout_marginTop="18dp"
+        card_view:cardBackgroundColor="#ccffffff"
+        card_view:cardCornerRadius="2dp">
+
+        <fragment
+            android:id="@+id/place_autocomplete_fragment"
+            android:name="com.google.android.gms.location.places.ui.PlaceAutocompleteFragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+    </android.support.v7.widget.CardView>
 
 
 </FrameLayout>

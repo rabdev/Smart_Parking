@@ -6,6 +6,7 @@
     android:layout_marginLeft="64dp"
     android:layout_marginRight="64dp"
     android:layout_marginTop="58dp"
+    android:id="@+id/fragment_search"
     tools:context="hu.bitnet.smartparking.fragments.Search">
 
     <android.support.v7.widget.RecyclerView
@@ -14,5 +15,10 @@
         android:layout_height="match_parent"
         android:orientation="vertical"
         android:background="@drawable/map_button_background"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/search_textview"/>
 
 </FrameLayout>
