@@ -29,6 +29,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatButton;
+import android.support.v7.widget.CardView;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -126,6 +127,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     public boolean parking_card_bool;
     private Marker marker;
     public PendingIntent pendingIntent;
+    CardView cardView;
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
@@ -197,6 +199,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         card_perprice = (TextView) findViewById(R.id.card_perprice);
         distance_km = (TextView) findViewById(R.id.distance_km);
         distance_mins = (TextView) findViewById(R.id.distance_mins);
+        cardView= (CardView) findViewById(R.id.card_view);
 
 
         menu.setVisibility(View.GONE);
@@ -249,6 +252,13 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
             @Override
             public void onClick(View v) {
                 if (x) {
+                    distance_container.setVisibility(View.GONE);
+                    //parking_card.setVisibility(View.GONE);
+                    distance_bg.setBackgroundTintList(getResources().getColorStateList(R.color.colorPrimaryDark, getTheme()));
+                    tv_distance.setTextColor(getResources().getColorStateList(R.color.colorPrimaryDark, getTheme()));
+                    //distance_bg.setColo(getResources().getColor(R.color.colorPrimaryDark,getTheme()));
+                    x = false;
+                } else if (distance_container.getVisibility()==View.VISIBLE){
                     distance_container.setVisibility(View.GONE);
                     //parking_card.setVisibility(View.GONE);
                     distance_bg.setBackgroundTintList(getResources().getColorStateList(R.color.colorPrimaryDark, getTheme()));
@@ -384,6 +394,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                 btn_navigate.setVisibility(View.GONE);
                 inprogress.setVisibility(View.GONE);
                 upsearch.setVisibility(View.GONE);
+                cardView.setVisibility(View.GONE);
                 x = false;
             }
         });
@@ -411,6 +422,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                 btn_navigate.setVisibility(View.GONE);
                 inprogress.setVisibility(View.GONE);
                 upsearch.setVisibility(View.GONE);
+                cardView.setVisibility(View.GONE);
                 x = false;
             }
         });
