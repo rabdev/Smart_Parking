@@ -20,11 +20,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapView;
-import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.model.LatLng;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -64,6 +60,7 @@ public class Zones extends Fragment {
     Location location;
     GoogleMap gmap;
     private double latitude, longitude;
+    public Integer prog = 0;
 
     LocationManager locationManager;
 
@@ -272,7 +269,12 @@ public class Zones extends Fragment {
             e.printStackTrace();
         }
         Log.d(TAG, latitude+","+longitude);
-        loadJSONSearch("100000", Double.toString(latitude), Double.toString(longitude));
+        prog = getArguments().getInt("prog");
+        if(prog != 0) {
+            loadJSONSearch(String.valueOf(prog), Double.toString(latitude), Double.toString(longitude));
+        }else{
+            loadJSONSearch(pref.getString(Constants.SettingsDistance, "0"), Double.toString(latitude), Double.toString(longitude));
+        }
         return location;
     }
     private final LocationListener locationListener = new LocationListener() {

@@ -72,6 +72,8 @@ public class Parking extends Fragment {
     long count2 = 0;
     String longitude, latitude;
     Long parking_limit;
+    String[] licensePlateParts;
+    String licensePlateTogether = "";
 
     public Parking() {
         // Required empty public constructor
@@ -176,9 +178,17 @@ public class Parking extends Fragment {
 
                     alertDialog.setPositiveButton("SMS küldés", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
-                            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("sms:" + pref.getString(Constants.SMSBase, null)));
-                            intent.putExtra("sms_body", pref.getString(Constants.LicensePlate, null));
-                            startActivity(intent);
+                            if(pref.getString(Constants.SMSBase, null) != null && pref.getString("codeNumber", null) != null) {
+                                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("sms:" + pref.getString(Constants.SMSBase, null) + "763" + pref.getString("codeNumber", null)));
+                                if(pref.getString(Constants.LicensePlate, null) != null){
+                                    licensePlateParts = pref.getString(Constants.LicensePlate, null).split("-");
+                                    licensePlateTogether = licensePlateParts[0]+licensePlateParts[1];
+                                }
+                                intent.putExtra("sms_body", licensePlateTogether);
+                                startActivity(intent);
+                            }else{
+                                Toast.makeText(getContext(), "Nincs sms szám", Toast.LENGTH_LONG).show();
+                            }
 
                         }
                     });
@@ -234,9 +244,13 @@ public class Parking extends Fragment {
 
                     alertDialog.setPositiveButton("SMS küldés", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
-                            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("sms:" + pref.getString(Constants.SMSBase, null)));
-                            intent.putExtra("sms_body", pref.getString(Constants.LicensePlate, null));
-                            startActivity(intent);
+                            if(pref.getString(Constants.SMSBase, null) != null && pref.getString("codeNumber", null) != null) {
+                                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("sms:" + pref.getString(Constants.SMSBase, null) + "763" + pref.getString("codeNumber", null)));
+                                intent.putExtra("sms_body", "STOP");
+                                startActivity(intent);
+                            }else{
+                                Toast.makeText(getContext(), "Nincs sms szám", Toast.LENGTH_LONG).show();
+                            }
                             SharedPreferences.Editor editor = pref.edit();
                             editor.putString(Constants.ParkingStatus, "1");
                             editor.apply();

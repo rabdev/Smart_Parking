@@ -23,6 +23,7 @@ public class Parking_places {
     private BLE ble;
     private MQTT mqtt;
     private String timeLimit;
+    private String codeNumber;
 
 
     public String getAddress() { return address; }
@@ -38,5 +39,6 @@ public class Parking_places {
     public BLE getBLE() { return ble; }
     public MQTT getMQTT() { return mqtt; }
     public String getTimeLimit() { return timeLimit; }
+    public String getCodeNumber() { return codeNumber; }
 
 }
