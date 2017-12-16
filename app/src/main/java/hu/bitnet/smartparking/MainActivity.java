@@ -1372,6 +1372,18 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                                 //checkForSlot();
                                 return false;
                             }else{
+                                parking_card.setVisibility(View.GONE);
+                                btn_navigate.setVisibility(View.VISIBLE);
+                                btn_navigate.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        z = position.latitude;
+                                        y = position.longitude;
+                                        String uri = String.format("http://maps.google.com/maps?" + "saddr=" + latitude + "," + longitude + "&daddr=" + z + "," + y + "");
+                                        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
+                                        startActivity(intent);
+                                    }
+                                });
                                 return false;
                             }
                         }
