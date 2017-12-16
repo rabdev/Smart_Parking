@@ -72,6 +72,11 @@ public class Zones extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
+        Bundle arguments = getArguments();
+        if (arguments != null && arguments.containsKey("prog"))
+            prog = getArguments().getInt("prog");
+
         // Inflate the layout for this fragment
         View zones = inflater.inflate(R.layout.fragment_zones, container, false);
         pref=getActivity().getPreferences(0);
@@ -105,7 +110,7 @@ public class Zones extends Fragment {
                     getFragmentManager().popBackStack();
                     getActivity().findViewById(R.id.btn_parking_places).setBackgroundResource(R.drawable.button_background);
                     getActivity().findViewById(R.id.btn_myloc).setVisibility(View.VISIBLE);
-                    getActivity().findViewById(R.id.btn_search).setVisibility(View.VISIBLE);
+                    //getActivity().findViewById(R.id.btn_search).setVisibility(View.VISIBLE);
                     getActivity().findViewById(R.id.card_view).setVisibility(View.VISIBLE);
                     if (pref.getString(Constants.ParkingStatus,"").equals("2")){
                         getActivity().findViewById(R.id.btn_inprogress).setVisibility(View.VISIBLE);
@@ -122,8 +127,6 @@ public class Zones extends Fragment {
     }
 
     public void loadJSONSearch(String distance, String latitude, String longitude){
-
-        Log.d(TAG, "zonák");
 
         HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
         logging.setLevel(HttpLoggingInterceptor.Level.BODY);
@@ -179,6 +182,19 @@ public class Zones extends Fragment {
 
                             double c = Double.parseDouble(data.get(position).getCenterLatitude().toString());
                             double d = Double.parseDouble(data.get(position).getCenterLongitude().toString());
+
+                            getFragmentManager().popBackStack();
+                            getActivity().findViewById(R.id.btn_parking_places).setBackgroundResource(R.drawable.button_background);
+                            getActivity().findViewById(R.id.btn_myloc).setVisibility(View.VISIBLE);
+                            //getActivity().findViewById(R.id.btn_search).setVisibility(View.VISIBLE);
+                            getActivity().findViewById(R.id.card_view).setVisibility(View.VISIBLE);
+                            if (pref.getString(Constants.ParkingStatus,"").equals("2")){
+                                getActivity().findViewById(R.id.btn_inprogress).setVisibility(View.VISIBLE);
+                            } else if (pref.getString(Constants.ParkingStatus,"").equals("3")){
+                                getActivity().findViewById(R.id.btn_inprogress).setVisibility(View.VISIBLE);
+                            } else {
+                                getActivity().findViewById(R.id.btn_inprogress).setVisibility(View.GONE);
+                            }
 
                             ((MainActivity)getActivity()).addMarker(c,d);
 
@@ -269,7 +285,6 @@ public class Zones extends Fragment {
             e.printStackTrace();
         }
         Log.d(TAG, latitude+","+longitude);
-        prog = getArguments().getInt("prog");
         if(prog != 0) {
             loadJSONSearch(String.valueOf(prog), Double.toString(latitude), Double.toString(longitude));
         }else{

@@ -35,10 +35,10 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -128,7 +128,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     private Marker marker;
     public PendingIntent pendingIntent;
     CardView cardView;
-    public boolean dialogBool;
+    Double placeLat;
+    Double placeLong;
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
@@ -333,16 +334,24 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                     tv_distance.setTextColor(getResources().getColorStateList(R.color.colorPurple, getTheme()));
                     distance_container.startAnimation(slide_up2);
                     tv_sb_distance.setText(pref.getString(Constants.SettingsDistance, null) + " m");
-                    sb_distance.setMax(15000);
+                    sb_distance.setMax(50000);
                     prog = parseInt(pref.getString(Constants.SettingsDistance, null));
                     sb_distance.setProgress(prog);
                     sb_distance.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                         @Override
                         public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                            prog = sb_distance.getProgress();
-                            Log.d(TAG, "progress:"+prog);
+                            prog = sb_distance.getProgress()+50;
                             tv_sb_distance.setText(String.valueOf(prog) + " m");
+                            if(prog != 0){
+                                indistance.setText(prog + " m-es körzetben");
+                            }else{
+                                indistance.setText(pref.getString(Constants.SettingsDistance, null) + " m-es körzetben");
+                            }
                             loadJSON(Double.toString(latitude), Double.toString(longitude), String.valueOf(prog));
+                            Zones zones = (Zones)getSupportFragmentManager().findFragmentByTag("Zones");
+                            if (zones != null && zones.isVisible()) {
+                                zones.loadJSONSearch(String.valueOf(prog), Double.toString(latitude), Double.toString(longitude));
+                            }
                         }
 
                         @Override
@@ -416,7 +425,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                     fragmentManager.popBackStack();
                 }
                 fragmentManager.beginTransaction()
-                        .replace(R.id.mapView, zones, zones.getTag())
+                        .replace(R.id.mapView, zones, "Zones")
                         .addToBackStack("Zones")
                         .commit();
                 infosav.setVisibility(View.VISIBLE);
@@ -433,7 +442,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
             }
         });
 
-        search.setOnTouchListener(new View.OnTouchListener() {
+        /*search.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 final int DRAWABLE_LEFT = 0;
@@ -464,6 +473,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                                 .add(R.id.mapView, searchZones, searchZones.getTag())
                                 .addToBackStack("Zones")
                                 .commit();
+                        Log.d(TAG, "SearchZones");
                         infosav.setVisibility(View.VISIBLE);
                         infosav.startAnimation(slide_up1);
                         menu.startAnimation(slide_down);
@@ -473,8 +483,48 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                         btn_navigate.setVisibility(View.GONE);
                         inprogress.setVisibility(View.GONE);
                         upsearch.setVisibility(View.GONE);
+                        cardView.setVisibility(View.GONE);
                         x = false;
                     }
+                }
+                return false;
+            }
+        });*/
+
+        search.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                    search_text = search.getText().toString();
+                    SharedPreferences.Editor editor = pref.edit();
+                    editor.putString("address",search_text);
+                    editor.apply();
+
+                    SearchZones searchZones = new SearchZones();
+                    history.setBackgroundResource(R.drawable.button_background);
+                    parkingplaces.setBackgroundResource(R.drawable.button_background);
+                    FragmentManager fragmentManager = getSupportFragmentManager();
+                    index = fragmentManager.getBackStackEntryCount();
+                    if (index != 0) {
+                        fragmentManager.popBackStack();
+                    }
+                    fragmentManager.beginTransaction()
+                            .add(R.id.mapView, searchZones, searchZones.getTag())
+                            .addToBackStack("Zones")
+                            .commit();
+                    Log.d(TAG, "SearchZones");
+                    infosav.setVisibility(View.VISIBLE);
+                    infosav.startAnimation(slide_up1);
+                    menu.startAnimation(slide_down);
+                    menu.setVisibility(View.GONE);
+                    btn_myloc.setVisibility(View.GONE);
+                    btn_search.setVisibility(View.GONE);
+                    btn_navigate.setVisibility(View.GONE);
+                    inprogress.setVisibility(View.GONE);
+                    upsearch.setVisibility(View.GONE);
+                    cardView.setVisibility(View.GONE);
+                    x = false;
+                    return true;
                 }
                 return false;
             }
@@ -598,6 +648,10 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                     if (search_active == false) {
                         Search search = new Search();
                         FragmentManager fragmentManager = getSupportFragmentManager();
+                        index = fragmentManager.getBackStackEntryCount();
+                        if (index != 0) {
+                            fragmentManager.popBackStack();
+                        }
                         fragmentManager.beginTransaction()
                                 .add(R.id.mapView, search, search.getTag())
                                 .addToBackStack("Search")
@@ -694,12 +748,28 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                         + place.getLatLng().toString() + "\n"
                         + place.getAddress() + "\n"
                         + place.getAttributions();
-                marker = gmap.addMarker(new MarkerOptions()
-                        .position(place.getLatLng())
-                        .title((String) place.getAddress()));
-                gmap.animateCamera(CameraUpdateFactory.newLatLng(place.getLatLng()));
-                gmap.moveCamera(CameraUpdateFactory.newLatLngZoom(place.getLatLng(), 16));
-                marker.showInfoWindow();
+
+                String placeNameTitle = place.getName() + "\n"
+                        + place.getAddress();
+
+                if(prog != 0) {
+                    loadJSON(String.valueOf(place.getLatLng().latitude), String.valueOf(place.getLatLng().longitude), String.valueOf(prog));
+                    marker = gmap.addMarker(new MarkerOptions()
+                            .position(place.getLatLng())
+                            .title(placeNameTitle));
+                    gmap.animateCamera(CameraUpdateFactory.newLatLng(place.getLatLng()));
+                    gmap.moveCamera(CameraUpdateFactory.newLatLngZoom(place.getLatLng(), 16));
+                    marker.showInfoWindow();
+                }else{
+                    loadJSON(String.valueOf(place.getLatLng().latitude), String.valueOf(place.getLatLng().longitude), pref.getString(Constants.SettingsDistance, "0"));
+                    marker = gmap.addMarker(new MarkerOptions()
+                            .position(place.getLatLng())
+                            .title(placeNameTitle));
+                    gmap.animateCamera(CameraUpdateFactory.newLatLng(place.getLatLng()));
+                    gmap.moveCamera(CameraUpdateFactory.newLatLngZoom(place.getLatLng(), 16));
+                    marker.showInfoWindow();
+                }
+
                 btn_navigate.setVisibility(View.VISIBLE);
                 btn_navigate.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -751,13 +821,14 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         location.setLatitude(latitude);
         location.setLongitude(longitude);
 
-        if(Constants.SettingsDistance != null) {
+        //nincs location change figyelés
+        /*if(Constants.SettingsDistance != null) {
             if(prog != 0){
                 loadJSON(Double.toString(latitude), Double.toString(longitude), String.valueOf(prog));
             }else {
                 loadJSON(Double.toString(latitude), Double.toString(longitude), pref.getString(Constants.SettingsDistance, "0"));
             }
-        }
+        }*/
         return;
     }
 
@@ -835,6 +906,20 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                 LatLng myloc = new LatLng(c, d);
                 gmap.animateCamera(CameraUpdateFactory.newLatLng(myloc));
                 gmap.moveCamera(CameraUpdateFactory.newLatLngZoom(myloc, 16));
+                if(Constants.SettingsDistance != null) {
+                    if(pref.getString("noLoad", null) != null){
+                        SharedPreferences.Editor editor = pref.edit();
+                        editor.putString("noLoad", null);
+                        editor.apply();
+                        addMarker(Double.parseDouble(pref.getString("latitudeZone", null)), Double.parseDouble(pref.getString("longitudeZone", null)));
+                    }else {
+                        if (prog != 0) {
+                            loadJSON(Double.toString(c), Double.toString(d), String.valueOf(prog));
+                        } else {
+                            loadJSON(Double.toString(c), Double.toString(d), pref.getString(Constants.SettingsDistance, "0"));
+                        }
+                    }
+                }
             }
         }
 
@@ -898,15 +983,15 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
             et_name.setText(pref.getString(Constants.NAME, null));
         }
 
-        settings_distance.setMax(15000);
+        settings_distance.setMax(50000);
         if (pref.getString(Constants.SettingsDistance, null) != null) {
             if (!pref.getString(Constants.SettingsDistance, null).isEmpty()) {
-                prog = parseInt(pref.getString(Constants.SettingsDistance, null));
+                prog = parseInt(pref.getString(Constants.SettingsDistance, null))+50;
                 settings_distance.setProgress(prog);
                 et_distance.setText(pref.getString(Constants.SettingsDistance, null));
             }
         } else {
-            prog = 0;
+            prog = 50;
             settings_distance.setProgress(prog);
             et_distance.setText(String.valueOf(prog));
         }
@@ -1001,7 +1086,11 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                     editor.putString(Constants.UID, Build.SERIAL+"*"+pref.getString(Constants.LicensePlate, null));
                     editor.apply();
                     tv_distance.setText(pref.getString(Constants.SettingsDistance, null));
-                    indistance.setText(pref.getString(Constants.SettingsDistance, null) + " m-es körzetben");
+                    if(prog != 0){
+                        indistance.setText(prog + " m-es körzetben");
+                    }else{
+                        indistance.setText(pref.getString(Constants.SettingsDistance, null) + " m-es körzetben");
+                    }
                     x = false;
                     finish();
                     startActivity(getIntent());
@@ -1050,7 +1139,10 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                         menu.startAnimation(slide_up);
                         x = false;
                     } else {
-                        //MainActivity.super.onBackPressed();
+                        if(Constants.LicensePlate.equals("LicensePlate") || Constants.SMSBase.equals("SMSBase") || Constants.SettingsDistance.equals("Distance")){
+                            MainActivity.super.onBackPressed();
+                        }
+                        //
                     }
                     dialog.dismiss();
                 }
@@ -1163,6 +1255,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 
     public void loadJSON(final String latitude, final String longitude, final String distance){
 
+        gmap.clear();
+
         HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
         logging.setLevel(HttpLoggingInterceptor.Level.BODY);
 
@@ -1198,8 +1292,6 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                     ArrayList<Parking_places> markersArray = new ArrayList<>();
 
                     int freePlaces = 0;
-
-                    gmap.clear();
 
                     for (int i = 0; i < data.size(); i++) {
                         createMarker(data.get(i).getCenterLatitude(), data.get(i).getCenterLongitude(), data.get(i).getAddress(), i);
@@ -1452,7 +1544,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         });
     }*/
 
-    protected Marker createMarker(String parklat, String parklong, String address, Integer markerKey) {
+    public Marker createMarker(String parklat, String parklong, String address, Integer markerKey) {
 
         //, String title, String snippet, int iconResID
         double parklatitude = Double.parseDouble(parklat);

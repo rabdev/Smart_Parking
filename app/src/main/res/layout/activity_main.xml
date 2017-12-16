@@ -170,6 +170,8 @@
             android:drawableLeft="@drawable/places_ic_search"
             android:drawableTint="@color/colorPrimary"
             android:hint="Keresés"
+            android:inputType="textPostalAddress"
+            android:imeOptions="actionSearch"
             android:padding="10dp"
             android:textAlignment="center"
             android:textColor="@color/colorPrimary"
