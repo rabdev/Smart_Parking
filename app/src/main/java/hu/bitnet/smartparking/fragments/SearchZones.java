@@ -210,6 +210,7 @@ public class SearchZones extends Fragment {
                             }
 
                             ((MainActivity)getActivity()).createMarker(String.valueOf(c), String.valueOf(d), address, 0);
+                            ((MainActivity)getActivity()).addMarker(c, d);
                         }
 
                         @Override
