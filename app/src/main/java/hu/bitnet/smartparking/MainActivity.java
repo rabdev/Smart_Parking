@@ -120,8 +120,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     final private int REQUEST_CODE_ASK_PERMISSIONS = 123;
     public int index, prog;
     public ArrayList<Parking_places> data;
-    double latitude,z;
-    double longitude,y;
+    double latitude,z, latitude1;
+    double longitude,y, longitude1;
     private String search_text;
     InputMethodManager imm;
     public boolean parking_card_bool;
@@ -347,10 +347,10 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                             }else{
                                 indistance.setText(pref.getString(Constants.SettingsDistance, null) + " m-es körzetben");
                             }
-                            loadJSON(Double.toString(latitude), Double.toString(longitude), String.valueOf(prog));
+                            loadJSON(Double.toString(latitude1), Double.toString(longitude1), String.valueOf(prog));
                             Zones zones = (Zones)getSupportFragmentManager().findFragmentByTag("Zones");
                             if (zones != null && zones.isVisible()) {
-                                zones.loadJSONSearch(String.valueOf(prog), Double.toString(latitude), Double.toString(longitude));
+                                zones.loadJSONSearch(String.valueOf(prog), Double.toString(latitude1), Double.toString(longitude1));
                             }
                         }
 
@@ -749,6 +749,9 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                         + place.getAddress() + "\n"
                         + place.getAttributions();
 
+                placeLat = place.getLatLng().latitude;
+                placeLong = place.getLatLng().longitude;
+
                 String placeNameTitle = place.getName() + "\n"
                         + place.getAddress();
 
@@ -771,10 +774,11 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                 }
 
                 btn_navigate.setVisibility(View.VISIBLE);
+                Log.d(TAG, "itt");
                 btn_navigate.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        String uri = String.format("http://maps.google.com/maps?" + "saddr="+latitude+","+longitude+ "&daddr="+marker.getPosition().latitude+","+marker.getPosition().longitude+"");
+                        String uri = String.format("http://maps.google.com/maps?" + "saddr="+latitude1+","+longitude1+ "&daddr="+marker.getPosition().latitude+","+marker.getPosition().longitude+"");
                         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
                         startActivity(intent);
                     }
@@ -817,6 +821,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     public void onLocationChanged(Location loc) {
         latitude = loc.getLatitude();
         longitude = loc.getLongitude();
+        latitude1 = latitude;
+        longitude1 = longitude;
         location = new Location("");
         location.setLatitude(latitude);
         location.setLongitude(longitude);
@@ -1341,12 +1347,13 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                                 parking_card.setVisibility(View.VISIBLE);
                                 //x=true;
                                 btn_navigate.setVisibility(View.VISIBLE);
+                                Log.d(TAG, "ott");
                                 btn_navigate.setOnClickListener(new View.OnClickListener() {
                                     @Override
                                     public void onClick(View view) {
                                         z = position.latitude;
                                         y = position.longitude;
-                                        String uri = String.format("http://maps.google.com/maps?" + "saddr=" + latitude + "," + longitude + "&daddr=" + z + "," + y + "");
+                                        String uri = String.format("http://maps.google.com/maps?" + "saddr=" + latitude1 + "," + longitude1 + "&daddr=" + z + "," + y + "");
                                         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
                                         startActivity(intent);
                                     }
@@ -1374,12 +1381,15 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                             }else{
                                 parking_card.setVisibility(View.GONE);
                                 btn_navigate.setVisibility(View.VISIBLE);
+                                Log.d(TAG, "emitt");
                                 btn_navigate.setOnClickListener(new View.OnClickListener() {
                                     @Override
                                     public void onClick(View view) {
-                                        z = position.latitude;
-                                        y = position.longitude;
-                                        String uri = String.format("http://maps.google.com/maps?" + "saddr=" + latitude + "," + longitude + "&daddr=" + z + "," + y + "");
+                                        //z = position.latitude;
+                                        //y = position.longitude;
+                                        Log.d(TAG, "LAT: "+latitude+", LONG: "+longitude);
+                                        Log.d(TAG, placeLat+", "+placeLong);
+                                        String uri = String.format("http://maps.google.com/maps?" + "saddr=" + latitude1 + "," + longitude1 + "&daddr=" + placeLat + "," + placeLong + "");
                                         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
                                         startActivity(intent);
                                     }
