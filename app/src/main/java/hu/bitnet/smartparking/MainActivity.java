@@ -907,18 +907,18 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                 gmap.animateCamera(CameraUpdateFactory.newLatLng(myloc));
                 gmap.moveCamera(CameraUpdateFactory.newLatLngZoom(myloc, 16));
                 if(Constants.SettingsDistance != null) {
-                    if(pref.getString("noLoad", null) != null){
+                    /*if(pref.getString("noLoad", null) != null){
                         SharedPreferences.Editor editor = pref.edit();
                         editor.putString("noLoad", null);
                         editor.apply();
                         addMarker(Double.parseDouble(pref.getString("latitudeZone", null)), Double.parseDouble(pref.getString("longitudeZone", null)));
-                    }else {
+                    }else {*/
                         if (prog != 0) {
                             loadJSON(Double.toString(c), Double.toString(d), String.valueOf(prog));
                         } else {
                             loadJSON(Double.toString(c), Double.toString(d), pref.getString(Constants.SettingsDistance, "0"));
                         }
-                    }
+                    //}
                 }
             }
         }
