@@ -305,6 +305,9 @@ public class Parking extends Fragment {
                 if (event.getAction() == ACTION_UP && keyCode == KEYCODE_BACK) {
                     // handle back button's click listener
                     ((MainActivity)getActivity()).ParkinginProgress();
+                    if(getActivity().findViewById(R.id.menu_layout).getVisibility()!=View.VISIBLE){
+                        getActivity().findViewById(R.id.container_up).setVisibility(View.VISIBLE);
+                    }
                     getFragmentManager().popBackStack();
                     getActivity().findViewById(R.id.btn_myloc).setVisibility(View.VISIBLE);
                     return true;

@@ -1,6 +1,7 @@
 package hu.bitnet.smartparking.fragments;
 
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.location.LocationManager;
@@ -14,6 +15,8 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -45,6 +48,7 @@ public class SearchZones extends Fragment {
 
     SharedPreferences pref;
     RecyclerView zones_rv;
+    LinearLayout noresult;
     public SearchZonesAdapter mAdapter;
     public ArrayList<Addresses> data;
     public String address;
@@ -61,14 +65,17 @@ public class SearchZones extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View zones = inflater.inflate(R.layout.fragment_zones, container, false);
-        pref=getActivity().getPreferences(0);
+        pref = getActivity().getPreferences(0);
 
+        noresult = (LinearLayout) zones.findViewById(R.id.noresult);
         zones_rv = (RecyclerView) zones.findViewById(R.id.zones_rv);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getActivity().getApplicationContext());
         zones_rv.setLayoutManager(layoutManager);
 
         pref = getActivity().getPreferences(0);
         address = pref.getString("address", null);
+
+        //getActivity().findViewById(R.id.container_up).setVisibility(View.VISIBLE);
 
         loadJSON(address);
 
@@ -85,14 +92,17 @@ public class SearchZones extends Fragment {
             public boolean onKey(View v, int keyCode, KeyEvent event) {
                 if (event.getAction() == ACTION_UP && keyCode == KEYCODE_BACK) {
                     // handle back button's click listener
-                    getFragmentManager().popBackStack();
+                    getActivity().getSupportFragmentManager().popBackStack();
                     getActivity().findViewById(R.id.btn_parking_places).setBackgroundResource(R.drawable.button_background);
                     getActivity().findViewById(R.id.btn_myloc).setVisibility(View.VISIBLE);
+                    if(getActivity().findViewById(R.id.menu_layout).getVisibility()!=View.VISIBLE){
+                        getActivity().findViewById(R.id.container_up).setVisibility(View.VISIBLE);
+                    }
                     //getActivity().findViewById(R.id.btn_search).setVisibility(View.VISIBLE);
                     getActivity().findViewById(R.id.card_view).setVisibility(View.VISIBLE);
-                    if (pref.getString(Constants.ParkingStatus,"").equals("2")){
+                    if (pref.getString(Constants.ParkingStatus, "").equals("2")) {
                         getActivity().findViewById(R.id.btn_inprogress).setVisibility(View.VISIBLE);
-                    } else if (pref.getString(Constants.ParkingStatus,"").equals("3")){
+                    } else if (pref.getString(Constants.ParkingStatus, "").equals("3")) {
                         getActivity().findViewById(R.id.btn_inprogress).setVisibility(View.VISIBLE);
                     } else {
                         getActivity().findViewById(R.id.btn_inprogress).setVisibility(View.GONE);
@@ -104,7 +114,7 @@ public class SearchZones extends Fragment {
         });
     }
 
-    public void loadJSON(String address){
+    public void loadJSON(String address) {
 
         HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
         logging.setLevel(HttpLoggingInterceptor.Level.BODY);
@@ -118,17 +128,17 @@ public class SearchZones extends Fragment {
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         RequestInterfaceAutocomplete requestInterface = retrofit.create(RequestInterfaceAutocomplete.class);
-        Call<ServerResponseSearchZones> response= requestInterface.post(address);
+        Call<ServerResponseSearchZones> response = requestInterface.post(address);
         response.enqueue(new Callback<ServerResponseSearchZones>() {
             @Override
             public void onResponse(Call<ServerResponseSearchZones> call, Response<ServerResponseSearchZones> response) {
                 ServerResponseSearchZones resp = response.body();
-                if(resp.getAlert() != null){
-                    if(resp.getAlert() != "") {
+                if (resp.getAlert() != null) {
+                    if (resp.getAlert() != "") {
                         Toast.makeText(getContext(), resp.getAlert(), Toast.LENGTH_LONG).show();
                     }
                 }
-                if(resp.getError() != null){
+                if (resp.getError() != null) {
                     /*Toast.makeText(getContext(), resp.getError().getMessage()+" - "+resp.getError().getMessageDetail(), Toast.LENGTH_SHORT).show();
                     SharedPreferences.Editor editor = pref.edit();
                     editor.putBoolean(Constants.IS_LOGGED_IN,false);
@@ -137,17 +147,24 @@ public class SearchZones extends Fragment {
                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     startActivity(intent);*/
                 }
-                if(resp.getAddresses() == null || resp.getAddresses().length == 0){
-                        AlertDialog.Builder alertDialog = new AlertDialog.Builder(getActivity());
-                        alertDialog.setTitle("Nincs eredmény!");
-                        alertDialog.setMessage("Próbálkozzon más kulcsszóval vagy metódussal!");
-                        alertDialog.setIcon(R.drawable.ic_parking);
+                if (resp.getAddresses() == null || resp.getAddresses().length == 0) {
+                    noresult.setVisibility(View.VISIBLE);
+                    InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(getView().getWindowToken(), 0);
+                    /*AlertDialog.Builder alertDialog = new AlertDialog.Builder(getContext());
+                    alertDialog.setTitle("Nincs eredmény!");
+                    alertDialog.setMessage("Próbálkozzon más kulcsszóval vagy metódussal!");
+                    InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(getView().getWindowToken(), 0);
+                    alertDialog.setIcon(R.drawable.ic_parking);
 
-                        alertDialog.setPositiveButton("Rendben", new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                getFragmentManager().popBackStack();
-                            }
-                        });
+                    alertDialog.setPositiveButton("Rendben", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            getActivity().findViewById(R.id.container_up).setVisibility(View.VISIBLE);
+                            getActivity().getSupportFragmentManager().popBackStackImmediate();
+
+                        }
+                    });
 
                         /*alertDialog.setNegativeButton("Mégsem", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
@@ -158,24 +175,25 @@ public class SearchZones extends Fragment {
                                         .addToBackStack(null)
                                         .commit();*/
                             /*}
-                        });*/
+                        });
 
-                        alertDialog.show();
-                }else{
-                        data = new ArrayList<Addresses>(Arrays.asList(resp.getAddresses()));
-                        Log.d(TAG, "data: "+data.get(0).getAddress().toString());
-                        mAdapter = new SearchZonesAdapter(data);
-                        zones_rv.setAdapter(mAdapter);
-
-                    mAdapter.setOnItemClickListener(new SearchZonesAdapter.ClickListener(){
+                    alertDialog.show();*/
+                } else {
+                    data = new ArrayList<Addresses>(Arrays.asList(resp.getAddresses()));
+                    Log.d(TAG, "data: " + data.get(0).getAddress().toString());
+                    mAdapter = new SearchZonesAdapter(data);
+                    zones_rv.setAdapter(mAdapter);
+                    InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(getView().getWindowToken(), 0);
+                    mAdapter.setOnItemClickListener(new SearchZonesAdapter.ClickListener() {
                         @Override
-                        public void onItemClick(final int position, View v){
+                        public void onItemClick(final int position, View v) {
                             SharedPreferences.Editor editor = pref.edit();
                             editor.putString("address", data.get(position).getAddress().toString());
                             //editor.putString("zone", data.get(position).getId().toString());
                             editor.putString("price", String.format("%.0f", Double.parseDouble((data.get(position).getPrice().toString()))));
                             editor.putString("zone", data.get(position).getId().toString());
-                            Log.d(TAG, "zone:"+data.get(position).getId().toString());
+                            Log.d(TAG, "zone:" + data.get(position).getId().toString());
                             editor.putString("latitudeZone", data.get(position).getLatitude().toString());
                             editor.putString("longitudeZone", data.get(position).getLongitude().toString());
                             editor.putString("time", "nincs megadva");
@@ -201,16 +219,16 @@ public class SearchZones extends Fragment {
                             getActivity().findViewById(R.id.btn_myloc).setVisibility(View.VISIBLE);
                             //getActivity().findViewById(R.id.btn_search).setVisibility(View.VISIBLE);
                             getActivity().findViewById(R.id.card_view).setVisibility(View.VISIBLE);
-                            if (pref.getString(Constants.ParkingStatus,"").equals("2")){
+                            if (pref.getString(Constants.ParkingStatus, "").equals("2")) {
                                 getActivity().findViewById(R.id.btn_inprogress).setVisibility(View.VISIBLE);
-                            } else if (pref.getString(Constants.ParkingStatus,"").equals("3")){
+                            } else if (pref.getString(Constants.ParkingStatus, "").equals("3")) {
                                 getActivity().findViewById(R.id.btn_inprogress).setVisibility(View.VISIBLE);
                             } else {
                                 getActivity().findViewById(R.id.btn_inprogress).setVisibility(View.GONE);
                             }
 
-                            ((MainActivity)getActivity()).createMarker(String.valueOf(c), String.valueOf(d), address, 0);
-                            ((MainActivity)getActivity()).addMarker(c, d);
+                            ((MainActivity) getActivity()).createMarker(String.valueOf(c), String.valueOf(d), address, 0);
+                            ((MainActivity) getActivity()).addMarker(c, d);
                         }
 
                         @Override

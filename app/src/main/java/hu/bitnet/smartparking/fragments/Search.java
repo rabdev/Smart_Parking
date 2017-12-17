@@ -115,6 +115,9 @@ public class Search extends Fragment {
                 if (event.getAction() == ACTION_UP && keyCode == KEYCODE_BACK) {
                     // handle back button's click listener
                     View view = getActivity().getCurrentFocus();
+                    if(getActivity().findViewById(R.id.menu_layout).getVisibility()!=View.VISIBLE){
+                        getActivity().findViewById(R.id.container_up).setVisibility(View.VISIBLE);
+                    }
                     if (view != null) {
                         InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
                         imm.hideSoftInputFromWindow(view.getWindowToken(), 0);

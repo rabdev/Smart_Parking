@@ -110,6 +110,9 @@ public class Zones extends Fragment {
                     getFragmentManager().popBackStack();
                     getActivity().findViewById(R.id.btn_parking_places).setBackgroundResource(R.drawable.button_background);
                     getActivity().findViewById(R.id.btn_myloc).setVisibility(View.VISIBLE);
+                    if(getActivity().findViewById(R.id.menu_layout).getVisibility()!=View.VISIBLE){
+                        getActivity().findViewById(R.id.container_up).setVisibility(View.VISIBLE);
+                    }
                     //getActivity().findViewById(R.id.btn_search).setVisibility(View.VISIBLE);
                     getActivity().findViewById(R.id.card_view).setVisibility(View.VISIBLE);
                     if (pref.getString(Constants.ParkingStatus,"").equals("2")){

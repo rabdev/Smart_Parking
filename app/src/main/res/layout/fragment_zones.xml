@@ -6,6 +6,23 @@
     android:tag="Zones"
     tools:context="hu.bitnet.smartparking.fragments.Zones">
 
+    <LinearLayout
+        android:id="@+id/noresult"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:orientation="vertical"
+        android:layout_gravity="center"
+        android:padding="16dp">
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:textSize="15sp"
+            android:text="Nincs eredmény, próbálkozzon más kulcsszóval vagy metódussal!"/>
+    </LinearLayout>
+
+
     <android.support.v7.widget.RecyclerView
         android:id="@+id/zones_rv"
         android:scrollbars="vertical"

@@ -272,7 +272,9 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                     //distance_bg.setColo(getResources().getColor(R.color.colorPrimaryDark,getTheme()));
                     x = false;
                 }
-                container_up.setVisibility(View.GONE);
+                if (container_up.getVisibility()==View.VISIBLE){
+                    container_up.setVisibility(View.GONE);
+                }
                 parking_card.setVisibility(View.GONE);
                 menu.setVisibility(View.VISIBLE);
                 menu.startAnimation(slide_up);
@@ -1235,21 +1237,25 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         if (search_active){
             getSupportFragmentManager().popBackStackImmediate();
             changeSearch();
+            container_up.setVisibility(View.VISIBLE);
         } else if (parking_card.getVisibility() == View.VISIBLE){
             parking_card.setVisibility(View.GONE);
             btn_navigate.setVisibility(View.GONE);
+            container_up.setVisibility(View.VISIBLE);
             x=false;
         } else if (menu.getVisibility() == View.VISIBLE){
             infosav.setVisibility(View.VISIBLE);
             infosav.startAnimation(slide_up1);
             menu.startAnimation(slide_down);
             menu.setVisibility(View.GONE);
+            container_up.setVisibility(View.VISIBLE);
             x = false;
         } else if (distance_container.getVisibility() == View.VISIBLE){
             distance_container.setVisibility(View.GONE);
             distance_bg.setBackgroundTintList(getResources().getColorStateList(R.color.colorPrimaryDark, getTheme()));
             tv_distance.setTextColor(getResources().getColorStateList(R.color.colorPrimaryDark, getTheme()));
             distance_container.startAnimation(slide_down2);
+            container_up.setVisibility(View.VISIBLE);
             x = false;
         } else if (!x) {
             finish();
