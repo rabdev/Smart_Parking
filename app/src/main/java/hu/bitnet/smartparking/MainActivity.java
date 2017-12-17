@@ -35,7 +35,9 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.inputmethod.EditorInfo;
@@ -108,7 +110,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     Location location;
     LatLng position;
     android.location.LocationListener locationlistener;
-    LinearLayout infosav, menu, distance_container, distance, distance_bg, parking_card;
+    LinearLayout infosav, menu, distance_container, distance, distance_bg, parking_card, container_up
+            ;
     ImageView settings, collapse, hb_menu, btn_search, btn_navigate, btn_myloc, inprogress;
     AppCompatButton history, parkingplaces;
     TextView firstrun, tv_distance, et_distance, indistance, tv_sb_distance, parkingcount, card_count, card_address, card_perprice, distance_km, distance_mins;
@@ -180,6 +183,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         distance = (LinearLayout) findViewById(R.id.distance);
         distance_bg = (LinearLayout) findViewById(R.id.distance_bg);
         parking_card= (LinearLayout) findViewById(R.id.parking_card);
+        container_up = (LinearLayout) findViewById(R.id.container_up);
         settings = (ImageView) findViewById(R.id.btn_settings);
         collapse = (ImageView) findViewById(R.id.btn_collapse);
         hb_menu = (ImageView) findViewById(R.id.hb_menu);
@@ -268,6 +272,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                     //distance_bg.setColo(getResources().getColor(R.color.colorPrimaryDark,getTheme()));
                     x = false;
                 }
+                container_up.setVisibility(View.GONE);
                 parking_card.setVisibility(View.GONE);
                 menu.setVisibility(View.VISIBLE);
                 menu.startAnimation(slide_up);
@@ -491,15 +496,23 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
             }
         });*/
 
+        //getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+
+
+        if (search.isActivated()){
+            getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+        }
+
         search.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+
                 if (actionId == EditorInfo.IME_ACTION_SEARCH) {
                     search_text = search.getText().toString();
                     SharedPreferences.Editor editor = pref.edit();
                     editor.putString("address",search_text);
                     editor.apply();
-
+                    container_up.setVisibility(View.VISIBLE);
                     SearchZones searchZones = new SearchZones();
                     history.setBackgroundResource(R.drawable.button_background);
                     parkingplaces.setBackgroundResource(R.drawable.button_background);
@@ -1218,6 +1231,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     public void onBackPressed() {
+        container_up.setVisibility(View.VISIBLE);
         if (search_active){
             getSupportFragmentManager().popBackStackImmediate();
             changeSearch();
