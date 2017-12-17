@@ -1535,7 +1535,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                     }
                 }else{
                     parkingcount.setText("0 szabad");
-                    gmap.clear();
+                    //gmap.clear();
                 }
 
             }
