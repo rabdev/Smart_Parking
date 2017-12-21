@@ -19,4 +19,5 @@ public class Constants {
     public static final String ParkingStatus = "ParkingStatus";
 
     public static final String UID = "";
+
 }

@@ -54,7 +54,7 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
         //viewHolder.tv_price.setText(android.get(i).getSum().getPrice().toString()+ " Ft");
         //viewHolder.tv_timestamp.setText(formatter.format(calendar.getTime()).toString() +" - "+ formatter.format(calendar2.getTime()).toString());
         Log.d(TAG, "time: "+String.valueOf((int) Math.ceil(Double.parseDouble(android.get(i).getSum().getTime())/60.0)));
-        viewHolder.tv_time.setText(String.valueOf((int) Math.ceil(Double.parseDouble(android.get(i).getSum().getTime())/60.0)) + " perc");
+        viewHolder.tv_time.setText(formatter.format(calendar.getTime()).toString() + " (" + String.valueOf((int) Math.ceil(Double.parseDouble(android.get(i).getSum().getTime())/60.0)) + " perc)");
     }
 
     @Override

@@ -2,12 +2,10 @@ package hu.bitnet.smartparking.fragments;
 
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -98,7 +96,7 @@ public class SearchZones extends Fragment {
                     if(getActivity().findViewById(R.id.menu_layout).getVisibility()!=View.VISIBLE){
                         getActivity().findViewById(R.id.container_up).setVisibility(View.VISIBLE);
                     }
-                    //getActivity().findViewById(R.id.btn_search).setVisibility(View.VISIBLE);
+                    //getActivity().findViewById(R.id.card_view).setVisibility(View.VISIBLE);
                     getActivity().findViewById(R.id.card_view).setVisibility(View.VISIBLE);
                     if (pref.getString(Constants.ParkingStatus, "").equals("2")) {
                         getActivity().findViewById(R.id.btn_inprogress).setVisibility(View.VISIBLE);
@@ -217,7 +215,7 @@ public class SearchZones extends Fragment {
                             getFragmentManager().popBackStack();
                             getActivity().findViewById(R.id.btn_parking_places).setBackgroundResource(R.drawable.button_background);
                             getActivity().findViewById(R.id.btn_myloc).setVisibility(View.VISIBLE);
-                            //getActivity().findViewById(R.id.btn_search).setVisibility(View.VISIBLE);
+                            getActivity().findViewById(R.id.card_view).setVisibility(View.VISIBLE);
                             getActivity().findViewById(R.id.card_view).setVisibility(View.VISIBLE);
                             if (pref.getString(Constants.ParkingStatus, "").equals("2")) {
                                 getActivity().findViewById(R.id.btn_inprogress).setVisibility(View.VISIBLE);

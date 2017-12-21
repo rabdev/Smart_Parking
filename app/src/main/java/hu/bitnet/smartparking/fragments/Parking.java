@@ -158,6 +158,9 @@ public class Parking extends Fragment {
                 status_start.setVisibility(View.GONE);
                 status_inprogress.setVisibility(View.GONE);
                 status_checkout.setVisibility(View.VISIBLE);
+                parking_checkout_address.setText(parking_start_address_text);
+                parking_checkout_price.setText(pref.getString("ParkPriceReload", "nincs adat"));
+                parking_total_time.setText(pref.getString("ParkTimeReload", "nincs adat"));
             }
         }
 
@@ -193,7 +196,7 @@ public class Parking extends Fragment {
                         }
                     });
 
-                    alertDialog.setNegativeButton("Mégsem", new DialogInterface.OnClickListener() {
+                    alertDialog.setNegativeButton("Csak rögzítés", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
                             //Toast.makeText(getContext(), "Kérjük, ne felejtse el elhozni beutalóját!", Toast.LENGTH_SHORT).show();
                             /*SharedPreferences.Editor editor = pref.edit();
@@ -310,6 +313,7 @@ public class Parking extends Fragment {
                     }
                     getFragmentManager().popBackStack();
                     getActivity().findViewById(R.id.btn_myloc).setVisibility(View.VISIBLE);
+                    getActivity().findViewById(R.id.card_view).setVisibility(View.VISIBLE);
                     return true;
                 }
                 return false;
@@ -364,6 +368,8 @@ public class Parking extends Fragment {
 
     public void loadJSONStop(String userId, String zoneId) {
 
+        final SharedPreferences pref = getActivity().getPreferences(0);
+
         HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
         logging.setLevel(HttpLoggingInterceptor.Level.BODY);
 
@@ -390,7 +396,8 @@ public class Parking extends Fragment {
                 if (resp.getSum() != null) {
                     SharedPreferences.Editor editor = pref.edit();
                     editor.putString("ParkTime", resp.getSum().getTime().toString());
-                    Log.d(TAG, "time: "+resp.getSum().getTime().toString());
+                    editor.putString("ParkPriceReload", resp.getSum().getPrice()+" Ft");
+                    editor.putString("ParkTimeReload", String.format("%.0f", Math.ceil(Double.parseDouble(resp.getSum().getTime())))+ " perc");
                     if (pref.getString("ParkPrice",null)!=null){
                         editor.putString("ParkPrice", resp.getSum().getPrice().toString());
                     }

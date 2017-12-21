@@ -79,7 +79,7 @@ public class History extends Fragment {
                     if(getActivity().findViewById(R.id.menu_layout).getVisibility()!=View.VISIBLE){
                         getActivity().findViewById(R.id.container_up).setVisibility(View.VISIBLE);
                     }
-                    //getActivity().findViewById(R.id.btn_search).setVisibility(View.VISIBLE);
+                    //getActivity().findViewById(R.id.card_view).setVisibility(View.VISIBLE);
                     getActivity().findViewById(R.id.card_view).setVisibility(View.VISIBLE);
                     if (pref.getString(Constants.ParkingStatus,"").equals("2")){
                         getActivity().findViewById(R.id.btn_inprogress).setVisibility(View.VISIBLE);

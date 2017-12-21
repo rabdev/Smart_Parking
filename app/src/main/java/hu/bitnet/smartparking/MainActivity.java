@@ -35,7 +35,6 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.animation.Animation;
@@ -131,8 +130,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     private Marker marker;
     public PendingIntent pendingIntent;
     CardView cardView;
-    Double placeLat;
-    Double placeLong;
+    public Double placeLat;
+    public Double placeLong;
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
@@ -341,7 +340,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                     tv_distance.setTextColor(getResources().getColorStateList(R.color.colorPurple, getTheme()));
                     distance_container.startAnimation(slide_up2);
                     tv_sb_distance.setText(pref.getString(Constants.SettingsDistance, null) + " m");
-                    sb_distance.setMax(50000);
+                    sb_distance.setMax(500);
                     prog = parseInt(pref.getString(Constants.SettingsDistance, null));
                     sb_distance.setProgress(prog);
                     sb_distance.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -357,7 +356,11 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                             loadJSON(Double.toString(latitude1), Double.toString(longitude1), String.valueOf(prog));
                             Zones zones = (Zones)getSupportFragmentManager().findFragmentByTag("Zones");
                             if (zones != null && zones.isVisible()) {
-                                zones.loadJSONSearch(String.valueOf(prog), Double.toString(latitude1), Double.toString(longitude1));
+                                if(placeLat != null){
+                                    zones.loadJSONSearch(String.valueOf(prog), String.valueOf(placeLat), String.valueOf(placeLong));
+                                }else {
+                                    zones.loadJSONSearch(String.valueOf(prog), Double.toString(latitude1), Double.toString(longitude1));
+                                }
                             }
                         }
 
@@ -419,10 +422,22 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
             @Override
             public void onClick(View v) {
                 Zones zones = new Zones();
+                Bundle b = new Bundle();
                 if(prog != 0){
-                    Bundle b = new Bundle();
                     b.putInt("prog", prog);
+                    if(placeLong != null && placeLat != null){
+                        Log.d(TAG, "beteszem");
+                        b.putDouble("placeLat", placeLat);
+                        b.putDouble("placeLong", placeLong);
+                    }
                     zones.setArguments(b);
+                }else {
+                    if (placeLong != null && placeLat != null) {
+                        Log.d(TAG, "progot meg nem");
+                        b.putDouble("placeLat", placeLat);
+                        b.putDouble("placeLong", placeLong);
+                        zones.setArguments(b);
+                    }
                 }
                 history.setBackgroundResource(R.drawable.button_background);
                 parkingplaces.setBackgroundResource(R.drawable.button_background_active);
@@ -767,6 +782,11 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                 placeLat = place.getLatLng().latitude;
                 placeLong = place.getLatLng().longitude;
 
+                /*SharedPreferences.Editor editor = pref.edit();
+                editor.putString("placeLat", String.valueOf(placeLat));
+                editor.putString("placeLong", String.valueOf(placeLong));
+                editor.apply();*/
+
                 String placeNameTitle = place.getName() + "\n"
                         + place.getAddress();
 
@@ -1004,7 +1024,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
             et_name.setText(pref.getString(Constants.NAME, null));
         }
 
-        settings_distance.setMax(50000);
+        settings_distance.setMax(500);
         if (pref.getString(Constants.SettingsDistance, null) != null) {
             if (!pref.getString(Constants.SettingsDistance, null).isEmpty()) {
                 prog = parseInt(pref.getString(Constants.SettingsDistance, null))+50;
@@ -1344,6 +1364,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                             }
                             x = false;
                             parking_card_bool = true;
+                            cardView.setVisibility(View.VISIBLE);
 
                             Log.d(TAG, "marker: "+marker1.getId());
                             Log.d(TAG, "marker: "+marker1.getSnippet());

@@ -61,6 +61,7 @@ public class Zones extends Fragment {
     GoogleMap gmap;
     private double latitude, longitude;
     public Integer prog = 0;
+    public Double placeLat, placeLong;
 
     LocationManager locationManager;
 
@@ -74,8 +75,19 @@ public class Zones extends Fragment {
                              Bundle savedInstanceState) {
 
         Bundle arguments = getArguments();
-        if (arguments != null && arguments.containsKey("prog"))
+        if (arguments != null && arguments.containsKey("prog")){
             prog = getArguments().getInt("prog");
+            Log.d(TAG, "van prog");
+        }
+        if (arguments != null && arguments.containsKey("placeLat")) {
+            placeLat = getArguments().getDouble("placeLat");
+            Log.d(TAG, "van placelat");
+            Log.d(TAG, "placeLat: " + placeLat);
+        }
+        if (arguments != null && arguments.containsKey("placeLong")) {
+            placeLong = getArguments().getDouble("placeLong");
+            Log.d(TAG, "van placeLong");
+        }
 
         // Inflate the layout for this fragment
         View zones = inflater.inflate(R.layout.fragment_zones, container, false);
@@ -113,7 +125,7 @@ public class Zones extends Fragment {
                     if(getActivity().findViewById(R.id.menu_layout).getVisibility()!=View.VISIBLE){
                         getActivity().findViewById(R.id.container_up).setVisibility(View.VISIBLE);
                     }
-                    //getActivity().findViewById(R.id.btn_search).setVisibility(View.VISIBLE);
+                    getActivity().findViewById(R.id.card_view).setVisibility(View.VISIBLE);
                     getActivity().findViewById(R.id.card_view).setVisibility(View.VISIBLE);
                     if (pref.getString(Constants.ParkingStatus,"").equals("2")){
                         getActivity().findViewById(R.id.btn_inprogress).setVisibility(View.VISIBLE);
@@ -189,7 +201,7 @@ public class Zones extends Fragment {
                             getFragmentManager().popBackStack();
                             getActivity().findViewById(R.id.btn_parking_places).setBackgroundResource(R.drawable.button_background);
                             getActivity().findViewById(R.id.btn_myloc).setVisibility(View.VISIBLE);
-                            //getActivity().findViewById(R.id.btn_search).setVisibility(View.VISIBLE);
+                            getActivity().findViewById(R.id.card_view).setVisibility(View.VISIBLE);
                             getActivity().findViewById(R.id.card_view).setVisibility(View.VISIBLE);
                             if (pref.getString(Constants.ParkingStatus,"").equals("2")){
                                 getActivity().findViewById(R.id.btn_inprogress).setVisibility(View.VISIBLE);
@@ -209,7 +221,7 @@ public class Zones extends Fragment {
                             FragmentManager fm = getActivity().getSupportFragmentManager();
                             getActivity().findViewById(R.id.btn_parking_places).setBackgroundResource(R.drawable.button_background);
                             getActivity().findViewById(R.id.btn_myloc).setVisibility(View.VISIBLE);
-                            getActivity().findViewById(R.id.btn_search).setVisibility(View.VISIBLE);
+                            getActivity().findViewById(R.id.card_view).setVisibility(View.VISIBLE);
                             fm.popBackStack();
                         }
 
@@ -288,10 +300,24 @@ public class Zones extends Fragment {
             e.printStackTrace();
         }
         Log.d(TAG, latitude+","+longitude);
+        /*placeLat = pref.getString("placeLat", null);
+        placeLong = pref.getString("placeLong", null);*/
         if(prog != 0) {
-            loadJSONSearch(String.valueOf(prog), Double.toString(latitude), Double.toString(longitude));
+            if(placeLat != null && placeLong != null){
+                Log.d(TAG, "vagy itt");
+                loadJSONSearch(String.valueOf(prog), Double.toString(placeLat), Double.toString(placeLong));
+            }else {
+                Log.d(TAG, "prog van");
+                loadJSONSearch(String.valueOf(prog), Double.toString(latitude), Double.toString(longitude));
+            }
         }else{
-            loadJSONSearch(pref.getString(Constants.SettingsDistance, "0"), Double.toString(latitude), Double.toString(longitude));
+            if(placeLat != null && placeLong != null) {
+                Log.d(TAG, "itt kéne lenni");
+                loadJSONSearch(pref.getString(Constants.SettingsDistance, "0"), Double.toString(placeLat), Double.toString(placeLong));
+            }else {
+                Log.d(TAG, "prog nincs");
+                loadJSONSearch(pref.getString(Constants.SettingsDistance, "0"), Double.toString(latitude), Double.toString(longitude));
+            }
         }
         return location;
     }
