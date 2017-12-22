@@ -596,7 +596,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
             }
         });
 
-        indistance.setOnClickListener(new View.OnClickListener() {
+        /*indistance.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 parking_card.setVisibility(View.GONE);
@@ -611,7 +611,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                 btn_myloc.setVisibility(View.GONE);
                 upsearch.setVisibility(View.GONE);
             }
-        });
+        });*/
 
         /*PlaceAutocompleteFragment autocompleteFragment = (PlaceAutocompleteFragment)
                 getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment);
@@ -1024,15 +1024,17 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
             et_name.setText(pref.getString(Constants.NAME, null));
         }
 
-        settings_distance.setMax(500);
+        settings_distance.setMax(450);
         if (pref.getString(Constants.SettingsDistance, null) != null) {
             if (!pref.getString(Constants.SettingsDistance, null).isEmpty()) {
-                prog = parseInt(pref.getString(Constants.SettingsDistance, null))+50;
+                prog = parseInt(pref.getString(Constants.SettingsDistance, null));
                 settings_distance.setProgress(prog);
+                bool_distance = true;
                 et_distance.setText(pref.getString(Constants.SettingsDistance, null));
             }
         } else {
             prog = 50;
+            bool_distance = true;
             settings_distance.setProgress(prog);
             et_distance.setText(String.valueOf(prog));
         }
@@ -1040,7 +1042,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         settings_distance.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                prog = settings_distance.getProgress();
+                prog = settings_distance.getProgress()+50;
                 if (prog != 0) {
                     bool_distance = true;
                     if (bool_smsbase == true && bool_license == true && bool_distance == true) {
