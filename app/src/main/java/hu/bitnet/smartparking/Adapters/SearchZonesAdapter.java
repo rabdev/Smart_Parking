@@ -41,7 +41,7 @@ public class SearchZonesAdapter extends RecyclerView.Adapter<SearchZonesAdapter.
         viewHolder.tv_count.setText(String.valueOf(android.size()));
         viewHolder.tv_priceper.setText(String.format("%.0f", Double.parseDouble(android.get(i).getPrice())) + " Ft/óra");
         //viewHolder.tv_km.setText(String.format("%.1f", Double.parseDouble(android.get(i).getDistance())/1000.0)+" km");
-        //viewHolder.tv_traffic.setText(String.format("%.1f", Double.parseDouble(android.get(i).getTime()))+" min without traffic");
+        //viewHolder.tv_traffic.setText(String.format("%.1f", Double.parseDouble(android.get(i).getTime()))+" perc forgalom nélkül");
         //viewHolder.tv_count.setText(android.get(i).getFreePlaces());*/
     }
 

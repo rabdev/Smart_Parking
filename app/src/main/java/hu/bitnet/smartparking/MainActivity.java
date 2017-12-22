@@ -302,7 +302,10 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                         infosav.startAnimation(slide_up1);
                         menu.startAnimation(slide_down);
                         menu.setVisibility(View.GONE);
-                        x = false;
+                        cardView.setVisibility(View.VISIBLE);
+                        btn_myloc.setVisibility(View.VISIBLE);
+                        container_up.setVisibility(View.VISIBLE);
+                        //x = true;
                     }
                 });
                 settings.setOnClickListener(new View.OnClickListener() {
