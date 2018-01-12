@@ -13,6 +13,12 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.Picture;
 import android.graphics.drawable.TransitionDrawable;
 import android.location.Criteria;
 import android.location.Location;
@@ -55,6 +61,7 @@ import com.google.android.gms.location.ActivityRecognition;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.places.AutocompleteFilter;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
 import com.google.android.gms.location.places.ui.PlaceSelectionListener;
@@ -63,6 +70,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.LocationSource;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -132,6 +140,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     CardView cardView;
     public Double placeLat;
     public Double placeLong;
+    public Place place2;
+    public String placeNameTitle;
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
@@ -304,7 +314,14 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                         menu.setVisibility(View.GONE);
                         cardView.setVisibility(View.VISIBLE);
                         btn_myloc.setVisibility(View.VISIBLE);
-                        container_up.setVisibility(View.VISIBLE);
+                        Zones zones = (Zones)getSupportFragmentManager().findFragmentByTag("Zones");
+                        SearchZones searchZones = (SearchZones)getSupportFragmentManager().findFragmentByTag("SearchZones");
+                        History history = (History) getSupportFragmentManager().findFragmentByTag("History");
+                        if ((zones != null && zones.isVisible()) || (searchZones != null && searchZones.isVisible()) || (history != null && history.isVisible())) {
+                            //do nothing
+                        }else {
+                            container_up.setVisibility(View.VISIBLE);
+                        }
                         //x = true;
                     }
                 });
@@ -343,7 +360,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                     tv_distance.setTextColor(getResources().getColorStateList(R.color.colorPurple, getTheme()));
                     distance_container.startAnimation(slide_up2);
                     tv_sb_distance.setText(pref.getString(Constants.SettingsDistance, null) + " m");
-                    sb_distance.setMax(500);
+                    sb_distance.setMax(450);
                     prog = parseInt(pref.getString(Constants.SettingsDistance, null));
                     sb_distance.setProgress(prog);
                     sb_distance.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -356,13 +373,22 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                             }else{
                                 indistance.setText(pref.getString(Constants.SettingsDistance, null) + " m-es körzetben");
                             }
-                            loadJSON(Double.toString(latitude1), Double.toString(longitude1), String.valueOf(prog));
+                            //loadJSON(Double.toString(latitude1), Double.toString(longitude1), String.valueOf(prog));
+                            if(placeLat != null){
+                                loadJSON(String.valueOf(placeLat), String.valueOf(placeLong), String.valueOf(prog));
+                                loadJSONData(Double.toString(latitude1), Double.toString(longitude1), "100000000000000");
+                            }else {
+                                loadJSON(Double.toString(latitude1), Double.toString(longitude1), String.valueOf(prog));
+                                loadJSONData(Double.toString(latitude1), Double.toString(longitude1), "100000000000000");
+                            }
                             Zones zones = (Zones)getSupportFragmentManager().findFragmentByTag("Zones");
                             if (zones != null && zones.isVisible()) {
                                 if(placeLat != null){
                                     zones.loadJSONSearch(String.valueOf(prog), String.valueOf(placeLat), String.valueOf(placeLong));
+                                    loadJSONData(Double.toString(latitude1), Double.toString(longitude1), "100000000000000");
                                 }else {
                                     zones.loadJSONSearch(String.valueOf(prog), Double.toString(latitude1), Double.toString(longitude1));
+                                    loadJSONData(Double.toString(latitude1), Double.toString(longitude1), "100000000000000");
                                 }
                             }
                         }
@@ -405,7 +431,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                     fragmentManager.popBackStack();
                 }
                 fragmentManager.beginTransaction()
-                        .replace(R.id.mapView, history1, history1.getTag())
+                        .replace(R.id.mapView, history1, "History")
                         .addToBackStack("History")
                         .commit();
                 infosav.setVisibility(View.VISIBLE);
@@ -542,7 +568,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                         fragmentManager.popBackStack();
                     }
                     fragmentManager.beginTransaction()
-                            .add(R.id.mapView, searchZones, searchZones.getTag())
+                            .add(R.id.mapView, searchZones, "SearchZones")
                             .addToBackStack("Zones")
                             .commit();
                     Log.d(TAG, "SearchZones");
@@ -770,11 +796,21 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         });
         PlaceAutocompleteFragment autocompleteFragment = (PlaceAutocompleteFragment)
                 getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment);
+
+        AutocompleteFilter typeFilter = new AutocompleteFilter.Builder()
+                .setCountry("HU")
+                .build();
+
+        autocompleteFragment.setFilter(typeFilter);
+
+
         autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
             @Override
             public void onPlaceSelected(Place place) {
                 // TODO: Get info about the selected place.
                 Log.i(TAG, "Place: " + place.getName());
+                place2 = place;
+
 
                 String placeDetailsStr = place.getName() + "\n"
                         + place.getId() + "\n"
@@ -790,11 +826,12 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                 editor.putString("placeLong", String.valueOf(placeLong));
                 editor.apply();*/
 
-                String placeNameTitle = place.getName() + "\n"
+                placeNameTitle = place.getName() + "\n"
                         + place.getAddress();
 
                 if(prog != 0) {
                     loadJSON(String.valueOf(place.getLatLng().latitude), String.valueOf(place.getLatLng().longitude), String.valueOf(prog));
+                    loadJSONData(Double.toString(latitude1), Double.toString(longitude1), "100000000000000");
                     marker = gmap.addMarker(new MarkerOptions()
                             .position(place.getLatLng())
                             .title(placeNameTitle));
@@ -803,6 +840,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                     marker.showInfoWindow();
                 }else{
                     loadJSON(String.valueOf(place.getLatLng().latitude), String.valueOf(place.getLatLng().longitude), pref.getString(Constants.SettingsDistance, "0"));
+                    loadJSONData(Double.toString(latitude1), Double.toString(longitude1), "100000000000000");
                     marker = gmap.addMarker(new MarkerOptions()
                             .position(place.getLatLng())
                             .title(placeNameTitle));
@@ -959,8 +997,10 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                     }else {*/
                         if (prog != 0) {
                             loadJSON(Double.toString(c), Double.toString(d), String.valueOf(prog));
+                            loadJSONData(Double.toString(latitude1), Double.toString(longitude1), "100000000000000");
                         } else {
                             loadJSON(Double.toString(c), Double.toString(d), pref.getString(Constants.SettingsDistance, "0"));
+                            loadJSONData(Double.toString(latitude1), Double.toString(longitude1), "100000000000000");
                         }
                     //}
                 }
@@ -1308,6 +1348,15 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 
         gmap.clear();
 
+        if(placeLat != null) {
+            marker = gmap.addMarker(new MarkerOptions()
+                    .position(place2.getLatLng())
+                    .title(placeNameTitle));
+            gmap.animateCamera(CameraUpdateFactory.newLatLng(place2.getLatLng()));
+            gmap.moveCamera(CameraUpdateFactory.newLatLngZoom(place2.getLatLng(), 16));
+            marker.showInfoWindow();
+        }
+
         HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
         logging.setLevel(HttpLoggingInterceptor.Level.BODY);
 
@@ -1345,7 +1394,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                     int freePlaces = 0;
 
                     for (int i = 0; i < data.size(); i++) {
-                        createMarker(data.get(i).getCenterLatitude(), data.get(i).getCenterLongitude(), data.get(i).getAddress(), i);
+                        createMarker(data.get(i).getCenterLatitude(), data.get(i).getCenterLongitude(), data.get(i).getAddress(), i, Integer.parseInt(data.get(i).getFreePlaces()));
                         //markerKey = i;
                         //freePlaces += Integer.valueOf(data.get(i).getFreePlaces());
                     }
@@ -1384,8 +1433,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                                 editor.putString("price", String.format("%.0f", Double.parseDouble(data.get(parseInt(marker1.getSnippet())).getPrice())));
                                 editor.putString("latitude", String.format("%.0f", Double.parseDouble(data.get(parseInt(marker1.getSnippet())).getCenterLatitude())));
                                 editor.putString("longitude", String.format("%.0f", Double.parseDouble(data.get(parseInt(marker1.getSnippet())).getCenterLatitude())));
-                                editor.putString("time", String.format("%.0f", Double.parseDouble(data.get(parseInt(marker1.getSnippet())).getTime())));
-                                editor.putString("distance", String.format("%.0f", Double.parseDouble(data.get(parseInt(marker1.getSnippet())).getDistance())));
+                                //editor.putString("time", String.format("%.0f", Double.parseDouble(data.get(parseInt(marker1.getSnippet())).getTime())));
+                                //editor.putString("distance", String.format("%.0f", Double.parseDouble(data.get(parseInt(marker1.getSnippet())).getDistance())));
                                 editor.putString("timeLimit", String.format("%.0f", Double.parseDouble(data.get(parseInt(marker1.getSnippet())).getTimeLimit())));
                                 editor.putString("maxTime", data.get(parseInt(marker1.getSnippet())).getTimeLimit());
                                 editor.putString("codeNumber", String.format("%.0f", Double.parseDouble(data.get(parseInt(marker1.getSnippet())).getCodeNumber())));
@@ -1575,6 +1624,77 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 
     }
 
+    public void loadJSONData(final String latitude, final String longitude, final String distance){
+
+        HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
+        logging.setLevel(HttpLoggingInterceptor.Level.BODY);
+
+        OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
+        httpClient.addInterceptor(logging);
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .client(httpClient.build())
+                .baseUrl(Constants.SERVER_URL)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+        RequestInterfaceNearest requestInterface = retrofit.create(RequestInterfaceNearest.class);
+        Call<ServerResponse> response= requestInterface.post(distance, latitude, longitude);
+        response.enqueue(new Callback<ServerResponse>() {
+            @Override
+            public void onResponse(Call<ServerResponse> call, Response<ServerResponse> response) {
+                ServerResponse resp = response.body();
+                if(resp.getAlert() != ""){
+                    Toast.makeText(getApplication(), resp.getAlert(), Toast.LENGTH_LONG).show();
+                }
+                if(resp.getError() != null){
+                    /*Toast.makeText(getContext(), resp.getError().getMessage()+" - "+resp.getError().getMessageDetail(), Toast.LENGTH_SHORT).show();
+                    SharedPreferences.Editor editor = pref.edit();
+                    editor.putBoolean(Constants.IS_LOGGED_IN,false);
+                    editor.apply();*/
+                    Intent intent = new Intent(getApplication(), MainActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    startActivity(intent);
+                }
+                if(resp.getParking_places() != null && resp.getParking_places().length != 0) {
+                    data = new ArrayList<Parking_places>(Arrays.asList(resp.getParking_places()));
+
+                    if(pref.getString("id", null) != null) {
+                        for (int i = 0; i < data.size(); i++) {
+                            if (data.get(i).getId().equals(pref.getString("id", null))) {
+                                SharedPreferences.Editor editor = pref.edit();
+                                editor.putString("time", String.format("%.0f", Double.parseDouble(data.get(i).getTime())));
+                                editor.putString("distance", String.format("%.0f", Double.parseDouble(data.get(i).getDistance())));
+                                editor.apply();
+                            }
+                        }
+                    }
+
+                    if (pref.getString("distance", null) != null) {
+                        if (!pref.getString("distance", null).equals("nincs megadva")) {
+                            distance_km.setText(String.format("%.1f", Double.parseDouble(pref.getString("distance", null)) / 1000.0) + " km jelenlegi tartózkodási helytől");
+                        } else {
+                            distance_km.setText(pref.getString("distance", null) + " km jelenlegi tartózkodási helytől");
+                        }
+                    }
+                    if (pref.getString("time", null) != null) {
+                        if (!pref.getString("time", null).equals("nincs megadva")) {
+                            distance_mins.setText(String.format("%.1f", Double.parseDouble(pref.getString("time", null))) + " perc forgalom nélkül");
+                        } else {
+                            distance_mins.setText(pref.getString("time", null) + " perc forgalom nélkül");
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ServerResponse> call, Throwable t) {
+                Toast.makeText(getApplication(), "Hiba a hálózati kapcsolatban. Kérjük, ellenőrizze, hogy csatlakozik-e hálózathoz.", Toast.LENGTH_SHORT).show();
+                Log.d(TAG, "No response");
+            }
+        });
+
+    }
+
     /*public void loadJSONStatus(String userId) {
 
         HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
@@ -1612,7 +1732,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         });
     }*/
 
-    public Marker createMarker(String parklat, String parklong, String address, Integer markerKey) {
+    public Marker createMarker(String parklat, String parklong, String address, Integer markerKey, Integer freePlaces) {
 
         //, String title, String snippet, int iconResID
         double parklatitude = Double.parseDouble(parklat);
@@ -1623,8 +1743,46 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         /*gmap.animateCamera(CameraUpdateFactory.newLatLng(myloc));
         gmap.moveCamera(CameraUpdateFactory.newLatLngZoom(myloc, 15));*/
 
+        Resources res = getResources();
+        Bitmap bitmap = BitmapFactory.decodeResource(res, R.drawable.ic_marker);
+
+        Bitmap.Config conf = Bitmap.Config.ARGB_8888;
+        Bitmap bmp = Bitmap.createBitmap(100, 120, conf);
+        /*bmp = BitmapFactory.decodeResource(res, R.drawable.ic_marker);
+        Bitmap mutableBitmap = bmp.copy(Bitmap.Config.ARGB_8888, true);
+        Canvas canvas = new Canvas(mutableBitmap);*/
+
+        Canvas canvas = new Canvas(bmp);
+
+        Paint paint = new Paint();
+        paint.setStyle(Paint.Style.FILL);
+        paint.setColor(getResources().getColor(R.color.colorPrimary, getTheme()));
+        paint.setTextSize(40);
+
+        Paint paintCircle = new Paint();
+        paintCircle.setStyle(Paint.Style.FILL);
+        paintCircle.setColor(getResources().getColor(R.color.colorAccent, getTheme()));
+
+        Paint paintCircleRound = new Paint();
+        paintCircleRound.setStyle(Paint.Style.STROKE);
+        paintCircleRound.setColor(getResources().getColor(R.color.colorAccent, getTheme()));
+
+        /*Drawable d = getResources().getDrawable(R.drawable.ic_marker);
+        d.setBounds(1, 1, 1, 1);*/
+
+        //Picture picture = new Picture();
+
+        //canvas.drawCircle(50,50,50,paintCircle);
+        canvas.drawCircle(50,50,45,paintCircle);
+        canvas.drawCircle(50,50,50,paintCircleRound);
+        canvas.drawText(String.valueOf(freePlaces), 25, 63, paint);
+        //canvas.drawPicture(picture);
+        //d.draw(canvas);
+
         marker = gmap.addMarker(new MarkerOptions()
                 .position(new LatLng(parklatitude, parklongitude))
+                .icon(BitmapDescriptorFactory.fromBitmap(bmp))
+                .anchor(0.5f, 1)
                 .title(address));
         marker.setSnippet(String.valueOf(markerKey));
         Log.d(TAG, "i: "+markerKey);

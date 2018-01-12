@@ -1,7 +1,6 @@
 package hu.bitnet.smartparking.fragments;
 
 
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.location.LocationManager;
 import android.os.Bundle;
@@ -13,19 +12,16 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import hu.bitnet.smartparking.Adapters.SearchZonesAdapter;
-import hu.bitnet.smartparking.MainActivity;
+import hu.bitnet.smartparking.Adapters.HistorySearchAdapter;
 import hu.bitnet.smartparking.R;
-import hu.bitnet.smartparking.RequestInterfaces.RequestInterfaceAutocomplete;
-import hu.bitnet.smartparking.ServerResponses.ServerResponseSearchZones;
-import hu.bitnet.smartparking.objects.Addresses;
+import hu.bitnet.smartparking.RequestInterfaces.RequestInterfaceHistory;
+import hu.bitnet.smartparking.ServerResponses.ServerResponse;
 import hu.bitnet.smartparking.objects.Constants;
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
@@ -47,8 +43,11 @@ public class SearchZones extends Fragment {
     SharedPreferences pref;
     RecyclerView zones_rv;
     LinearLayout noresult;
-    public SearchZonesAdapter mAdapter;
-    public ArrayList<Addresses> data;
+    //public SearchZonesAdapter mAdapter;
+    public HistorySearchAdapter mAdapter;
+    //public ArrayList<Addresses> data;
+    public ArrayList<hu.bitnet.smartparking.objects.History> data;
+    public ArrayList<hu.bitnet.smartparking.objects.History> data2;
     public String address;
 
     LocationManager locationManager;
@@ -75,7 +74,8 @@ public class SearchZones extends Fragment {
 
         //getActivity().findViewById(R.id.container_up).setVisibility(View.VISIBLE);
 
-        loadJSON(address);
+        //loadJSON(address);
+        loadJSON(pref.getString(Constants.UID, null));
 
         return zones;
     }
@@ -112,7 +112,7 @@ public class SearchZones extends Fragment {
         });
     }
 
-    public void loadJSON(String address) {
+    /*public void loadJSON(String address) {
 
         HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
         logging.setLevel(HttpLoggingInterceptor.Level.BODY);
@@ -144,8 +144,8 @@ public class SearchZones extends Fragment {
                     Intent intent = new Intent(getContext(), MainActivity.class);
                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     startActivity(intent);*/
-                }
-                if (resp.getAddresses() == null || resp.getAddresses().length == 0) {
+//                }
+/*                if (resp.getAddresses() == null || resp.getAddresses().length == 0) {
                     noresult.setVisibility(View.VISIBLE);
                     InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
                     imm.hideSoftInputFromWindow(getView().getWindowToken(), 0);
@@ -176,7 +176,7 @@ public class SearchZones extends Fragment {
                         });
 
                     alertDialog.show();*/
-                } else {
+/*                } else {
                     data = new ArrayList<Addresses>(Arrays.asList(resp.getAddresses()));
                     Log.d(TAG, "data: " + data.get(0).getAddress().toString());
                     mAdapter = new SearchZonesAdapter(data);
@@ -208,7 +208,7 @@ public class SearchZones extends Fragment {
                             /*FragmentManager fm = getActivity().getSupportFragmentManager();
                             fm.popBackStack();*/
 
-                            double c = Double.parseDouble(data.get(position).getLatitude().toString());
+/*                            double c = Double.parseDouble(data.get(position).getLatitude().toString());
                             double d = Double.parseDouble(data.get(position).getLongitude().toString());
                             String address = data.get(position).getAddress().toString();
 
@@ -225,7 +225,7 @@ public class SearchZones extends Fragment {
                                 getActivity().findViewById(R.id.btn_inprogress).setVisibility(View.GONE);
                             }
 
-                            ((MainActivity) getActivity()).createMarker(String.valueOf(c), String.valueOf(d), address, 0);
+                            ((MainActivity) getActivity()).createMarker(String.valueOf(c), String.valueOf(d), address, 0, Integer.parseInt(data.get(position).getFreePlaces()));
                             ((MainActivity) getActivity()).addMarker(c, d);
                         }
 
@@ -239,6 +239,56 @@ public class SearchZones extends Fragment {
 
             @Override
             public void onFailure(Call<ServerResponseSearchZones> call, Throwable t) {
+                Toast.makeText(getContext(), "Hiba a hálózati kapcsolatban. Kérjük, ellenőrizze, hogy csatlakozik-e hálózathoz.", Toast.LENGTH_SHORT).show();
+                Log.d(TAG, "No response");
+            }
+        });
+
+    }
+*/
+    public void loadJSON(String sessionId){
+
+        HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
+        logging.setLevel(HttpLoggingInterceptor.Level.BODY);
+
+        OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
+        httpClient.addInterceptor(logging);
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .client(httpClient.build())
+                .baseUrl(Constants.SERVER_URL)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+        RequestInterfaceHistory requestInterface = retrofit.create(RequestInterfaceHistory.class);
+        Call<ServerResponse> response= requestInterface.post(sessionId);
+        response.enqueue(new Callback<ServerResponse>() {
+            @Override
+            public void onResponse(Call<ServerResponse> call, Response<ServerResponse> response) {
+                ServerResponse resp = response.body();
+                if(resp.getAlert() != ""){
+                    Toast.makeText(getContext(), resp.getAlert(), Toast.LENGTH_LONG).show();
+                }
+                if(resp.getError() != null){
+                    //Toast.makeText(getContext(), resp.getError().getMessage()+" - "+resp.getError().getMessageDetail(), Toast.LENGTH_SHORT).show();
+                }
+                if(resp.getHistory() != null){
+                    data = new ArrayList<hu.bitnet.smartparking.objects.History>(Arrays.asList(resp.getHistory()));
+                    data2 = new ArrayList<hu.bitnet.smartparking.objects.History>(Arrays.asList(resp.getHistory()));
+                    data2.clear();
+                    for(int i=0; i < data.size(); i++){
+                        String a1 = data.get(i).getZone().getAddress().toLowerCase();
+                        String a2 = address.toLowerCase();
+                        if(a1.indexOf(a2) > 0 || a1.indexOf(a2) == 0){
+                            data2.add(data.get(i));
+                        }
+                    }
+                    mAdapter = new HistorySearchAdapter(data2);
+                    zones_rv.setAdapter(mAdapter);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ServerResponse> call, Throwable t) {
                 Toast.makeText(getContext(), "Hiba a hálózati kapcsolatban. Kérjük, ellenőrizze, hogy csatlakozik-e hálózathoz.", Toast.LENGTH_SHORT).show();
                 Log.d(TAG, "No response");
             }

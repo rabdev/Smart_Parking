@@ -52,7 +52,7 @@ public class Zones extends Fragment {
     SharedPreferences pref;
     RecyclerView zones_rv;
     public SearchAdapter mAdapter;
-    public ArrayList<Parking_places> data;
+    public ArrayList<Parking_places> data, data2, data3;
     private Context context;
     boolean isGPSEnabled = false;
     boolean isNetworkEnabled = false;
@@ -102,6 +102,7 @@ public class Zones extends Fragment {
         if(location != null) {
             latitude = location.getLatitude();
             longitude = location.getLongitude();
+            Log.d(TAG, "LAT--Long: "+latitude+" - "+longitude);
         }else{
             Toast.makeText(getContext(), "Engedélyezze eszközén a helymeghatározást!", Toast.LENGTH_LONG).show();
         }
@@ -142,7 +143,111 @@ public class Zones extends Fragment {
         });
     }
 
-    public void loadJSONSearch(String distance, String latitude, String longitude){
+    public void loadJSONSearch(String distance, String latitude_inner, String longitude_inner){
+
+        HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
+        logging.setLevel(HttpLoggingInterceptor.Level.BODY);
+
+        OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
+        httpClient.addInterceptor(logging);
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .client(httpClient.build())
+                .baseUrl(Constants.SERVER_URL)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+        RequestInterfaceNearest requestInterface = retrofit.create(RequestInterfaceNearest.class);
+        Call<ServerResponse> response= requestInterface.post(distance, latitude_inner, longitude_inner);
+        response.enqueue(new Callback<ServerResponse>() {
+            @Override
+            public void onResponse(Call<ServerResponse> call, Response<ServerResponse> response) {
+                ServerResponse resp = response.body();
+                if(resp.getAlert() != ""){
+                    Toast.makeText(getContext(), resp.getAlert(), Toast.LENGTH_LONG).show();
+                }
+                if(resp.getError() != null){
+                    //Toast.makeText(getApplication(), resp.getError().getMessage()+" - "+resp.getError().getMessageDetail(), Toast.LENGTH_SHORT).show();
+                    /*SharedPreferences.Editor editor = pref.edit();
+                    editor.putBoolean(Constants.IS_LOGGED_IN,false);
+                    editor.apply();
+                    Intent intent = new Intent(getContext(), MainActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    startActivity(intent);*/
+                }
+                if(resp.getParking_places() != null){
+                    data = new ArrayList<Parking_places>(Arrays.asList(resp.getParking_places()));
+                    loadJSONData("10000000000", Double.toString(latitude), Double.toString(longitude));
+                    //mAdapter = new SearchAdapter(data);
+                    //zones_rv.setAdapter(mAdapter);
+
+                    /*mAdapter.setOnItemClickListener(new SearchAdapter.ClickListener(){
+                        @Override
+                        public void onItemClick(final int position, View v){
+                            SharedPreferences.Editor editor = pref.edit();
+                            editor.putString("address", data.get(position).getAddress().toString());
+                            editor.putString("zone", data.get(position).getId().toString());
+                            editor.putString("price", data.get(position).getPrice().toString());
+                            editor.putString("id", data.get(position).getId().toString());
+                            editor.putString("latitudeZone", data.get(position).getCenterLatitude().toString());
+                            editor.putString("longitudeZone", data.get(position).getCenterLongitude().toString());
+                            //editor.putString("distance", data.get(position).getDistance().toString());
+                            editor.putString("timeLimit", data.get(position).getTimeLimit().toString());
+                            //editor.putString("time", data.get(position).getTime().toString());
+                            editor.putString("freeplaces", data.get(position).getFreePlaces().toString());
+                            Log.d(TAG, "free: "+data.get(position).getFreePlaces().toString());
+                            //editor.putString("click", "yes");
+                            editor.apply();
+
+                            double c = Double.parseDouble(data.get(position).getCenterLatitude().toString());
+                            double d = Double.parseDouble(data.get(position).getCenterLongitude().toString());
+
+                            getFragmentManager().popBackStack();
+                            getActivity().findViewById(R.id.btn_parking_places).setBackgroundResource(R.drawable.button_background);
+                            getActivity().findViewById(R.id.btn_myloc).setVisibility(View.VISIBLE);
+                            getActivity().findViewById(R.id.card_view).setVisibility(View.VISIBLE);
+                            getActivity().findViewById(R.id.card_view).setVisibility(View.VISIBLE);
+                            getActivity().findViewById(R.id.container_up).setVisibility(View.VISIBLE);
+                            if (pref.getString(Constants.ParkingStatus,"").equals("2")){
+                                getActivity().findViewById(R.id.btn_inprogress).setVisibility(View.VISIBLE);
+                            } else if (pref.getString(Constants.ParkingStatus,"").equals("3")){
+                                getActivity().findViewById(R.id.btn_inprogress).setVisibility(View.VISIBLE);
+                            } else {
+                                getActivity().findViewById(R.id.btn_inprogress).setVisibility(View.GONE);
+                            }
+
+                            ((MainActivity)getActivity()).addMarker(c,d);
+
+                            /*FragmentManager map = getActivity().getSupportFragmentManager();
+                            map.beginTransaction()
+                                    .replace(R.id.frame, new Map())
+                                    .addToBackStack(null)
+                                    .commit();*/
+                     /*       FragmentManager fm = getActivity().getSupportFragmentManager();
+                            getActivity().findViewById(R.id.btn_parking_places).setBackgroundResource(R.drawable.button_background);
+                            getActivity().findViewById(R.id.btn_myloc).setVisibility(View.VISIBLE);
+                            getActivity().findViewById(R.id.card_view).setVisibility(View.VISIBLE);
+                            getActivity().findViewById(R.id.container_up).setVisibility(View.VISIBLE);
+                            fm.popBackStack();
+                        }
+
+                        @Override
+                        public void onItemLongClick(int position, View v) {
+                            Log.d(TAG, "onItemLongClick pos = " + position);
+                        }
+                    });*/
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ServerResponse> call, Throwable t) {
+                Toast.makeText(getContext(), "Hiba a hálózati kapcsolatban. Kérjük, ellenőrizze, hogy csatlakozik-e hálózathoz.", Toast.LENGTH_SHORT).show();
+                Log.d(TAG, "No response");
+            }
+        });
+
+    }
+
+    public void loadJSONData(String distance, String latitude, String longitude){
 
         HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
         logging.setLevel(HttpLoggingInterceptor.Level.BODY);
@@ -174,30 +279,43 @@ public class Zones extends Fragment {
                     startActivity(intent);*/
                 }
                 if(resp.getParking_places() != null){
-                    data = new ArrayList<Parking_places>(Arrays.asList(resp.getParking_places()));
-                    mAdapter = new SearchAdapter(data);
+                    data2 = new ArrayList<Parking_places>(Arrays.asList(resp.getParking_places()));
+                    data3 = new ArrayList<Parking_places>(Arrays.asList(resp.getParking_places()));
+                    data3.clear();
+
+                    for (int k = 0; k < data.size(); k++){
+                        for(int i = 0; i < data2.size(); i++){
+                            if(data.get(k).getId().equals(data2.get(i).getId())){
+                                Log.d(TAG, "egyezés");
+                                data3.add(data2.get(i));
+                            }else{
+                                Log.d(TAG, "nincs egyezés");
+                            }
+                        }
+                    }
+                    mAdapter = new SearchAdapter(data3);
                     zones_rv.setAdapter(mAdapter);
 
                     mAdapter.setOnItemClickListener(new SearchAdapter.ClickListener(){
                         @Override
                         public void onItemClick(final int position, View v){
                             SharedPreferences.Editor editor = pref.edit();
-                            editor.putString("address", data.get(position).getAddress().toString());
-                            editor.putString("zone", data.get(position).getId().toString());
-                            editor.putString("price", data.get(position).getPrice().toString());
-                            editor.putString("id", data.get(position).getId().toString());
-                            editor.putString("latitudeZone", data.get(position).getCenterLatitude().toString());
-                            editor.putString("longitudeZone", data.get(position).getCenterLongitude().toString());
-                            editor.putString("distance", data.get(position).getDistance().toString());
-                            editor.putString("timeLimit", data.get(position).getTimeLimit().toString());
-                            editor.putString("time", data.get(position).getTime().toString());
-                            editor.putString("freeplaces", data.get(position).getFreePlaces().toString());
-                            Log.d(TAG, "free: "+data.get(position).getFreePlaces().toString());
+                            editor.putString("address", data3.get(position).getAddress().toString());
+                            editor.putString("zone", data3.get(position).getId().toString());
+                            editor.putString("price", data3.get(position).getPrice().toString());
+                            editor.putString("id", data3.get(position).getId().toString());
+                            editor.putString("latitudeZone", data3.get(position).getCenterLatitude().toString());
+                            editor.putString("longitudeZone", data3.get(position).getCenterLongitude().toString());
+                            editor.putString("distance", data3.get(position).getDistance().toString());
+                            editor.putString("timeLimit", data3.get(position).getTimeLimit().toString());
+                            editor.putString("time", data3.get(position).getTime().toString());
+                            editor.putString("freeplaces", data3.get(position).getFreePlaces().toString());
+                            Log.d(TAG, "free: "+data3.get(position).getFreePlaces().toString());
                             //editor.putString("click", "yes");
                             editor.apply();
 
-                            double c = Double.parseDouble(data.get(position).getCenterLatitude().toString());
-                            double d = Double.parseDouble(data.get(position).getCenterLongitude().toString());
+                            double c = Double.parseDouble(data3.get(position).getCenterLatitude().toString());
+                            double d = Double.parseDouble(data3.get(position).getCenterLongitude().toString());
 
                             getFragmentManager().popBackStack();
                             getActivity().findViewById(R.id.btn_parking_places).setBackgroundResource(R.drawable.button_background);
@@ -280,6 +398,7 @@ public class Zones extends Fragment {
                         if (location != null){
                             latitude = location.getLatitude();
                             longitude = location.getLongitude();
+                            Log.d(TAG, "LAT--Long2: "+latitude+" - "+longitude);
                         }
                     }
                 }
@@ -292,6 +411,7 @@ public class Zones extends Fragment {
                             if (location != null){
                                 latitude = location.getLatitude();
                                 longitude = location.getLongitude();
+                                Log.d(TAG, "LAT--Long3: "+latitude+" - "+longitude);
                             }
                         }
                     }
@@ -309,17 +429,21 @@ public class Zones extends Fragment {
             if(placeLat != null && placeLong != null){
                 Log.d(TAG, "vagy itt");
                 loadJSONSearch(String.valueOf(prog), Double.toString(placeLat), Double.toString(placeLong));
+                //loadJSONData(pref.getString(Constants.SettingsDistance, "0"), Double.toString(latitude), Double.toString(longitude));
             }else {
                 Log.d(TAG, "prog van");
                 loadJSONSearch(String.valueOf(prog), Double.toString(latitude), Double.toString(longitude));
+                //loadJSONData(pref.getString(Constants.SettingsDistance, "0"), Double.toString(latitude), Double.toString(longitude));
             }
         }else{
             if(placeLat != null && placeLong != null) {
                 Log.d(TAG, "itt kéne lenni");
                 loadJSONSearch(pref.getString(Constants.SettingsDistance, "0"), Double.toString(placeLat), Double.toString(placeLong));
+                //loadJSONData(pref.getString(Constants.SettingsDistance, "0"), Double.toString(latitude), Double.toString(longitude));
             }else {
                 Log.d(TAG, "prog nincs");
                 loadJSONSearch(pref.getString(Constants.SettingsDistance, "0"), Double.toString(latitude), Double.toString(longitude));
+                //loadJSONData(pref.getString(Constants.SettingsDistance, "0"), Double.toString(latitude), Double.toString(longitude));
             }
         }
         return location;
@@ -328,6 +452,7 @@ public class Zones extends Fragment {
         public void onLocationChanged(Location location) {
             longitude = location.getLongitude();
             latitude = location.getLatitude();
+            Log.d(TAG, "LAT--Long4: "+latitude+" - "+longitude);
         }
 
         @Override
